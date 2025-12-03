@@ -129,13 +129,34 @@ npm run lint         # Run ESLint
 
 ## 🌐 Deployment
 
+### Deploy to Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amggit2025/amg-real-estate)
+
+#### Quick Start on Vercel:
+
+1. **Click the button above** or go to [vercel.com](https://vercel.com)
+2. **Import** your GitHub repository
+3. **Configure** environment variables (see `ENV_VARIABLES.md`)
+4. **Deploy** and wait for build to complete
+
+📖 **Detailed deployment guide:** See [DEPLOYMENT.md](./DEPLOYMENT.md)
+🔐 **Environment variables guide:** See [ENV_VARIABLES.md](./ENV_VARIABLES.md)
+
+#### Required Services:
+- **Database**: PlanetScale (free), Railway, or Aiven
+- **Image Storage**: Cloudinary (free tier available)
+- **Email**: Any SMTP provider (Hostinger, Gmail, SendGrid)
+
+### Manual Deployment
+
 1. **Build for production**
 ```bash
 npm run build
 ```
 
 2. **Environment variables**
-Set all environment variables on your hosting platform
+Set all environment variables on your hosting platform (see `.env.vercel` template)
 
 3. **Database**
 Run migrations on production database:
@@ -144,6 +165,12 @@ npx prisma generate
 npx prisma db push
 ```
 
+## 📚 Documentation
+
+- [Deployment Guide](./DEPLOYMENT.md) - Complete Vercel deployment instructions
+- [Environment Variables](./ENV_VARIABLES.md) - All required environment variables
+- [Copilot Instructions](./.github/copilot-instructions.md) - AI coding assistant setup
+
 ## � License
 
 Private - AMG Real Estate Company
@@ -151,4 +178,11 @@ Private - AMG Real Estate Company
 ## 👨‍💻 Development
 
 Built with ❤️ for AMG Real Estate
+
+---
+
+## 🔗 Links
+
+- **GitHub**: [github.com/amggit2025/amg-real-estate](https://github.com/amggit2025/amg-real-estate)
+- **Live Demo**: Coming soon on Vercel 🚀
 
