@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -460,7 +459,7 @@ model messages {
   createdAt                        DateTime             @default(now())
   updatedAt                        DateTime
   listings                         listings?            @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  messages                         messages?            @relation("messagesTomessages", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  messages                         messages?            @relation("messagesTomessages", fields: [parentId], references: [id], onDelete: Cascade)
   other_messages                   messages[]           @relation("messagesTomessages")
   users_messages_receiverIdTousers User                 @relation("messages_receiverIdTousers", fields: [receiverId], references: [id], onDelete: Cascade)
   users_messages_senderIdTousers   User                 @relation("messages_senderIdTousers", fields: [senderId], references: [id], onDelete: Cascade)
