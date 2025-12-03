@@ -1,0 +1,7 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="800" height="600" fill="#F3F4F6"/>
+<rect x="325" y="225" width="150" height="150" fill="#9CA3AF"/>
+<text x="400" y="315" font-family="Arial" font-size="20" fill="#6B7280" text-anchor="middle">🏠</text>
+<text x="400" y="345" font-family="Arial" font-size="16" fill="#6B7280" text-anchor="middle">AMG Real Estate</text>
+<text x="400" y="365" font-family="Arial" font-size="14" fill="#9CA3AF" text-anchor="middle">Project Image</text>
+</svg>

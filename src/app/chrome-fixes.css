@@ -1,0 +1,135 @@
+/* تحسينات Chrome المطورة لـ Framer Motion */
+
+/* إعدادات أساسية لتحسين الأداء */
+html {
+  scroll-behavior: smooth;
+}
+
+/* إصلاح Hardware Acceleration للـ animations */
+*, *::before, *::after {
+  will-change: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* تحسين الـ transform للحركات في Chrome */
+[data-framer-motion] {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+}
+
+/* إصلاح مشاكل Chrome مع الـ animations */
+.motion-element,
+[data-framer-motion-key] {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* تحسينات Chrome خاصة للحركات السلسة */
+.chrome-smooth {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-perspective: 1000;
+  perspective: 1000;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.animation-fix {
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+}
+
+/* إصلاح مشاكل الـ opacity transitions في Chrome */
+.chrome-fix {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* تحسين الـ viewport animations خاص بـ Chrome */
+@media (prefers-reduced-motion: no-preference) {
+  /* تأخير تحميل الـ animations لتحسين الأداء */
+  [data-framer-motion] {
+    animation-fill-mode: both;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+  }
+  
+  /* إعادة تمكين الحركات بعد التحميل */
+  body.animations-ready [data-framer-motion] {
+    animation-duration: unset !important;
+    animation-delay: unset !important;
+    transition-duration: unset !important;
+    transition-delay: unset !important;
+  }
+}
+
+/* إصلاح خاص لـ Chrome مع الـ scale animations */
+[data-framer-motion][style*="scale"] {
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
+}
+
+/* تحسين للـ stagger animations في Chrome */
+.chrome-stagger-fix > * {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* إصلاح للـ hover animations في Chrome */
+.chrome-hover-fix {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  -webkit-transition: -webkit-transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* أداء أفضل للصور في الحركات */
+img[data-framer-motion] {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* تحسينات خاصة لـ scroll-triggered animations */
+.scroll-animation {
+  content-visibility: auto;
+  contain-intrinsic-size: 300px;
+}
+
+/* تحسين الـ motion elements للأداء */
+.motion-performance {
+  contain: layout style paint;
+  will-change: transform, opacity;
+}
+
+/* إصلاح خاص للحركات المتعددة في نفس الوقت */
+.chrome-batch-animation {
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* تحسين التشغيل للشاشات الكبيرة */
+@media (min-width: 1024px) {
+  [data-framer-motion] {
+    will-change: transform, opacity;
+  }
+}
+
+/* تحسين للأجهزة المحمولة */
+@media (max-width: 768px) {
+  [data-framer-motion] {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+}
