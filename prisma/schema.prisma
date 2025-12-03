@@ -41,39 +41,38 @@ model User {
 }
 
 model Admin {
-  id           String         @id @default(cuid())
-  username     String         @unique
-  email        String         @unique
+  id           String          @id @default(cuid())
+  username     String          @unique
+  email        String          @unique
   firstName    String
   lastName     String
   password     String
-  role         AdminRole      @default(MODERATOR)
+  role         AdminRole       @default(MODERATOR)
   permissions  Json?
-  active       Boolean        @default(true)
+  active       Boolean         @default(true)
   lastLogin    DateTime?
   lastLoginIp  String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  refreshToken String?        @db.Text
-  tokenVersion Int            @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  refreshToken String?         @db.Text
+  tokenVersion Int             @default(0)
   activities   AdminActivity[]
   sessions     AdminSession[]
 
   @@map("admins")
 }
 
-// سجل نشاطات المشرفين
 model AdminActivity {
-  id          String   @id @default(cuid())
-  adminId     String
-  action      String   // LOGIN, LOGOUT, CREATE, UPDATE, DELETE, APPROVE, REJECT
-  targetType  String?  // USER, PROPERTY, PROJECT, SERVICE, INQUIRY, etc.
-  targetId    String?
-  details     Json?    // تفاصيل إضافية عن النشاط
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
-  admin       Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  targetType String?
+  targetId   String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  admin      Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   @@index([adminId])
   @@index([action])
@@ -81,22 +80,21 @@ model AdminActivity {
   @@map("admin_activities")
 }
 
-// جلسات المشرفين النشطة
 model AdminSession {
-  id          String    @id @default(cuid())
-  adminId     String
-  token       String    @unique
-  ipAddress   String?
-  userAgent   String?
-  device      String?   // Desktop, Mobile, Tablet
-  browser     String?
-  os          String?
-  location    String?   // City, Country
-  isActive    Boolean   @default(true)
+  id           String   @id @default(cuid())
+  adminId      String
+  token        String   @unique
+  ipAddress    String?
+  userAgent    String?
+  device       String?
+  browser      String?
+  os           String?
+  location     String?
+  isActive     Boolean  @default(true)
   lastActivity DateTime @default(now())
-  expiresAt   DateTime
-  createdAt   DateTime  @default(now())
-  admin       Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  admin        Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   @@index([adminId])
   @@index([token])
@@ -105,45 +103,44 @@ model AdminSession {
 }
 
 model Property {
-  id              String          @id @default(cuid())
-  title           String
-  description     String          @db.Text
-  price           Decimal         @db.Decimal(12, 2)
-  currency        Currency        @default(EGP)
-  negotiable      Boolean         @default(false)
-  area            Int
-  bedrooms        Int?
-  bathrooms       Int?
-  floors          Int?            // عدد الأدوار
-  floor           Int?            // الدور (للشقق)
-  parking         Boolean         @default(false)
-  furnished       Boolean         @default(false)
-  city            String
-  district        String
-  address         String          @db.Text
-  latitude        Float?
-  longitude       Float?
-  propertyType    PropertyType
-  purpose         PropertyPurpose
-  status          PropertyStatus  @default(PENDING)
-  features        String?         @db.Text
-  additionalDetails String?       @db.Text // تفاصيل إضافية مفتوحة
-  views           Int             @default(0)
-  contactName     String
-  contactPhone    String
-  contactEmail    String
-  userId          String
-  // حقول نظام الموافقة
-  reviewStatus    ReviewStatus    @default(PENDING)
-  reviewedBy      String?
-  reviewedAt      DateTime?
-  rejectionReason String?         @db.Text
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  favorites       Favorite[]
-  inquiries       Inquiry[]
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  images          PropertyImage[]
+  id                String          @id @default(cuid())
+  title             String
+  description       String          @db.Text
+  price             Decimal         @db.Decimal(12, 2)
+  currency          Currency        @default(EGP)
+  negotiable        Boolean         @default(false)
+  area              Int
+  bedrooms          Int?
+  bathrooms         Int?
+  floors            Int?
+  floor             Int?
+  parking           Boolean         @default(false)
+  furnished         Boolean         @default(false)
+  city              String
+  district          String
+  address           String          @db.Text
+  latitude          Float?
+  longitude         Float?
+  propertyType      PropertyType
+  purpose           PropertyPurpose
+  status            PropertyStatus  @default(PENDING)
+  features          String?         @db.Text
+  additionalDetails String?         @db.Text
+  views             Int             @default(0)
+  contactName       String
+  contactPhone      String
+  contactEmail      String
+  userId            String
+  reviewStatus      ReviewStatus    @default(PENDING)
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  rejectionReason   String?         @db.Text
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  favorites         Favorite[]
+  inquiries         Inquiry[]
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images            PropertyImage[]
 
   @@index([city, district])
   @@index([propertyType, purpose])
@@ -155,7 +152,7 @@ model Property {
 model PropertyImage {
   id         String   @id @default(cuid())
   url        String
-  publicId   String?  // 🗑️ Cloudinary public ID للحذف التلقائي
+  publicId   String?
   alt        String?
   isMain     Boolean  @default(false)
   order      Int      @default(0)
@@ -205,7 +202,7 @@ model Project {
 model ProjectImage {
   id        String   @id @default(cuid())
   url       String
-  publicId  String?  // 🗑️ Cloudinary public ID للحذف التلقائي
+  publicId  String?
   alt       String?
   isMain    Boolean  @default(false)
   order     Int      @default(0)
@@ -245,13 +242,12 @@ model PortfolioItem {
   clientTestimonial    Json?
   featured             Boolean           @default(false)
   published            Boolean           @default(true)
-  // ربط بالخدمات
   serviceId            String?
   showInServiceGallery Boolean           @default(false)
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   images               PortfolioImage[]
-  service              Service?          @relation("ServicePortfolio", fields: [serviceId], references: [id], onDelete: SetNull)
+  service              Service?          @relation("ServicePortfolio", fields: [serviceId], references: [id])
 
   @@index([serviceId])
   @@map("portfolio_items")
@@ -510,6 +506,201 @@ model reviews {
   @@index([targetId], map: "reviews_targetId_fkey")
 }
 
+model UserActivity {
+  id           String       @id @default(cuid())
+  userId       String
+  activityType ActivityType
+  entityType   EntityType
+  entityId     String?
+  title        String
+  description  String?      @db.Text
+  metadata     Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime     @default(now())
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([activityType])
+  @@map("user_activities")
+}
+
+model Service {
+  id                String          @id @default(cuid())
+  slug              String          @unique
+  title             String
+  description       String          @db.Text
+  heroImage         String
+  heroImagePublicId String?
+  cardImage         String?
+  cardImagePublicId String?
+  features          Json
+  stats             Json
+  gallery           Json
+  galleryPublicIds  Json?
+  formOptions       Json
+  color             String
+  iconName          String
+  published         Boolean         @default(true)
+  featured          Boolean         @default(false)
+  order             Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  portfolioItems    PortfolioItem[] @relation("ServicePortfolio")
+
+  @@map("services")
+}
+
+model HeroStats {
+  id                 String   @id @default(cuid())
+  yearsOfExperience  Int      @default(15)
+  completedProjects  Int      @default(200)
+  happyClients       Int      @default(500)
+  clientSatisfaction Int      @default(98)
+  heroImage          String?  @db.Text
+  heroImagePublicId  String?
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("hero_stats")
+}
+
+model TestimonialStats {
+  id                String   @id @default(cuid())
+  happyClients      Int      @default(5000)
+  satisfactionRate  Int      @default(99)
+  averageRating     Float    @default(4.9)
+  yearsOfExperience Int      @default(15)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("testimonial_stats")
+}
+
+model Testimonial {
+  id            String   @id @default(cuid())
+  content       String   @db.Text
+  clientName    String
+  position      String
+  location      String?
+  image         String?
+  imagePublicId String?
+  rating        Int      @default(5)
+  featured      Boolean  @default(false)
+  published     Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model FooterInfo {
+  id                String   @id @default(cuid())
+  title             String   @default("? AMG Real Estate - شريكك الموثوق في عالم العقارات")
+  subtitle          String   @default("ابدأ رحلتك العقارية معنا اليوم")
+  yearsExperience   Int      @default(15)
+  happyClients      Int      @default(5000)
+  completedProjects Int      @default(200)
+  contactPhone      String   @default("+20 123 456 7890")
+  contactEmail      String   @default("info@amgrealestate.com")
+  address           String   @default("القاهرة، مصر")
+  whatsapp          String?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("footer_info")
+}
+
+model PortfolioStats {
+  id            String   @id @default(cuid())
+  totalProjects Int      @default(50)
+  happyClients  Int      @default(125)
+  averageRating Float    @default(4.8)
+  totalViews    Int      @default(12000)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("portfolio_stats")
+}
+
+model AboutPage {
+  id                String   @id @default(cuid())
+  companyName       String   @default("مجموعة أحمد الملاح")
+  companyFullName   String   @default("مجموعة أحمد الملاح للمقاولات والتشطيبات والتسويق العقاري")
+  foundedYear       Int      @default(2009)
+  founderImage      String?  @db.Text
+  yearsOfExperience Int      @default(15)
+  completedProjects Int      @default(500)
+  happyClients      Int      @default(1000)
+  teamSize          Int      @default(50)
+  ourStory          String   @db.Text
+  vision            String   @db.Text
+  mission           String   @db.Text
+  values            String   @db.Text
+  principles        String   @db.Text
+  tagline           String   @default("شريكك الموثوق في عالم العقارات")
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("about_page")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  position  String
+  image     String   @db.Text
+  bio       String?  @db.Text
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("team_members")
+}
+
+model SocialLinks {
+  id        String   @id @default(cuid())
+  facebook  String?  @db.Text
+  instagram String?  @db.Text
+  linkedin  String?  @db.Text
+  tiktok    String?  @db.Text
+  twitter   String?  @db.Text
+  youtube   String?  @db.Text
+  whatsapp  String?  @db.Text
+  snapchat  String?  @db.Text
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("social_links")
+}
+
+model NewsletterSubscription {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  status            SubscriptionStatus @default(ACTIVE)
+  source            String?
+  ipAddress         String?
+  userAgent         String?
+  verificationToken String?
+  verifiedAt        DateTime?
+  unsubscribedAt    DateTime?
+  unsubscribeReason String?            @db.Text
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([email])
+  @@index([status, createdAt])
+  @@map("newsletter_subscriptions")
+}
+
 enum UserType {
   INDIVIDUAL
   AGENT
@@ -556,10 +747,10 @@ enum PropertyStatus {
 }
 
 enum ReviewStatus {
-  PENDING    // في انتظار المراجعة
-  APPROVED   // تمت الموافقة
-  REJECTED   // مرفوض
-  NEEDS_EDIT // يحتاج تعديل
+  PENDING
+  APPROVED
+  REJECTED
+  NEEDS_EDIT
 
   @@map("review_status")
 }
@@ -697,41 +888,21 @@ enum listings_status {
   SUSPENDED
 }
 
-model UserActivity {
-  id          String       @id @default(cuid())
-  userId      String
-  activityType ActivityType
-  entityType  EntityType   // Property, Project, Portfolio, etc.
-  entityId    String?      // ID of the related entity
-  title       String       // عنوان النشاط
-  description String?      @db.Text // وصف النشاط
-  metadata    Json?        // معلومات إضافية
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime     @default(now())
-  
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId, createdAt])
-  @@index([activityType])
-  @@map("user_activities")
-}
-
 enum ActivityType {
-  LOGIN                 // تسجيل دخول
-  LOGOUT               // تسجيل خروج
-  REGISTER             // تسجيل مستخدم جديد
-  PROPERTY_CREATE      // إنشاء عقار
-  PROPERTY_UPDATE      // تحديث عقار
-  PROPERTY_DELETE      // حذف عقار
-  PROPERTY_VIEW        // عرض عقار
-  PROPERTY_FAVORITE    // إضافة لمفضلة
-  PROPERTY_UNFAVORITE  // إزالة من مفضلة
-  INQUIRY_CREATE       // إرسال استفسار
-  PROFILE_UPDATE       // تحديث الملف الشخصي
-  PASSWORD_CHANGE      // تغيير كلمة المرور
-  EMAIL_VERIFY         // تفعيل البريد الإلكتروني
-  PHONE_VERIFY         // تفعيل الهاتف
+  LOGIN
+  LOGOUT
+  REGISTER
+  PROPERTY_CREATE
+  PROPERTY_UPDATE
+  PROPERTY_DELETE
+  PROPERTY_VIEW
+  PROPERTY_FAVORITE
+  PROPERTY_UNFAVORITE
+  INQUIRY_CREATE
+  PROFILE_UPDATE
+  PASSWORD_CHANGE
+  EMAIL_VERIFY
+  PHONE_VERIFY
 
   @@map("activity_type")
 }
@@ -739,7 +910,7 @@ enum ActivityType {
 enum EntityType {
   USER
   PROPERTY
-  PROJECT  
+  PROJECT
   PORTFOLIO
   INQUIRY
   MESSAGE
@@ -747,208 +918,11 @@ enum EntityType {
   @@map("entity_type")
 }
 
-model Service {
-  id                  String          @id @default(cuid())
-  slug                String          @unique
-  title               String
-  description         String          @db.Text
-  heroImage           String
-  heroImagePublicId   String?         // Cloudinary public ID لصورة البطل
-  cardImage           String?         // صورة الكارد المعروض في قائمة الخدمات
-  cardImagePublicId   String?         // Cloudinary public ID لصورة الكارد
-  features            Json            // [{title, description, iconName}]
-  stats               Json            // [{number, label, iconName}]
-  gallery             Json            // [url1, url2, ...]
-  galleryPublicIds    Json?           // [publicId1, publicId2, ...] للمعرض
-  formOptions         Json            // {projectTypes: [], budgetRanges: [], timelines: []}
-  color               String          // orange, purple, blue, etc
-  iconName            String          // WrenchScrewdriverIcon, etc
-  published           Boolean         @default(true)
-  featured            Boolean         @default(false)
-  order               Int             @default(0)
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  
-  portfolioItems PortfolioItem[] @relation("ServicePortfolio")
-  
-  @@map("services")
-}
-
-model HeroStats {
-  id                String   @id @default(cuid())
-  yearsOfExperience Int      @default(15)        // سنين الخبرة
-  completedProjects Int      @default(200)       // مشاريع منجزة
-  happyClients      Int      @default(500)       // عملاء سعداء
-  clientSatisfaction Int     @default(98)        // رضاء العملاء (بالنسبة المئوية)
-  heroImage         String?  @db.Text           // صورة خلفية Hero Section
-  heroImagePublicId String?                      // Cloudinary public ID للصورة
-  isActive          Boolean  @default(true)      // واحد فقط يكون نشط
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("hero_stats")
-}
-
-model TestimonialStats {
-  id                  String   @id @default(cuid())
-  happyClients        Int      @default(5000)     // عدد العملاء السعداء
-  satisfactionRate    Int      @default(99)       // نسبة الرضا (%)
-  averageRating       Float    @default(4.9)      // متوسط التقييم (من 5)
-  yearsOfExperience   Int      @default(15)       // سنين الخبرة
-  isActive            Boolean  @default(true)     // واحد فقط يكون نشط
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  @@map("testimonial_stats")
-}
-
-model Testimonial {
-  id          String   @id @default(cuid())
-  content     String   @db.Text              // رأي العميل
-  clientName  String                         // اسم العميل
-  position    String                         // وظيفة العميل
-  location    String?                        // مكان العميل (اختياري)
-  image       String?                        // صورة العميل (اختياري)
-  imagePublicId String?                      // Cloudinary public ID
-  rating      Int      @default(5)           // التقييم (من 5)
-  featured    Boolean  @default(false)       // مميز (يظهر في الصفحة الرئيسية)
-  published   Boolean  @default(true)        // منشور
-  order       Int      @default(0)           // ترتيب العرض
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("testimonials")
-}
-
-model FooterInfo {
-  id                String   @id @default(cuid())
-  title             String   @default("🏆 AMG Real Estate - شريكك الموثوق في عالم العقارات")
-  subtitle          String   @default("ابدأ رحلتك العقارية معنا اليوم")
-  yearsExperience   Int      @default(15)       // سنوات الخبرة
-  happyClients      Int      @default(5000)     // عدد العملاء
-  completedProjects Int      @default(200)      // المشاريع المنجزة
-  contactPhone      String   @default("+20 123 456 7890")
-  contactEmail      String   @default("info@amgrealestate.com")
-  address           String   @default("القاهرة، مصر")
-  whatsapp          String?                     // رقم واتساب (اختياري)
-  isActive          Boolean  @default(true)     // واحد فقط يكون نشط
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("footer_info")
-}
-
-// Portfolio Stats - إحصائيات معرض الأعمال
-model PortfolioStats {
-  id                String   @id @default(cuid())
-  totalProjects     Int      @default(50)       // إجمالي المشاريع
-  happyClients      Int      @default(125)      // العملاء السعداء
-  averageRating     Float    @default(4.8)      // التقييم العام
-  totalViews        Int      @default(12000)    // إجمالي المشاهدات
-  isActive          Boolean  @default(true)     // واحد فقط يكون نشط
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("portfolio_stats")
-}
-
-// About Page - صفحة من نحن
-model AboutPage {
-  id                String   @id @default(cuid())
-  
-  // Hero Section
-  companyName       String   @default("مجموعة أحمد الملاح")
-  companyFullName   String   @default("مجموعة أحمد الملاح للمقاولات والتشطيبات والتسويق العقاري")
-  foundedYear       Int      @default(2009)
-  founderImage      String?  @db.Text           // صورة صاحب الشركة
-  
-  // Statistics
-  yearsOfExperience Int      @default(15)
-  completedProjects Int      @default(500)
-  happyClients      Int      @default(1000)
-  teamSize          Int      @default(50)       // عدد المهندسين والعمال
-  
-  // Story Section
-  ourStory          String   @db.Text
-  
-  // Vision & Mission
-  vision            String   @db.Text
-  mission           String   @db.Text
-  
-  // Values (stored as JSON array)
-  values            String   @db.Text
-  
-  // Principles (stored as JSON array)
-  principles        String   @db.Text
-  
-  // CTA Section
-  tagline           String   @default("شريكك الموثوق في عالم العقارات")
-  
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("about_page")
-}
-
-// Team Members - أعضاء الفريق
-model TeamMember {
-  id                String   @id @default(cuid())
-  name              String                         // الاسم
-  position          String                         // المنصب
-  image             String   @db.Text              // صورة العضو
-  bio               String?  @db.Text              // نبذة عن العضو
-  order             Int      @default(0)           // ترتيب العرض
-  isActive          Boolean  @default(true)        // نشط/غير نشط
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("team_members")
-}
-
-// Social Media Links - روابط السوشيال ميديا
-model SocialLinks {
-  id                String   @id @default(cuid())
-  facebook          String?  @db.Text              // رابط فيسبوك
-  instagram         String?  @db.Text              // رابط انستجرام
-  linkedin          String?  @db.Text              // رابط لينكد إن
-  tiktok            String?  @db.Text              // رابط تيك توك
-  twitter           String?  @db.Text              // رابط تويتر (X)
-  youtube           String?  @db.Text              // رابط يوتيوب
-  whatsapp          String?  @db.Text              // رقم واتساب (مع كود الدولة)
-  snapchat          String?  @db.Text              // رابط سناب شات
-  isActive          Boolean  @default(true)        // واحد فقط يكون نشط
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("social_links")
-}
-
-// Newsletter Subscriptions - اشتراكات النشرة الإخبارية
-model NewsletterSubscription {
-  id                String   @id @default(cuid())
-  email             String   @unique               // البريد الإلكتروني
-  status            SubscriptionStatus @default(ACTIVE) // حالة الاشتراك
-  source            String?                        // مصدر الاشتراك (footer, popup, etc)
-  ipAddress         String?                        // IP العميل عند الاشتراك
-  userAgent         String?                        // متصفح العميل
-  verificationToken String?                        // رمز التفعيل (للمستقبل)
-  verifiedAt        DateTime?                      // تاريخ التفعيل
-  unsubscribedAt    DateTime?                      // تاريخ إلغاء الاشتراك
-  unsubscribeReason String?  @db.Text              // سبب إلغاء الاشتراك
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@index([email])
-  @@index([status, createdAt])
-  @@map("newsletter_subscriptions")
-}
-
 enum SubscriptionStatus {
-  ACTIVE      // مفعل
-  UNSUBSCRIBED // ملغي
-  BOUNCED     // بريد غير صالح
-  PENDING     // في انتظار التفعيل
+  ACTIVE
+  UNSUBSCRIBED
+  BOUNCED
+  PENDING
 
   @@map("subscription_status")
 }
