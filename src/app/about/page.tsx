@@ -42,10 +42,11 @@ const valueIcons = {
 
 export default function AboutPage() {
   const [data, setData] = useState<AboutPageData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Changed to false
 
   useEffect(() => {
-    fetchData()
+    // Temporarily disabled API call - using default data
+    // fetchData()
   }, [])
 
   const fetchData = async () => {
@@ -207,7 +208,7 @@ export default function AboutPage() {
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {(data?.values || COMPANY_INFO.values).map((value, index) => {
+              {(data?.values && Array.isArray(data.values) ? data.values : COMPANY_INFO.values).map((value, index) => {
                 const IconComponent = valueIcons[value.title as keyof typeof valueIcons] || CheckCircleIcon
                 return (
                   <motion.div
@@ -247,7 +248,7 @@ export default function AboutPage() {
             </motion.div>
 
             <div className="max-w-4xl mx-auto">
-              {(data?.principles || COMPANY_INFO.principles).map((principle, index) => (
+              {(data?.principles && Array.isArray(data.principles) ? data.principles : COMPANY_INFO.principles).map((principle, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -30 }}
