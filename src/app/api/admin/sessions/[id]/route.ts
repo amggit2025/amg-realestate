@@ -4,9 +4,10 @@ import { verifyAdminToken } from '@/lib/admin-auth'
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: sessionId } = await params;
     // التحقق من المصادقة
     const { isValid, admin } = await verifyAdminToken(req)
     if (!isValid || !admin) {
@@ -15,8 +16,6 @@ export async function DELETE(
         { status: 401 }
       )
     }
-
-    const sessionId = params.id
 
     // التحقق من أن الجلسة تخص المشرف الحالي
     const session = await (prisma as any).adminSession.findUnique({

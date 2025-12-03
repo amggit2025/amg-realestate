@@ -6,9 +6,10 @@ import { deleteImageFromCloudinary } from '@/lib/cloudinary-helper';
 // GET /api/admin/services/[id] - Get single service
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const adminAuth = await verifyAdminToken(request);
     if (!adminAuth.isValid || !adminAuth.admin) {
       return NextResponse.json(
@@ -18,7 +19,7 @@ export async function GET(
     }
 
     const service = await prisma.service.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         portfolioItems: {
           where: { showInServiceGallery: true },

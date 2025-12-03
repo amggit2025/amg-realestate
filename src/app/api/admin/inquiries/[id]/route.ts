@@ -4,10 +4,10 @@ import prisma from '@/lib/db';
 // GET: جلب استفسار واحد
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const inquiry = await prisma.inquiry.findUnique({
       where: { id },
@@ -57,10 +57,10 @@ export async function GET(
 // PUT: تحديث حالة الاستفسار
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { status } = body;
 
@@ -99,10 +99,10 @@ export async function PUT(
 // DELETE: حذف استفسار
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     await prisma.inquiry.delete({
       where: { id },
