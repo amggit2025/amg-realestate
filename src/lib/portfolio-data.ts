@@ -96,7 +96,7 @@ export const portfolioProjects: PortfolioProject[] = [
     images: [
       'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800',
       'https://images.unsplash.com/photo-1556912167-f556f1f39fdf?w=800',
-      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800',541888946425-d81bb19240f5?w=800'
+      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800'
     ],
     description: 'تشطيب شقة 200 متر بتصميم عصري وأنيق مع استخدام أفضل الخامات',
     fullDescription: 'مشروع تشطيب متكامل لشقة عصرية في قلب مدينة نصر، يتميز بالتصميم الأنيق والاستخدام الأمثل للمساحات. تم استخدام أجود الخامات المحلية والمستوردة لضمان الجودة والأناقة.',
