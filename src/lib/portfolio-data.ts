@@ -46,9 +46,9 @@ export const portfolioProjects: PortfolioProject[] = [
     slug: 'villa-new-cairo',
     title: 'فيلا فاخرة - القاهرة الجديدة',
     category: 'construction',
-    image: '/images/portfolio/construction.jpg',
+    image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800',
     images: [
-      '/images/portfolio/construction.jpg',
+      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800',
       '/images/portfolio/finishing.jpg',
       '/images/portfolio/kitchens.jpg',
       '/images/portfolio/furniture.jpg'
@@ -92,11 +92,11 @@ export const portfolioProjects: PortfolioProject[] = [
     slug: 'apartment-nasr-city',
     title: 'تشطيب شقة مودرن - مدينة نصر',
     category: 'finishing',
-    image: '/images/portfolio/finishing.jpg',
+    image: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800',
     images: [
-      '/images/portfolio/finishing.jpg',
-      '/images/portfolio/furniture.jpg',
-      '/images/portfolio/construction.jpg'
+      'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800',
+      'https://images.unsplash.com/photo-1556912167-f556f1f39fdf?w=800',
+      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800',541888946425-d81bb19240f5?w=800'
     ],
     description: 'تشطيب شقة 200 متر بتصميم عصري وأنيق مع استخدام أفضل الخامات',
     fullDescription: 'مشروع تشطيب متكامل لشقة عصرية في قلب مدينة نصر، يتميز بالتصميم الأنيق والاستخدام الأمثل للمساحات. تم استخدام أجود الخامات المحلية والمستوردة لضمان الجودة والأناقة.',

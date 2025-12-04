@@ -175,7 +175,7 @@ export default function PortfolioPage() {
             <div 
               className="w-full h-full bg-cover bg-center bg-no-repeat"
               style={{
-                backgroundImage: `url('/images/portfolio/construction.jpg')`
+                backgroundImage: `url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200')`
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/80 to-purple-900/75"></div>
