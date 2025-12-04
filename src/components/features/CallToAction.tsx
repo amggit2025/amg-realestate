@@ -25,7 +25,7 @@ export default function CallToAction() {
     happyClients: 5000,
     completedProjects: 200,
     contactPhone: "+20 100 123 4567",
-    contactEmail: "info@amg-realestate.com",
+    contactEmail: "info@amg-invest.com",
     address: "القاهرة الجديدة",
   })
 
