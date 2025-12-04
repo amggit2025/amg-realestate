@@ -480,8 +480,8 @@ export default function AuthForm({ type, onSubmit, isLoading = false }: AuthForm
             </AnimatePresence>
           </form>
 
-          {/* Social Login */}
-          {!isRegister || step === 2 ? (
+          {/* Social Login - Temporarily Disabled */}
+          {false && (!isRegister || step === 2) ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
