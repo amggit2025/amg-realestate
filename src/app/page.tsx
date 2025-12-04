@@ -7,7 +7,7 @@ import PortfolioShowcase from '@/components/features/PortfolioShowcase'
 
 export default function Home() {
   return (
-    <main className="overflow-hidden">
+    <main>
       <Hero />
       <FeaturedProjects />
       <PortfolioShowcase />
