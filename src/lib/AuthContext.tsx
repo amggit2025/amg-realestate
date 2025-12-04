@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else if (response.status === 401) {
         // 401 طبيعي عندما لا يكون المستخدم مسجل دخول
-        console.log('🚫 AuthContext: User not authenticated (401)')
+        // No logging - this is expected behavior for unauthenticated users
         setUser(null)
         setStats(null)
       } else {
