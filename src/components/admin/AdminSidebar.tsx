@@ -236,12 +236,12 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
   return (
     <>
       {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
+      <div className="lg:hidden fixed top-4 right-4 z-50">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-2.5 bg-white rounded-lg shadow-lg border border-gray-300"
+          className="p-2 bg-white rounded-lg shadow-lg border"
         >
           {isMobileOpen ? (
             <XMarkIcon className="w-6 h-6 text-gray-600" />

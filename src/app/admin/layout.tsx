@@ -152,17 +152,17 @@ export default function AdminLayout({
       {/* Main Content Area */}
       <div className="flex-1 lg:mr-[280px] min-h-screen">
         {/* Top Header */}
-        <div className="bg-white shadow-sm border-b px-4 md:px-6 py-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="bg-white shadow-sm border-b px-6 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 space-x-reverse">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">A</span>
               </div>
               <div className="text-right">
-                <h1 className="text-lg md:text-xl font-bold text-gray-900">
+                <h1 className="text-xl font-bold text-gray-900">
                   مرحباً، {adminSession?.name || 'الإدارة'}
                 </h1>
-                <p className="text-xs md:text-sm text-gray-500">
+                <p className="text-sm text-gray-500">
                   {adminSession?.role === 'SUPER_ADMIN' ? 'مدير عام' : 'مشرف'}
                 </p>
               </div>
@@ -183,7 +183,7 @@ export default function AdminLayout({
                   router.push('/admin/login');
                   router.refresh();
                 }}
-                className="px-3 md:px-4 py-2 text-sm md:text-base bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
               >
                 تسجيل خروج
               </button>
@@ -192,7 +192,7 @@ export default function AdminLayout({
         </div>
 
         {/* Page Content */}
-        <div className="p-4 md:p-6">
+        <div className="p-6">
           {children}
         </div>
       </div>
