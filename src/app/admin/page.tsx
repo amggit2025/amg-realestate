@@ -113,7 +113,7 @@ export default function AdminPage() {
     <>
       {/* Navigation Tabs */}
       <div className="mb-6">
-        <div className="flex space-x-1 space-x-reverse bg-white p-1 rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row gap-2 sm:space-x-1 sm:space-x-reverse bg-white p-1 rounded-lg shadow-sm">
           <button
             onClick={() => setCurrentView('dashboard')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -149,12 +149,12 @@ export default function AdminPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
                 🎛️ لوحة إدارة قاعدة البيانات
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
                 إدارة شاملة لقاعدة بيانات موقع AMG العقارية. يمكنك من هنا مراقبة الإحصائيات، إدارة المحتوى، والتحكم في النظام.
               </p>
             </div>
@@ -222,14 +222,14 @@ export default function AdminPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl p-8 shadow-lg mb-8"
+          className="bg-white rounded-xl p-4 sm:p-6 md:p-8 shadow-lg mb-8"
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <CircleStackIcon className="w-7 h-7 text-blue-600" />
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+            <CircleStackIcon className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
             أدوات إدارة قاعدة البيانات
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Test Connection */}
             <button
               onClick={testConnection}
