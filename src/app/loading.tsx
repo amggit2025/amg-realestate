@@ -58,13 +58,15 @@ export default function Loading() {
             
             {/* Windows */}
             <motion.div
-              className="absolute bottom-12 left-1/2 transform -translate-x-1/2 translate-x-4 w-3 h-3 bg-yellow-300 rounded"
+              className="absolute bottom-12 w-3 h-3 bg-yellow-300 rounded"
+              style={{ left: 'calc(50% + 1rem)' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 2 }}
             />
             <motion.div
-              className="absolute bottom-12 left-1/2 transform -translate-x-1/2 -translate-x-4 w-3 h-3 bg-yellow-300 rounded"
+              className="absolute bottom-12 w-3 h-3 bg-yellow-300 rounded"
+              style={{ left: 'calc(50% - 1rem)' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, delay: 2.2 }}
@@ -72,7 +74,8 @@ export default function Loading() {
             
             {/* Chimney Smoke */}
             <motion.div
-              className="absolute -top-2 left-1/2 transform -translate-x-1/2 translate-x-6"
+              className="absolute -top-2"
+              style={{ left: 'calc(50% + 1.5rem)' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 0] }}
               transition={{ duration: 2, delay: 2.5, repeat: Infinity, ease: "easeInOut" }}
