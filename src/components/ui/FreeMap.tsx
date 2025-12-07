@@ -3,6 +3,11 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
+// Load Leaflet CSS only when map is used
+if (typeof window !== 'undefined') {
+  import('leaflet/dist/leaflet.css');
+}
+
 // Dynamic import للخريطة بدون SSR
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),

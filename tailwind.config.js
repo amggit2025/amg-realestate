@@ -37,8 +37,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Cairo', 'ui-sans-serif', 'system-ui'],
-        arabic: ['Cairo', 'sans-serif'],
+        sans: ['var(--font-cairo)', 'Cairo', 'ui-sans-serif', 'system-ui'],
+        arabic: ['var(--font-cairo)', 'Cairo', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
