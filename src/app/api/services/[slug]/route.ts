@@ -4,12 +4,15 @@ import prisma from '@/lib/db';
 // GET /api/services/[slug] - Get single service by slug
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // In Next.js 15, params is now a Promise
+    const { slug } = await context.params;
+    
     const service = await prisma.service.findUnique({
       where: { 
-        slug: params.slug,
+        slug: slug,
         published: true 
       },
       include: {
