@@ -143,6 +143,16 @@ body {
   background: #a8a8a8;
 }
 
+/* Hide scrollbar for portfolio slider */
+#portfolio-slider::-webkit-scrollbar {
+  display: none;
+}
+
+#portfolio-slider {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Utility classes */
 .line-clamp-2 {
   display: -webkit-box;

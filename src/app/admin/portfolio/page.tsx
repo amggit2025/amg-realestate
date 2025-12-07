@@ -56,6 +56,7 @@ export default function AdminPortfolioPage() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [currentPage, setCurrentPage] = useState('portfolio')
   const [adminRole] = useState('ADMIN') // يمكن جلبه من السيشن لاحقاً
+  const [projects, setProjects] = useState<any[]>([])
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -67,7 +68,9 @@ export default function AdminPortfolioPage() {
     area: '',
     budget: '',
     completionDate: '',
-    mainImage: '/images/placeholder.jpg'
+    mainImage: '/images/placeholder.jpg',
+    projectId: '',
+    showInProject: false
   })
   const [submitting, setSubmitting] = useState(false)
 
@@ -92,6 +95,24 @@ export default function AdminPortfolioPage() {
     }
   }
 
+  // تحميل المشاريع
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch('/api/admin/projects')
+      const data = await response.json()
+      if (data.success) {
+        setProjects(data.projects || [])
+      }
+    } catch (error) {
+      console.error('خطأ في تحميل المشاريع:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchPortfolioItems()
+    fetchProjects()
+  }, [])
+
   // توليد slug من العنوان
   const generateSlug = (title: string) => {
     return title
@@ -110,12 +131,12 @@ export default function AdminPortfolioPage() {
   }
 
   // تحديث البيانات
-  const handleFormChange = (field: string, value: string) => {
+  const handleFormChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
       // توليد slug تلقائياً عند تغيير العنوان
-      ...(field === 'title' && { slug: generateSlug(value) })
+      ...(field === 'title' && typeof value === 'string' && { slug: generateSlug(value) })
     }))
   }
 
@@ -154,7 +175,9 @@ export default function AdminPortfolioPage() {
           area: '',
           budget: '',
           completionDate: '',
-          mainImage: '/images/placeholder.jpg'
+          mainImage: '/images/placeholder.jpg',
+          projectId: '',
+          showInProject: false
         })
         fetchPortfolioItems()
       } else {
@@ -665,6 +688,39 @@ export default function AdminPortfolioPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
+                  </div>
+
+                  {/* ربط بمشروع */}
+                  <div className="md:col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      🏗️ ربط هذا العمل بمشروع (اختياري)
+                    </label>
+                    <select
+                      value={formData.projectId}
+                      onChange={(e) => handleFormChange('projectId', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+                    >
+                      <option value="">لا يوجد مشروع مرتبط</option>
+                      {projects.map(project => (
+                        <option key={project.id} value={project.id}>
+                          {project.title}
+                        </option>
+                      ))}
+                    </select>
+                    
+                    {formData.projectId && (
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.showInProject}
+                          onChange={(e) => handleFormChange('showInProject', e.target.checked)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">
+                          عرض هذا العمل في صفحة المشروع
+                        </span>
+                      </label>
+                    )}
                   </div>
                 </div>
 

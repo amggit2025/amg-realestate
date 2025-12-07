@@ -68,7 +68,9 @@ export async function POST(request: NextRequest) {
       published = true,
       featured = false,
       serviceId,
-      showInServiceGallery = false
+      showInServiceGallery = false,
+      projectId,
+      showInProject = false
     } = body
 
     // التحقق من الحقول المطلوبة
@@ -119,7 +121,9 @@ export async function POST(request: NextRequest) {
         published,
         featured,
         serviceId: serviceId || null,
-        showInServiceGallery
+        showInServiceGallery,
+        projectId: projectId || null,
+        showInProject
       }
     })
 

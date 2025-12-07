@@ -165,36 +165,37 @@ model PropertyImage {
 }
 
 model Project {
-  id              String         @id @default(cuid())
+  id              String            @id @default(cuid())
   title           String
-  description     String         @db.Text
+  description     String            @db.Text
   location        String
   developer       String
   projectType     ProjectType
-  status          ProjectStatus  @default(PLANNING)
-  price           Decimal?       @db.Decimal(12, 2)
+  status          ProjectStatus     @default(PLANNING)
+  price           Decimal?          @db.Decimal(12, 2)
   bedrooms        Int?
   area            Int?
   type            String?
   totalUnits      Int?
   availableUnits  Int?
-  minPrice        Decimal?       @db.Decimal(12, 2)
-  maxPrice        Decimal?       @db.Decimal(12, 2)
-  currency        Currency       @default(EGP)
+  minPrice        Decimal?          @db.Decimal(12, 2)
+  maxPrice        Decimal?          @db.Decimal(12, 2)
+  currency        Currency          @default(EGP)
   deliveryDate    DateTime?
-  features        String?        @db.Text
-  specifications  String?        @db.Text
-  paymentPlan     String?        @db.Text
-  locationDetails String?        @db.Text
+  features        String?           @db.Text
+  specifications  String?           @db.Text
+  paymentPlan     String?           @db.Text
+  locationDetails String?           @db.Text
   mainImage       String?
   contactName     String
   contactPhone    String
   contactEmail    String
-  featured        Boolean        @default(false)
-  published       Boolean        @default(true)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  featured        Boolean           @default(false)
+  published       Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   images          ProjectImage[]
+  portfolioItems  PortfolioItem[]   @relation("ProjectPortfolio")
 
   @@map("projects")
 }
@@ -244,12 +245,16 @@ model PortfolioItem {
   published            Boolean           @default(true)
   serviceId            String?
   showInServiceGallery Boolean           @default(false)
+  projectId            String?
+  showInProject        Boolean           @default(false)
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
   images               PortfolioImage[]
   service              Service?          @relation("ServicePortfolio", fields: [serviceId], references: [id])
+  project              Project?          @relation("ProjectPortfolio", fields: [projectId], references: [id])
 
   @@index([serviceId])
+  @@index([projectId])
   @@map("portfolio_items")
 }
 

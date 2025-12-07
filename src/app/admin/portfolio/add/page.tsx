@@ -23,6 +23,8 @@ export default function AddPortfolioPage() {
   const router = useRouter()
   const [services, setServices] = useState<any[]>([])
   const [loadingServices, setLoadingServices] = useState(true)
+  const [projects, setProjects] = useState<any[]>([])
+  const [loadingProjects, setLoadingProjects] = useState(true)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -51,7 +53,9 @@ export default function AddPortfolioPage() {
     published: true,
     featured: false,
     serviceId: '',
-    showInServiceGallery: false
+    showInServiceGallery: false,
+    projectId: '',
+    showInProject: false
   })
 
   const [mainImage, setMainImage] = useState<File | null>(null)
@@ -61,7 +65,7 @@ export default function AddPortfolioPage() {
   const [submitting, setSubmitting] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({})
 
-  // Fetch services on mount
+  // Fetch services and projects on mount
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -78,7 +82,25 @@ export default function AddPortfolioPage() {
         setLoadingServices(false)
       }
     }
+    
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/api/admin/projects', {
+          credentials: 'include'
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setProjects(data.projects || [])
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+      } finally {
+        setLoadingProjects(false)
+      }
+    }
+    
     fetchServices()
+    fetchProjects()
   }, [])
 
   // توليد slug من العنوان
@@ -234,7 +256,9 @@ export default function AddPortfolioPage() {
         teamMembers: formData.teamMembers.filter(tm => tm.trim()),
         // إضافة بيانات الخدمة
         serviceId: formData.serviceId || null,
-        showInServiceGallery: formData.showInServiceGallery
+        showInServiceGallery: formData.showInServiceGallery,
+        projectId: formData.projectId || null,
+        showInProject: formData.showInProject
       }
       
       // إرسال البيانات لـ API
@@ -372,6 +396,39 @@ export default function AddPortfolioPage() {
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
                       <span className="text-sm text-gray-700">عرض في معرض الخدمة</span>
+                    </label>
+                  )}
+                </div>
+
+                {/* ربط بمشروع */}
+                <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    🏗️ ربط هذا العمل بمشروع (اختياري)
+                  </label>
+                  <p className="text-xs text-gray-600 mb-3">
+                    اختر مشروع من مشاريع AMG لعرض هذا العمل بداخله (مثل: بيت الوطن، النرجس الجديدة)
+                  </p>
+                  <select
+                    value={formData.projectId}
+                    onChange={(e) => handleInputChange('projectId', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">-- لا يوجد مشروع --</option>
+                    {projects.map(project => (
+                      <option key={project.id} value={project.id}>
+                        {project.title} - {project.location}
+                      </option>
+                    ))}
+                  </select>
+                  {formData.projectId && (
+                    <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.showInProject}
+                        onChange={(e) => handleInputChange('showInProject', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700 font-medium">✅ عرض هذا العمل داخل صفحة المشروع</span>
                     </label>
                   )}
                 </div>

@@ -21,6 +21,18 @@ export async function GET(
           orderBy: {
             order: 'asc'
           }
+        },
+        portfolioItems: {
+          where: {
+            published: true,
+            showInProject: true
+          },
+          include: {
+            images: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
         }
       }
     })
@@ -80,7 +92,27 @@ export async function GET(
       maxPrice: p.maxPrice?.toString(),
       currency: p.currency,
       status: p.status,
-      featured: p.featured || false
+      featured: p.featured || false,
+      portfolioItems: p.portfolioItems?.map((item: any) => ({
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        mainImage: item.mainImage,
+        location: item.location,
+        duration: item.duration,
+        area: item.area,
+        budget: item.budget,
+        completionDate: item.completionDate,
+        rating: item.rating,
+        views: item.views,
+        images: item.images?.map((img: any) => ({
+          id: img.id,
+          url: img.url,
+          alt: img.alt
+        })) || []
+      })) || []
     }
 
     return NextResponse.json({

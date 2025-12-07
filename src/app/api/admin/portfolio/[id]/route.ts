@@ -86,6 +86,8 @@ export async function GET(
       featured: portfolioItem.featured,
       serviceId: portfolioItem.serviceId || '',
       showInServiceGallery: portfolioItem.showInServiceGallery || false,
+      projectId: portfolioItem.projectId || '',
+      showInProject: portfolioItem.showInProject || false,
       images: portfolioItem.images?.map((img: any) => ({
         id: img.id,
         url: img.url,
@@ -179,7 +181,9 @@ export async function PATCH(
       published = true,
       featured = false,
       serviceId,
-      showInServiceGallery = false
+      showInServiceGallery = false,
+      projectId,
+      showInProject = false
     } = body
 
     // التحقق من الحقول المطلوبة للتحديث الكامل
@@ -253,7 +257,9 @@ export async function PATCH(
         published,
         featured,
         serviceId: serviceId || null,
-        showInServiceGallery
+        showInServiceGallery,
+        projectId: projectId || null,
+        showInProject
       }
     })
 

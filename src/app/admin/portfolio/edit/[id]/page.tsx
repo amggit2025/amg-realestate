@@ -51,6 +51,8 @@ interface PortfolioItemData {
   featured: boolean
   serviceId?: string
   showInServiceGallery?: boolean
+  projectId?: string
+  showInProject?: boolean
   images: { id: string, url: string, publicId?: string, order: number }[]
 }
 
@@ -64,6 +66,8 @@ export default function EditPortfolioPage() {
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({})
   const [services, setServices] = useState<any[]>([])
   const [loadingServices, setLoadingServices] = useState(true)
+  const [projects, setProjects] = useState<any[]>([])
+  const [loadingProjects, setLoadingProjects] = useState(true)
   
   const [formData, setFormData] = useState<PortfolioItemData>({
     id: '',
@@ -96,6 +100,8 @@ export default function EditPortfolioPage() {
     featured: false,
     serviceId: '',
     showInServiceGallery: false,
+    projectId: '',
+    showInProject: false,
     images: []
   })
 
@@ -103,7 +109,7 @@ export default function EditPortfolioPage() {
   const [newGalleryImages, setNewGalleryImages] = useState<File[]>([])
   const [deletedImages, setDeletedImages] = useState<string[]>([])
 
-  // Fetch services on mount
+  // Fetch services and projects on mount
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -120,7 +126,25 @@ export default function EditPortfolioPage() {
         setLoadingServices(false)
       }
     }
+    
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/api/admin/projects', {
+          credentials: 'include'
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setProjects(data.projects || [])
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+      } finally {
+        setLoadingProjects(false)
+      }
+    }
+    
     fetchServices()
+    fetchProjects()
   }, [])
 
   // تحميل بيانات العمل
@@ -355,12 +379,12 @@ export default function EditPortfolioPage() {
         serviceId: formData.serviceId || null,
         showInServiceGallery: formData.showInServiceGallery || false,
         // تنظيف المصفوفات من القيم الفارغة
-        features: formData.features.filter(f => f.trim()),
-        tags: formData.tags.filter(t => t.trim()),
-        challenges: formData.challenges.filter(c => c.trim()),
-        solutions: formData.solutions.filter(s => s.trim()),
-        technologies: formData.technologies.filter(t => t.trim()),
-        teamMembers: formData.teamMembers.filter(tm => tm.trim())
+        features: formData.features.filter(f => typeof f === 'string' && f.trim()),
+        tags: formData.tags.filter(t => typeof t === 'string' && t.trim()),
+        challenges: formData.challenges.filter(c => typeof c === 'string' && c.trim()),
+        solutions: formData.solutions.filter(s => typeof s === 'string' && s.trim()),
+        technologies: formData.technologies.filter(t => typeof t === 'string' && t.trim()),
+        teamMembers: formData.teamMembers.filter(tm => typeof tm === 'string' && tm.trim())
       }
       
       // إرسال البيانات لـ API
@@ -643,6 +667,67 @@ export default function EditPortfolioPage() {
                     onChange={(e) => handleInputChange('completionDate', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
+                </div>
+
+                {/* ربط بخدمة */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ربط بخدمة (اختياري)
+                  </label>
+                  <select
+                    value={formData.serviceId || ''}
+                    onChange={(e) => handleInputChange('serviceId', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">-- لا توجد خدمة --</option>
+                    {services.map(service => (
+                      <option key={service.id} value={service.id}>{service.title}</option>
+                    ))}
+                  </select>
+                  {formData.serviceId && (
+                    <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.showInServiceGallery || false}
+                        onChange={(e) => handleInputChange('showInServiceGallery', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">عرض في معرض الخدمة</span>
+                    </label>
+                  )}
+                </div>
+
+                {/* ربط بمشروع */}
+                <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    🏗️ ربط هذا العمل بمشروع (اختياري)
+                  </label>
+                  <p className="text-xs text-gray-600 mb-3">
+                    اختر مشروع من مشاريع AMG لعرض هذا العمل بداخله (مثل: بيت الوطن، النرجس الجديدة)
+                  </p>
+                  <select
+                    value={formData.projectId || ''}
+                    onChange={(e) => handleInputChange('projectId', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">-- لا يوجد مشروع --</option>
+                    {projects.map(project => (
+                      <option key={project.id} value={project.id}>
+                        {project.title} - {project.location}
+                      </option>
+                    ))}
+                  </select>
+                  {formData.projectId && (
+                    <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.showInProject || false}
+                        onChange={(e) => handleInputChange('showInProject', e.target.checked)}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700 font-medium">✅ عرض هذا العمل داخل صفحة المشروع</span>
+                    </label>
+                  )}
                 </div>
 
                 <div className="md:col-span-2">

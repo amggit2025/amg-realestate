@@ -48,6 +48,24 @@ interface ProjectDetail {
   currency: string
   status: string
   featured: boolean
+  portfolioItems?: PortfolioItem[]
+}
+
+interface PortfolioItem {
+  id: string
+  slug: string
+  title: string
+  description: string
+  category: string
+  mainImage: string
+  location: string
+  duration: string
+  area: string
+  budget: string
+  completionDate: string
+  rating: number
+  views: number
+  images: { id: string; url: string; alt: string }[]
 }
 
 // Fallback project data for demonstration
@@ -621,6 +639,162 @@ export default function ProjectDetailsPage() {
             </motion.div>
           </div>
         </div>
+
+        {/* قسم أعمال AMG المنفذة */}
+        {project.portfolioItems && project.portfolioItems.length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                أعمال AMG المنفذة في {project.title}
+              </h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                نفخر بتقديم أعمالنا المتميزة التي نفذتها شركة AMG للتطوير العقاري داخل هذا المشروع
+              </p>
+            </motion.div>
+
+            {/* Slider لو أكثر من 3 */}
+            {project.portfolioItems.length > 3 ? (
+              <div className="relative">
+                {/* أزرار التنقل */}
+                <button
+                  onClick={() => {
+                    const container = document.getElementById('portfolio-slider')
+                    if (container) container.scrollLeft -= 400
+                  }}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110 -mr-4"
+                >
+                  <ChevronRightIcon className="w-6 h-6 text-gray-800" />
+                </button>
+                <button
+                  onClick={() => {
+                    const container = document.getElementById('portfolio-slider')
+                    if (container) container.scrollLeft += 400
+                  }}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110 -ml-4"
+                >
+                  <ChevronLeftIcon className="w-6 h-6 text-gray-800" />
+                </button>
+
+                {/* Container السلايدر */}
+                <div
+                  id="portfolio-slider"
+                  className="flex gap-8 overflow-x-auto scroll-smooth pb-4"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {project.portfolioItems.map((item, index) => (
+                    <Link href={`/portfolio/${item.slug}`} key={item.id}>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: index * 0.1 }}
+                        className="flex-shrink-0 w-[350px] group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+                      >
+                        <div className="relative h-64 overflow-hidden">
+                          <Image
+                            src={item.mainImage || '/images/placeholder.jpg'}
+                            alt={item.title}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute top-4 left-4">
+                            <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                              {item.category}
+                            </span>
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute bottom-4 left-4 right-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
+                            <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
+                            <p className="text-white/90 text-sm mb-3 line-clamp-2">{item.description}</p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4 text-white/80 text-sm">
+                                {item.views > 0 && (
+                                  <div className="flex items-center gap-1">
+                                    <span>{item.views}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-white/80 text-xs">
+                                {item.location}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* Grid عادي لو 3 أو أقل */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {project.portfolioItems.map((item, index) => (
+                  <Link href={`/portfolio/${item.slug}`} key={item.id}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+                    >
+                      <div className="relative h-64 overflow-hidden">
+                        <Image
+                          src={item.mainImage || '/images/placeholder.jpg'}
+                          alt={item.title}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute top-4 left-4">
+                          <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            {item.category}
+                          </span>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute bottom-4 left-4 right-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
+                          <h3 className="text-white font-bold text-lg mb-2">{item.title}</h3>
+                          <p className="text-white/90 text-sm mb-3 line-clamp-2">{item.description}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4 text-white/80 text-sm">
+                              {item.views > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <span>{item.views}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-white/80 text-xs">
+                              {item.location}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* زر عرض المزيد */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-center mt-12"
+            >
+              <Link
+                href="/portfolio"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl"
+              >
+                عرض جميع أعمالنا
+                <ChevronLeftIcon className="w-5 h-5" />
+              </Link>
+            </motion.div>
+          </div>
+        )}
 
         {/* نموذج التواصل المنبثق */}
         {showContactForm && (
