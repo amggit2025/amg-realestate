@@ -42,16 +42,18 @@ const valueIcons = {
 
 export default function AboutPage() {
   const [data, setData] = useState<AboutPageData | null>(null)
-  const [loading, setLoading] = useState(false) // Changed to false
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Temporarily disabled API call - using default data
-    // fetchData()
+    fetchData()
   }, [])
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/about-page')
+      const response = await fetch('/api/about-page', {
+        cache: 'no-store',
+        next: { revalidate: 0 }
+      })
       const result = await response.json()
       
       if (result.success && result.data) {
