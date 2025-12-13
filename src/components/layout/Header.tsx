@@ -110,13 +110,13 @@ export default function Header() {
           </div>
 
           {/* Auth Buttons */}
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-2">
+          <div className="flex lg:flex-1 lg:justify-end items-center gap-2">
             {isAuthenticated && user ? (
               <>
-                {/* Notification Bell */}
+                {/* Notification Bell - Visible on all screen sizes */}
                 <NotificationBell />
                 
-                <div className="relative user-menu-container">
+                <div className="hidden lg:block relative user-menu-container">
                   <button
                     onClick={toggleUserMenu}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
