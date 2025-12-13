@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const property = await prisma.property.findUnique({
+    const property = await prisma.property.findFirst({
       where: { 
         id: params.id,
         status: 'ACTIVE' // فقط العقارات النشطة
