@@ -5,24 +5,34 @@ import { useState } from 'react'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 
 interface WhatsAppButtonProps {
+  href?: string  // Direct WhatsApp link (من helper functions)
   phoneNumber?: string
   message?: string
   className?: string
   position?: 'fixed' | 'inline'
+  text?: string
+  size?: 'sm' | 'md' | 'lg'
 }
 
 export default function WhatsAppButton({ 
-  phoneNumber = '201234567890', // رقم WhatsApp للشركة
+  href,
+  phoneNumber = '201000025080', // رقم WhatsApp للشركة
   message = 'مرحباً، أريد الاستفسار عن خدماتكم',
   className = '',
-  position = 'fixed'
+  position = 'fixed',
+  text = 'واتساب',
+  size = 'md'
 }: WhatsAppButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
 
   const handleWhatsAppClick = () => {
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
-    window.open(whatsappUrl, '_blank')
+    if (href) {
+      window.open(href, '_blank')
+    } else {
+      const encodedMessage = encodeURIComponent(message)
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+      window.open(whatsappUrl, '_blank')
+    }
   }
 
   if (position === 'fixed') {
@@ -82,18 +92,25 @@ export default function WhatsAppButton({
     )
   }
 
+  // Size classes
+  const sizeClasses = {
+    sm: 'py-2 px-4 text-sm',
+    md: 'py-3 px-6 text-base',
+    lg: 'py-4 px-8 text-lg'
+  }
+
   // Inline button
   return (
     <motion.button
       onClick={handleWhatsAppClick}
-      className={`bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-full flex items-center justify-center gap-2 transition-all duration-300 text-sm font-semibold ${className}`}
+      className={`bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl flex items-center justify-center gap-2 transition-all duration-300 font-bold shadow-lg hover:shadow-xl ${sizeClasses[size]} ${className}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <svg className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} fill="currentColor" viewBox="0 0 24 24">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.75-1.866-.75-1.866-1.008-2.313-.248-.428-.512-.37-.704-.377-.18-.007-.384-.007-.584-.007s-.527.074-.804.372c-.277.297-1.057 1.033-1.057 2.521s1.082 2.924 1.232 3.122c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
       </svg>
-      واتساب
+      {text}
     </motion.button>
   )
 }

@@ -24,6 +24,7 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid'
+import { generatePropertyWhatsAppLink } from '@/lib/whatsapp'
 
 interface Property {
   id: string
@@ -573,14 +574,33 @@ export default function PropertyDetailPage() {
                   </a>
                 )}
 
-                <a href={`https://wa.me/${property.user.phone?.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="block">
+                <a 
+                  href={generatePropertyWhatsAppLink({
+                    title: property.title,
+                    price: property.price,
+                    currency: property.currency,
+                    propertyType: property.propertyType,
+                    purpose: property.purpose,
+                    city: property.city,
+                    district: property.district,
+                    area: property.area,
+                    bedrooms: property.bedrooms,
+                    bathrooms: property.bathrooms,
+                    url: typeof window !== 'undefined' ? window.location.href : undefined
+                  })}
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block"
+                >
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
                   >
-                    <span className="text-xl">💬</span>
-                    واتساب
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.75-1.866-.75-1.866-1.008-2.313-.248-.428-.512-.37-.704-.377-.18-.007-.384-.007-.584-.007s-.527.074-.804.372c-.277.297-1.057 1.033-1.057 2.521s1.082 2.924 1.232 3.122c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    </svg>
+                    تواصل عبر واتساب
                   </motion.button>
                 </a>
 

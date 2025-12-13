@@ -9,6 +9,7 @@ import {
   MapPinIcon
 } from '@heroicons/react/24/outline'
 import { COMPANY_INFO, SOCIAL_LINKS } from '@/lib/constants'
+import WhatsAppButton from '@/components/ui/WhatsAppButton'
 
 interface SocialLinksData {
   facebook?: string;
@@ -338,6 +339,9 @@ export default function Footer() {
           </button>
         </div>
       </div>
+
+      {/* Floating WhatsApp Button */}
+      <WhatsAppButton position="fixed" />
     </footer>
   )
 }
