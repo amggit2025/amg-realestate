@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { verifyToken } from '@/lib/auth'
+import { notifyPropertyApproved, notifyPropertyRejected } from '@/lib/notifications'
 
 // GET: جلب العقارات المطلوب مراجعتها
 export async function GET(request: NextRequest) {
@@ -258,8 +259,21 @@ export async function PUT(request: NextRequest) {
       user: updatedProperty.user.email
     })
 
-    // TODO: إرسال إشعار للمستخدم
-    // await sendNotificationToUser(updatedProperty.userId, action, updatedProperty.title)
+    // إرسال إشعار للمستخدم
+    if (action === 'approve') {
+      await notifyPropertyApproved(
+        updatedProperty.userId,
+        updatedProperty.id,
+        updatedProperty.title
+      );
+    } else if (action === 'reject') {
+      await notifyPropertyRejected(
+        updatedProperty.userId,
+        updatedProperty.id,
+        updatedProperty.title,
+        rejectionReason
+      );
+    }
 
     return NextResponse.json({
       success: true,

@@ -36,6 +36,7 @@ model User {
   reviews_reviews_authorIdTousers     reviews[]           @relation("reviews_authorIdTousers")
   reviews_reviews_targetIdTousers     reviews[]           @relation("reviews_targetIdTousers")
   activities                          UserActivity[]
+  notifications                       Notification[]
 
   @@map("users")
 }
@@ -139,6 +140,7 @@ model Property {
   updatedAt         DateTime        @updatedAt
   favorites         Favorite[]
   inquiries         Inquiry[]
+  notifications     Notification[]
   user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   images            PropertyImage[]
 
@@ -930,4 +932,37 @@ enum SubscriptionStatus {
   PENDING
 
   @@map("subscription_status")
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       NotificationType
+  title      String
+  message    String           @db.Text
+  link       String?
+  isRead     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+  propertyId String?
+  property   Property?        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  PROPERTY_APPROVED
+  PROPERTY_REJECTED
+  PROPERTY_PENDING_REVIEW
+  NEW_INQUIRY
+  PROPERTY_SOLD
+  SUBSCRIPTION_EXPIRING
+  NEW_MESSAGE
+  PROPERTY_UPDATED
+  ADMIN_MESSAGE
+
+  @@map("notification_type")
 }

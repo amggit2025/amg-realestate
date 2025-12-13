@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { sendEmail } from '@/lib/email';
+import { notifyNewInquiry } from '@/lib/notifications';
 
 export async function POST(request: NextRequest) {
   try {
@@ -270,6 +271,22 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       console.error('Error sending email notification:', emailError);
       // نكمل حتى لو فشل الإيميل - المهم الاستفسار اتحفظ في DB
+    }
+
+    // إرسال إشعار لصاحب العقار إذا كان الاستفسار عن عقار محدد
+    if (propertyId && userId) {
+      try {
+        const property = await prisma.property.findUnique({
+          where: { id: propertyId },
+          select: { title: true },
+        });
+        
+        if (property) {
+          await notifyNewInquiry(userId, propertyId, property.title);
+        }
+      } catch (notifError) {
+        console.error('Error sending notification:', notifError);
+      }
     }
 
     return NextResponse.json({

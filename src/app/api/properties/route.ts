@@ -5,6 +5,7 @@ import { z } from 'zod'
 import cloudinary from '@/lib/cloudinary'
 import { logUserActivity } from '@/lib/activity-logger'
 import { deleteMultipleImagesFromCloudinary } from '@/lib/cloudinary-helper'
+import { notifyPropertyPendingReview } from '@/lib/notifications'
 
 const prisma = new PrismaClient()
 
@@ -194,6 +195,13 @@ export async function POST(request: NextRequest) {
       await Promise.all(imagePromises)
       console.log('✅ All images uploaded successfully')
     }
+
+    // إرسال إشعار للمستخدم بأن العقار قيد المراجعة
+    await notifyPropertyPendingReview(
+      user.id,
+      property.id,
+      property.title
+    );
 
     // تسجيل النشاط
     await logUserActivity({

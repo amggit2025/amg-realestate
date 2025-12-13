@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { AdvancedSearch } from '@/components/ui'
 import { useAuth } from '@/lib/AuthContext'
+import NotificationBell from './NotificationBell'
 import { 
   Bars3Icon, 
   XMarkIcon,
@@ -109,17 +110,21 @@ export default function Header() {
           </div>
 
           {/* Auth Buttons */}
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-2">
             {isAuthenticated && user ? (
-              <div className="relative user-menu-container">
-                <button
-                  onClick={toggleUserMenu}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                >
-                  <UserIcon className="w-5 h-5" />
-                  <span className="font-medium">{user.firstName} {user.lastName}</span>
-                  <ChevronDownIcon className="w-4 h-4" />
-                </button>
+              <>
+                {/* Notification Bell */}
+                <NotificationBell />
+                
+                <div className="relative user-menu-container">
+                  <button
+                    onClick={toggleUserMenu}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                  >
+                    <UserIcon className="w-5 h-5" />
+                    <span className="font-medium">{user.firstName} {user.lastName}</span>
+                    <ChevronDownIcon className="w-4 h-4" />
+                  </button>
                 
                 {/* User Dropdown */}
                 <AnimatePresence>
