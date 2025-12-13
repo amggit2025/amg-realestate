@@ -612,17 +612,23 @@ export default function PropertyDetailPage() {
                 </div>
               </div>
 
-              {/*motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowInquiryModal(true)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
-                >
-                  <EnvelopeIcon className="w-5 h-5" />
-                  إرسال استفسار
-                </motion.button/a>
+              {/* Contact Buttons */}
+              <div className="space-y-3">
+                {/* Phone Button */}
+                {property.user.phone && (
+                  <a href={`tel:${property.user.phone}`} className="block">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <PhoneIcon className="w-5 h-5" />
+                      اتصل الآن
+                    </motion.button>
+                  </a>
                 )}
 
+                {/* WhatsApp Button */}
                 <a 
                   href={generatePropertyWhatsAppLink({
                     title: property.title,
@@ -653,19 +659,16 @@ export default function PropertyDetailPage() {
                   </motion.button>
                 </a>
 
-                <a 
-                  href={`mailto:info@amg-invest.com?subject=استفسار عن ${encodeURIComponent(property.title)}&body=${encodeURIComponent(`مرحباً،\n\nأريد الاستفسار عن العقار التالي:\n\nالعنوان: ${property.title}\nالنوع: ${getPropertyTypeText(property.propertyType)}\nالمدينة: ${property.city}\nالسعر: ${formatPrice(property.price, property.currency)}\n\nرابط العقار: ${window.location.href}\n\nشكراً لكم`)}`}
-                  className="block"
+                {/* Inquiry Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowInquiryModal(true)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
                 >
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
-                  >
-                    <EnvelopeIcon className="w-5 h-5" />
-                    إرسال رسالة
-                  </motion.button>
-                </a>
+                  <EnvelopeIcon className="w-5 h-5" />
+                  إرسال استفسار
+                </motion.button>
               </div>
 
               {/* Property Info */}
