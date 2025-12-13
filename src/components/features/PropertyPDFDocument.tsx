@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Document, Page, Text, View, Image, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 interface PropertyPDFProps {
   property: {
@@ -72,15 +72,6 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginTop: 5,
     textAlign: 'right',
-  },
-  
-  // Main Image
-  mainImage: {
-    width: '100%',
-    height: 250,
-    objectFit: 'cover',
-    borderRadius: 8,
-    marginBottom: 20,
   },
   
   // Details Grid
@@ -163,20 +154,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   
-  // Gallery
-  imageGallery: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 10,
-  },
-  galleryImage: {
-    width: '48%',
-    height: 120,
-    objectFit: 'cover',
-    borderRadius: 6,
-  },
-  
   // Footer
   footer: {
     position: 'absolute',
@@ -248,13 +225,21 @@ const PropertyPDFDocument: React.FC<PropertyPDFProps> = ({ property }) => {
           <Text style={styles.location}>📍 {property.district}، {property.city}</Text>
         </View>
 
-        {/* Main Image */}
-        {property.images && property.images.length > 0 && (
-          <Image 
-            src={property.images[0].url} 
-            style={styles.mainImage}
-          />
-        )}
+        {/* Image Placeholder */}
+        <View style={{
+          width: '100%',
+          height: 200,
+          backgroundColor: '#e5e7eb',
+          borderRadius: 8,
+          marginBottom: 20,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          <Text style={{ fontSize: 12, color: '#6b7280' }}>صورة العقار</Text>
+          <Text style={{ fontSize: 10, color: '#9ca3af', marginTop: 5 }}>
+            {property.images?.length || 0} صورة متاحة
+          </Text>
+        </View>
 
         {/* Details Grid */}
         <View style={styles.detailsGrid}>
@@ -323,24 +308,32 @@ const PropertyPDFDocument: React.FC<PropertyPDFProps> = ({ property }) => {
         </View>
       </Page>
 
-      {/* Page 2 - Image Gallery (if more than 1 image) */}
+      {/* Page 2 - Additional Images Info */}
       {property.images && property.images.length > 1 && (
         <Page size="A4" style={styles.page}>
           <View style={styles.header}>
             <Text style={styles.logo}>AMG Real Estate</Text>
-            <Text style={styles.subtitle}>معرض صور العقار</Text>
+            <Text style={styles.subtitle}>معلومات إضافية</Text>
           </View>
 
           <Text style={[styles.mainTitle, { marginTop: 20 }]}>{property.title}</Text>
 
-          <View style={styles.imageGallery}>
-            {property.images.slice(1, 7).map((image, index) => (
-              <Image 
-                key={index}
-                src={image.url} 
-                style={styles.galleryImage}
-              />
-            ))}
+          {/* Image Gallery Placeholder */}
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.sectionTitle}>الصور المتاحة</Text>
+            <View style={{
+              backgroundColor: '#f3f4f6',
+              padding: 20,
+              borderRadius: 8,
+              marginTop: 10,
+            }}>
+              <Text style={{ fontSize: 14, color: '#1f2937', textAlign: 'right', marginBottom: 10 }}>
+                يحتوي هذا العقار على {property.images.length} صورة
+              </Text>
+              <Text style={{ fontSize: 11, color: '#6b7280', textAlign: 'right' }}>
+                لمشاهدة جميع الصور، يرجى زيارة الموقع الإلكتروني
+              </Text>
+            </View>
           </View>
 
           <View style={styles.footer}>
