@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
       newInquiries,
       recentUsers,
       pendingTestimonials,
+      newSubscriptions,
     ] = await Promise.all([
       // العقارات المعلقة (تحتاج مراجعة)
       prisma.property.count({
@@ -42,6 +43,16 @@ export async function GET(request: NextRequest) {
       prisma.testimonial.count({
         where: { published: false },
       }),
+
+      // الاشتراكات الجديدة (آخر 7 أيام)
+      prisma.newsletterSubscription.count({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          },
+          status: 'ACTIVE',
+        },
+      }),
     ]);
 
     return NextResponse.json({
@@ -51,6 +62,7 @@ export async function GET(request: NextRequest) {
         inquiries: newInquiries,
         users: recentUsers,
         testimonials: pendingTestimonials,
+        subscriptions: newSubscriptions,
       },
     });
   } catch (error) {
