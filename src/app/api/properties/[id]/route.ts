@@ -57,7 +57,7 @@ export async function GET(
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
 
-    const property = await prisma.property.findUnique(
+    const property = await prisma.property.findUnique({
       where: { id },
       include: {
         images: true,
