@@ -167,7 +167,8 @@ export default function Header() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+                </div>
+              </>
             ) : (
               <div className="flex items-center gap-3">
                 <Link
