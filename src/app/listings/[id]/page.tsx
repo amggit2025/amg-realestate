@@ -22,11 +22,9 @@ import {
   SparklesIcon,
   BuildingOfficeIcon,
   CurrencyDollarIcon,
-  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid'
 import { generatePropertyWhatsAppLink } from '@/lib/whatsapp'
-import PropertyPDFButton from '@/components/features/PropertyPDFButton'
 
 interface Property {
   id: string
@@ -312,31 +310,6 @@ export default function PropertyDetailPage() {
               >
                 <ShareIcon className="w-5 h-5 text-gray-600" />
               </motion.button>
-
-              {/* PDF Download Button */}
-              {property && (
-                <PropertyPDFButton
-                  variant="icon"
-                  property={{
-                    title: property.title,
-                    price: property.price,
-                    currency: property.currency,
-                    area: property.area,
-                    bedrooms: property.bedrooms,
-                    bathrooms: property.bathrooms,
-                    propertyType: property.propertyType,
-                    purpose: property.purpose,
-                    city: property.city,
-                    district: property.district,
-                    description: property.description,
-                    features: property.features?.join(', '),
-                    contactName: `${property.user.firstName} ${property.user.lastName}`,
-                    contactPhone: property.user.phone || '',
-                    contactEmail: property.user.email || '',
-                    images: property.images,
-                  }}
-                />
-              )}
             </div>
           </div>
         </div>
@@ -698,31 +671,6 @@ export default function PropertyDetailPage() {
                   <EnvelopeIcon className="w-5 h-5" />
                   إرسال استفسار
                 </motion.button>
-
-                {/* PDF Download Button */}
-                {property && (
-                  <PropertyPDFButton
-                    variant="full"
-                    property={{
-                      title: property.title,
-                      price: property.price,
-                      currency: property.currency,
-                      area: property.area,
-                      bedrooms: property.bedrooms,
-                      bathrooms: property.bathrooms,
-                      propertyType: property.propertyType,
-                      purpose: property.purpose,
-                      city: property.city,
-                      district: property.district,
-                      description: property.description,
-                      features: property.features?.join(', '),
-                      contactName: `${property.user.firstName} ${property.user.lastName}`,
-                      contactPhone: property.user.phone || '',
-                      contactEmail: property.user.email || '',
-                      images: property.images,
-                    }}
-                  />
-                )}
               </div>
 
               {/* Property Info */}
