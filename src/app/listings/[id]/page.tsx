@@ -75,6 +75,14 @@ export default function PropertyDetailPage() {
   const [showImageModal, setShowImageModal] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [showContactForm, setShowContactForm] = useState(false)
+  const [showInquiryModal, setShowInquiryModal] = useState(false)
+  const [inquiryForm, setInquiryForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  })
+  const [submittingInquiry, setSubmittingInquiry] = useState(false)
 
   // جلب بيانات العقار
   useEffect(() => {
@@ -187,6 +195,51 @@ export default function PropertyDetailPage() {
       // Fallback: Copy to clipboard
       navigator.clipboard.writeText(window.location.href)
       alert('تم نسخ رابط العقار!')
+    }
+  }
+
+  const handleInquirySubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!inquiryForm.name || !inquiryForm.email || !inquiryForm.message) {
+      alert('يرجى ملء جميع الحقول المطلوبة')
+      return
+    }
+
+    setSubmittingInquiry(true)
+
+    try {
+      const response = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: inquiryForm.name,
+          email: inquiryForm.email,
+          phone: inquiryForm.phone,
+          subject: `استفسار عن ${property?.title}`,
+          message: inquiryForm.message,
+          inquiryType: 'PROPERTY',
+          propertyId: property?.id,
+          userId: property?.user.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        alert('✅ تم إرسال استفسارك بنجاح! سيتم التواصل معك قريباً.')
+        setShowInquiryModal(false)
+        setInquiryForm({ name: '', email: '', phone: '', message: '' })
+      } else {
+        alert(data.message || 'حدث خطأ أثناء إرسال الاستفسار')
+      }
+    } catch (error) {
+      console.error('Error submitting inquiry:', error)
+      alert('حدث خطأ أثناء إرسال الاستفسار. يرجى المحاولة مرة أخرى.')
+    } finally {
+      setSubmittingInquiry(false)
     }
   }
 
@@ -559,19 +612,15 @@ export default function PropertyDetailPage() {
                 </div>
               </div>
 
-              {/* Contact Buttons */}
-              <div className="space-y-3">
-                {property.user.phone && (
-                  <a href={`tel:${property.user.phone}`} className="block">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
-                    >
-                      <PhoneIcon className="w-5 h-5" />
-                      اتصل الآن
-                    </motion.button>
-                  </a>
+              {/*motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowInquiryModal(true)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
+                >
+                  <EnvelopeIcon className="w-5 h-5" />
+                  إرسال استفسار
+                </motion.button/a>
                 )}
 
                 <a 
@@ -671,6 +720,144 @@ export default function PropertyDetailPage() {
               {currentImageIndex + 1} / {property.images.length}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Inquiry Modal */}
+      {showInquiryModal && property && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <EnvelopeIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">إرسال استفسار</h3>
+                    <p className="text-sm text-white/80 mt-1">سنتواصل معك في أقرب وقت</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowInquiryModal(false)}
+                  className="text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Property Info */}
+            <div className="p-4 bg-gray-50 border-b">
+              <div className="flex items-center gap-3">
+                {property.images[0] && (
+                  <img
+                    src={property.images[0].url}
+                    alt={property.title}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                )}
+                <div className="flex-1">
+                  <h4 className="font-bold text-gray-900">{property.title}</h4>
+                  <p className="text-sm text-gray-600">
+                    {property.city} - {formatPrice(property.price, property.currency)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleInquirySubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  الاسم <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={inquiryForm.name}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, name: e.target.value })}
+                  placeholder="أدخل اسمك الكامل"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  البريد الإلكتروني <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={inquiryForm.email}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
+                  placeholder="example@email.com"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  رقم الهاتف
+                </label>
+                <input
+                  type="tel"
+                  value={inquiryForm.phone}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
+                  placeholder="01XXXXXXXXX"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  الرسالة <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  required
+                  value={inquiryForm.message}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
+                  placeholder="اكتب استفسارك هنا..."
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowInquiryModal(false)}
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingInquiry}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                >
+                  {submittingInquiry ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      جاري الإرسال...
+                    </>
+                  ) : (
+                    <>
+                      <EnvelopeIcon className="w-5 h-5" />
+                      إرسال الاستفسار
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
         </div>
       )}
     </div>
