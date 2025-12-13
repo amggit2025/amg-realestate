@@ -365,8 +365,45 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <div className="flex items-center space-x-3 space-x-reverse">
-                      <IconComponent className="w-5 h-5 flex-shrink-0" />
+                    <div className="flex items-center space-x-3 space-x-reverse relative">
+                      <div className="relative">
+                        <IconComponent className="w-5 h-5 flex-shrink-0" />
+                        
+                        {/* Badge Dot - يظهر دائماً حتى في حالة collapsed */}
+                        {isCollapsed && (
+                          <>
+                            {item.id === 'properties-review' && stats.properties > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"
+                              />
+                            )}
+                            {item.id === 'inquiries' && stats.inquiries > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full border-2 border-white animate-pulse"
+                              />
+                            )}
+                            {item.id === 'users' && stats.users > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"
+                              />
+                            )}
+                            {item.id === 'testimonials' && stats.testimonials > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-white animate-pulse"
+                              />
+                            )}
+                          </>
+                        )}
+                      </div>
+                      
                       {!isCollapsed && (
                         <motion.span
                           initial={{ opacity: 0 }}
@@ -378,7 +415,7 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
                       )}
                     </div>
                     
-                    {/* Badge للإشعارات */}
+                    {/* Badge للإشعارات - بالأرقام عند expanded */}
                     {!isCollapsed && (
                       <>
                         {item.id === 'properties-review' && stats.properties > 0 && (
