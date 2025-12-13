@@ -156,6 +156,13 @@ export default function Header() {
                       >
                         🏡 عقاراتي
                       </Link>
+                      <Link
+                        href="/dashboard/inquiries"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        💬 الاستفسارات
+                      </Link>
                       <hr className="my-2" />
                       <button
                         onClick={handleLogout}
@@ -305,6 +312,13 @@ export default function Header() {
                             onClick={closeMenu}
                           >
                             🏡 عقاراتي
+                          </Link>
+                          <Link
+                            href="/dashboard/inquiries"
+                            className="block w-full text-right p-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+                            onClick={closeMenu}
+                          >
+                            💬 الاستفسارات
                           </Link>
                           <button
                             onClick={handleLogout}
