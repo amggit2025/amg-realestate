@@ -4,12 +4,14 @@ import { prisma } from '@/lib/db'
 // جلب تفاصيل عقار للعرض العام (بدون تسجيل دخول)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
+    
     const property = await prisma.property.findFirst({
       where: { 
-        id: params.id,
+        id,
         status: 'ACTIVE' // فقط العقارات النشطة
       },
       include: {
@@ -50,7 +52,7 @@ export async function GET(
 
     // زيادة عدد المشاهدات
     await prisma.property.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         views: {
           increment: 1
