@@ -5,7 +5,17 @@ import { getUserNotifications, getUnreadNotificationCount } from '@/lib/notifica
 // GET - Get user notifications
 export async function GET(request: Request) {
   try {
-    const user = await getUserFromToken(request);
+    const token = request.headers.get('authorization')?.replace('Bearer ', '') || 
+                  (request as any).cookies?.get?.('auth-token')?.value;
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'غير مصرح' },
+        { status: 401 }
+      );
+    }
+
+    const user = await getUserFromToken(token);
     
     if (!user) {
       return NextResponse.json(
