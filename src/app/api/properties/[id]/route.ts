@@ -40,9 +40,11 @@ async function uploadToCloudinary(file: File, folder: string = 'properties'): Pr
 // جلب عقار واحد
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
+    
     // Get token from cookie
     const token = request.cookies.get('auth-token')?.value
 
@@ -55,8 +57,8 @@ export async function GET(
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
 
-    const property = await prisma.property.findUnique({
-      where: { id: params.id },
+    const property = await prisma.property.findUnique(
+      where: { id },
       include: {
         images: true,
         _count: {
@@ -96,9 +98,11 @@ export async function GET(
 // تحديث عقار
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
+    
     // Get token from cookie
     const token = request.cookies.get('auth-token')?.value
 
@@ -113,7 +117,7 @@ export async function PUT(
 
     // التحقق من وجود العقار وملكية المستخدم له
     const existingProperty = await prisma.property.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingProperty) {
@@ -168,7 +172,7 @@ export async function PUT(
     // معالجة الصور
     // 1. جلب الصور الحالية من قاعدة البيانات
     const currentImages = await prisma.propertyImage.findMany({
-      where: { propertyId: params.id }
+      where: { propertyId: id }
     })
 
     // 2. جلب قائمة الصور التي يريد المستخدم الاحتفاظ بها
@@ -216,7 +220,7 @@ export async function PUT(
             alt: `${title} - صورة ${existingImages.length + index + 1}`,
             isMain: existingImages.length === 0 && index === 0,
             order: existingImages.length + index,
-            propertyId: params.id,
+            propertyId: id,
           }
         })
       })
@@ -254,7 +258,7 @@ export async function PUT(
     }
 
     const updatedProperty = await prisma.property.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         images: true,
@@ -284,9 +288,11 @@ export async function PUT(
 // حذف عقار
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
+    
     // Get token from cookie
     const token = request.cookies.get('auth-token')?.value
 
@@ -301,7 +307,7 @@ export async function DELETE(
 
     // التحقق من وجود العقار وملكية المستخدم له
     const existingProperty = await prisma.property.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { images: true }
     })
 
@@ -332,7 +338,7 @@ export async function DELETE(
 
     // حذف العقار من قاعدة البيانات
     await prisma.property.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     // تسجيل النشاط
@@ -340,7 +346,7 @@ export async function DELETE(
       userId: decoded.userId,
       activityType: 'PROPERTY_DELETE',
       entityType: 'PROPERTY',
-      entityId: params.id,
+      entityId: id,
       title: 'حذف عقار',
       description: `تم حذف العقار: ${existingProperty.title}`,
       metadata: {
@@ -366,9 +372,11 @@ export async function DELETE(
 // تحديث حالة العقار فقط (PATCH)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
+    
     // Get token from cookie
     const token = request.cookies.get('auth-token')?.value
 
@@ -385,7 +393,7 @@ export async function PATCH(
 
     // التحقق من وجود العقار وملكية المستخدم له
     const existingProperty = await prisma.property.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingProperty) {
@@ -404,7 +412,7 @@ export async function PATCH(
 
     // تحديث حالة العقار فقط
     const updatedProperty = await prisma.property.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         updatedAt: new Date(),
@@ -424,7 +432,7 @@ export async function PATCH(
       userId: decoded.userId,
       activityType: 'PROPERTY_UPDATE',
       entityType: 'PROPERTY',
-      entityId: params.id,
+      entityId: id,
       title: 'تحديث حالة عقار',
       description: `تم تحديث حالة العقار: ${existingProperty.title} إلى ${status}`,
       metadata: {
