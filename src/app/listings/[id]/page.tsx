@@ -26,16 +26,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid'
 import { generatePropertyWhatsAppLink } from '@/lib/whatsapp'
-import dynamic from 'next/dynamic'
-
-// Import PDF components dynamically (client-side only)
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
-  { ssr: false }
-)
-const PropertyPDFDocument = dynamic(() => import('@/components/features/PropertyPDFDocument'), {
-  ssr: false,
-})
+import PropertyPDFButton from '@/components/features/PropertyPDFButton'
 
 interface Property {
   id: string
@@ -324,43 +315,27 @@ export default function PropertyDetailPage() {
 
               {/* PDF Download Button */}
               {property && (
-                <PDFDownloadLink
-                  document={
-                    <PropertyPDFDocument
-                      property={{
-                        title: property.title,
-                        price: property.price,
-                        currency: property.currency,
-                        area: property.area,
-                        bedrooms: property.bedrooms,
-                        bathrooms: property.bathrooms,
-                        propertyType: property.propertyType,
-                        purpose: property.purpose,
-                        city: property.city,
-                        district: property.district,
-                        description: property.description,
-                        features: property.features?.join(', '),
-                        contactName: `${property.user.firstName} ${property.user.lastName}`,
-                        contactPhone: property.user.phone || '',
-                        contactEmail: property.user.email || '',
-                        images: property.images,
-                      }}
-                    />
-                  }
-                  fileName={`${property.title.replace(/\s+/g, '_')}_AMG.pdf`}
-                >
-                  {({ loading }) => (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-green-50 transition-colors disabled:opacity-50"
-                      disabled={loading}
-                      title="تحميل PDF"
-                    >
-                      <ArrowDownTrayIcon className="w-5 h-5 text-gray-600" />
-                    </motion.button>
-                  )}
-                </PDFDownloadLink>
+                <PropertyPDFButton
+                  variant="icon"
+                  property={{
+                    title: property.title,
+                    price: property.price,
+                    currency: property.currency,
+                    area: property.area,
+                    bedrooms: property.bedrooms,
+                    bathrooms: property.bathrooms,
+                    propertyType: property.propertyType,
+                    purpose: property.purpose,
+                    city: property.city,
+                    district: property.district,
+                    description: property.description,
+                    features: property.features?.join(', '),
+                    contactName: `${property.user.firstName} ${property.user.lastName}`,
+                    contactPhone: property.user.phone || '',
+                    contactEmail: property.user.email || '',
+                    images: property.images,
+                  }}
+                />
               )}
             </div>
           </div>
@@ -726,44 +701,27 @@ export default function PropertyDetailPage() {
 
                 {/* PDF Download Button */}
                 {property && (
-                  <PDFDownloadLink
-                    document={
-                      <PropertyPDFDocument
-                        property={{
-                          title: property.title,
-                          price: property.price,
-                          currency: property.currency,
-                          area: property.area,
-                          bedrooms: property.bedrooms,
-                          bathrooms: property.bathrooms,
-                          propertyType: property.propertyType,
-                          purpose: property.purpose,
-                          city: property.city,
-                          district: property.district,
-                          description: property.description,
-                          features: property.features?.join(', '),
-                          contactName: `${property.user.firstName} ${property.user.lastName}`,
-                          contactPhone: property.user.phone || '',
-                          contactEmail: property.user.email || '',
-                          images: property.images,
-                        }}
-                      />
-                    }
-                    fileName={`${property.title.replace(/\s+/g, '_')}_AMG.pdf`}
-                    className="block"
-                  >
-                    {({ loading }) => (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        disabled={loading}
-                        className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <ArrowDownTrayIcon className="w-5 h-5" />
-                        {loading ? 'جاري التحضير...' : 'تحميل كـ PDF'}
-                      </motion.button>
-                    )}
-                  </PDFDownloadLink>
+                  <PropertyPDFButton
+                    variant="full"
+                    property={{
+                      title: property.title,
+                      price: property.price,
+                      currency: property.currency,
+                      area: property.area,
+                      bedrooms: property.bedrooms,
+                      bathrooms: property.bathrooms,
+                      propertyType: property.propertyType,
+                      purpose: property.purpose,
+                      city: property.city,
+                      district: property.district,
+                      description: property.description,
+                      features: property.features?.join(', '),
+                      contactName: `${property.user.firstName} ${property.user.lastName}`,
+                      contactPhone: property.user.phone || '',
+                      contactEmail: property.user.email || '',
+                      images: property.images,
+                    }}
+                  />
                 )}
               </div>
 
