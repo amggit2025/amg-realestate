@@ -31,9 +31,43 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1024) // Default to desktop width
+  const [stats, setStats] = useState({
+    properties: 0,
+    inquiries: 0,
+    users: 0,
+    testimonials: 0,
+  })
   const router = useRouter()
   const pathname = usePathname()
   const { checkModuleAccess, isSuperAdmin, admin } = usePermissions({ skipAuth: false })
+
+  // جلب الإحصائيات
+  useEffect(() => {
+    fetchStats()
+    // تحديث كل 30 ثانية
+    const interval = setInterval(fetchStats, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/admin/stats', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('amg_admin_session') || 'temp_token'}`,
+        },
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data) {
+          setStats(data.data)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    }
+  }
 
   // Handle window resize
   useEffect(() => {
@@ -325,21 +359,81 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleNavigation(item.id)}
-                    className={`w-full flex items-center space-x-3 space-x-reverse p-3 rounded-xl transition-all ${
+                    className={`w-full flex items-center justify-between space-x-3 space-x-reverse p-3 rounded-xl transition-all ${
                       isActive
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <IconComponent className="w-5 h-5 flex-shrink-0" />
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <IconComponent className="w-5 h-5 flex-shrink-0" />
+                      {!isCollapsed && (
+                        <motion.span
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="font-medium"
+                        >
+                          {item.name}
+                        </motion.span>
+                      )}
+                    </div>
+                    
+                    {/* Badge للإشعارات */}
                     {!isCollapsed && (
-                      <motion.span
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="font-medium"
-                      >
-                        {item.name}
-                      </motion.span>
+                      <>
+                        {item.id === 'properties-review' && stats.properties > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                              isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-red-500 text-white animate-pulse'
+                            }`}
+                          >
+                            {stats.properties}
+                          </motion.span>
+                        )}
+                        {item.id === 'inquiries' && stats.inquiries > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                              isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-purple-500 text-white animate-pulse'
+                            }`}
+                          >
+                            {stats.inquiries}
+                          </motion.span>
+                        )}
+                        {item.id === 'users' && stats.users > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                              isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-green-500 text-white animate-pulse'
+                            }`}
+                          >
+                            {stats.users} جديد
+                          </motion.span>
+                        )}
+                        {item.id === 'testimonials' && stats.testimonials > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                              isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-yellow-500 text-white animate-pulse'
+                            }`}
+                          >
+                            {stats.testimonials}
+                          </motion.span>
+                        )}
+                      </>
                     )}
                   </motion.button>
                 )
