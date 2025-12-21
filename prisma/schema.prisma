@@ -966,3 +966,35 @@ enum NotificationType {
 
   @@map("notification_type")
 }
+
+model ServiceRequest {
+  id            String              @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  serviceType   String
+  projectType   String?
+  budget        String?
+  timeline      String?
+  message       String?             @db.Text
+  status        ServiceRequestStatus @default(PENDING)
+  adminNotes    String?             @db.Text
+  respondedAt   DateTime?
+  respondedBy   String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+  @@map("service_requests")
+}
+
+enum ServiceRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+
+  @@map("service_request_status")
+}

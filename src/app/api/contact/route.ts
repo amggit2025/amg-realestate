@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contactFormSchema } from '@/lib/validation'
 import nodemailer from 'nodemailer'
+import prisma from '@/lib/db'
 
 // Create email transporter
 const createTransporter = () => {
@@ -198,6 +199,23 @@ export async function POST(request: NextRequest) {
       console.log('Service request submission:', serviceRequestData)
       
       try {
+        // Save to database
+        const savedRequest = await prisma.serviceRequest.create({
+          data: {
+            name: body.name,
+            email: body.email,
+            phone: body.phone,
+            serviceType: body.serviceType || 'خدمة عامة',
+            projectType: body.projectType || null,
+            budget: body.budget || null,
+            timeline: body.timeline || null,
+            message: body.message || null,
+            status: 'PENDING'
+          }
+        })
+        
+        console.log('✅ Service request saved to database:', savedRequest.id)
+        
         const transporter = createTransporter()
         
         // Send notification to site owner

@@ -37,6 +37,7 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
     users: 0,
     testimonials: 0,
     subscriptions: 0,
+    serviceRequests: 0,
   })
   const router = useRouter()
   const pathname = usePathname()
@@ -164,6 +165,12 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
       module: 'newsletter' as Module,
     },
     {
+      id: 'service-requests',
+      name: 'طلبات الاستشارات',
+      icon: ChatBubbleLeftRightIcon,
+      module: 'inquiries' as Module,
+    },
+    {
       id: 'testimonials',
       name: 'آراء العملاء',
       icon: ChatBubbleLeftRightIcon,
@@ -225,6 +232,7 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
       'services': '/admin/services',
       'inquiries': '/admin/inquiries',
       'subscriptions': '/admin/subscriptions',
+      'service-requests': '/admin/service-requests',
       'testimonials': '/admin/testimonials',
       'general-info': '/admin/general-info',
       'about-page': '/admin/about-page',
@@ -408,6 +416,13 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
                                 className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white animate-pulse"
                               />
                             )}
+                            {item.id === 'service-requests' && stats.serviceRequests > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-white animate-pulse"
+                              />
+                            )}
                           </>
                         )}
                       </div>
@@ -489,6 +504,19 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
                             }`}
                           >
                             {stats.subscriptions} جديد
+                          </motion.span>
+                        )}
+                        {item.id === 'service-requests' && stats.serviceRequests > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                              isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-orange-500 text-white animate-pulse'
+                            }`}
+                          >
+                            {stats.serviceRequests}
                           </motion.span>
                         )}
                       </>
