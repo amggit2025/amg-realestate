@@ -23,7 +23,7 @@ export default function AdminLayout({
 
   useEffect(() => {
     // تحديد الصفحة الحالية بناء على الـ pathname
-    if (pathname === '/admin') {
+    if (pathname === '/admin' || pathname === '/admin/') {
       setCurrentPage('dashboard');
     } else if (pathname === '/admin/users') {
       setCurrentPage('users');
@@ -33,11 +33,11 @@ export default function AdminLayout({
       setCurrentPage('portfolio');
     } else if (pathname.startsWith('/admin/projects')) {
       setCurrentPage('projects');
-    } else if (pathname.startsWith('/admin/services')) {
+    } else if (pathname.startsWith('/admin/services') && !pathname.includes('service-requests')) {
       setCurrentPage('services');
     } else if (pathname === '/admin/inquiries') {
       setCurrentPage('inquiries');
-    } else if (pathname === '/admin/service-requests') {
+    } else if (pathname === '/admin/service-requests' || pathname.startsWith('/admin/service-requests/')) {
       setCurrentPage('service-requests');
     } else if (pathname === '/admin/subscriptions') {
       setCurrentPage('subscriptions');
@@ -53,9 +53,6 @@ export default function AdminLayout({
       setCurrentPage('admins');
     } else if (pathname === '/admin/settings') {
       setCurrentPage('settings');
-    } else if (pathname.includes('/admin/')) {
-      const parts = pathname.split('/');
-      setCurrentPage(parts[2] || 'dashboard'); // استخدام الجزء الثاني بعد /admin/
     }
   }, [pathname]);
 
