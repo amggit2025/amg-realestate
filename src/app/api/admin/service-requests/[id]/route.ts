@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
-import { verifyAdminAuth } from '@/lib/admin-auth'
+import { verifyAdminToken } from '@/lib/admin-auth'
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const admin = await verifyAdminAuth(request)
-    if (!admin) {
+    const adminAuth = await verifyAdminToken(request)
+    if (!adminAuth.isValid || !adminAuth.admin) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
         { status: 401 }
@@ -24,7 +24,7 @@ export async function PATCH(
         status,
         adminNotes,
         respondedAt: respondedAt ? new Date(respondedAt) : undefined,
-        respondedBy: admin.id,
+        respondedBy: adminAuth.admin.id,
         updatedAt: new Date()
       }
     })
@@ -47,8 +47,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const admin = await verifyAdminAuth(request)
-    if (!admin) {
+    const adminAuth = await verifyAdminToken(request)
+    if (!adminAuth.isValid || !adminAuth.admin) {
       return NextResponse.json(
         { success: false, message: 'غير مصرح' },
         { status: 401 }
