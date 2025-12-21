@@ -37,6 +37,10 @@ export default function AdminLayout({
       setCurrentPage('services');
     } else if (pathname === '/admin/inquiries') {
       setCurrentPage('inquiries');
+    } else if (pathname === '/admin/service-requests') {
+      setCurrentPage('service-requests');
+    } else if (pathname === '/admin/subscriptions') {
+      setCurrentPage('subscriptions');
     } else if (pathname === '/admin/testimonials') {
       setCurrentPage('testimonials');
     } else if (pathname === '/admin/general-info') {
