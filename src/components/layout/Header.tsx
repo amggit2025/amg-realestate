@@ -177,7 +177,7 @@ export default function Header() {
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="hidden lg:flex items-center gap-3">
                 <Link
                   href="/auth/login"
                   className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
