@@ -100,6 +100,7 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
       '/admin/portfolio': 'portfolio',
       '/admin/services': 'services',
       '/admin/inquiries': 'inquiries',
+      '/admin/service-requests': 'service-requests',
       '/admin/subscriptions': 'subscriptions',
       '/admin/testimonials': 'testimonials',
       '/admin/general-info': 'general-info',
