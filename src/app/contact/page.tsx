@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { motion } from 'framer-motion';
 import ContactForm from '@/components/features/ContactForm'
 import FreeMap from '@/components/ui/FreeMap';
