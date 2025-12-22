@@ -17,6 +17,9 @@ import { ChromeOptimizedMotion, chromeAnimations } from '@/components/ui/ChromeO
 import { useState, useEffect } from 'react'
 import { logger } from '@/lib/logger'
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic'
+
 interface AboutPageData {
   companyName: string
   companyFullName: string
