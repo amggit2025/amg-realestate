@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { usePathname } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -10,7 +11,7 @@ interface LayoutWrapperProps {
   children: React.ReactNode
 }
 
-export default function LayoutWrapper({ children }: LayoutWrapperProps) {
+function LayoutContent({ children }: LayoutWrapperProps) {
   const pathname = usePathname()
   
   // Check if it's an admin route
@@ -32,5 +33,13 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
         message="مرحباً، أريد الاستفسار عن خدمات AMG العقارية"
       />
     </LoadingScreen>
+  )
+}
+
+export default function LayoutWrapper({ children }: LayoutWrapperProps) {
+  return (
+    <Suspense fallback={<main>{children}</main>}>
+      <LayoutContent>{children}</LayoutContent>
+    </Suspense>
   )
 }

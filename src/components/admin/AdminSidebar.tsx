@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, usePathname } from 'next/navigation'
 import { 
@@ -27,7 +27,7 @@ interface AdminSidebarProps {
   adminRole: string
 }
 
-export default function AdminSidebar({ currentPage, onPageChange, adminRole }: AdminSidebarProps) {
+function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1024) // Default to desktop width
@@ -567,5 +567,13 @@ export default function AdminSidebar({ currentPage, onPageChange, adminRole }: A
         </div>
       </div>
     </>
+  )
+}
+
+export default function AdminSidebar(props: AdminSidebarProps) {
+  return (
+    <Suspense fallback={<div className="h-screen w-64 bg-gray-900" />}>
+      <AdminSidebarContent {...props} />
+    </Suspense>
   )
 }

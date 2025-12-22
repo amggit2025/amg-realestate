@@ -1,14 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { pageview } from '@/lib/analytics'
 
 /**
- * Analytics Provider Component
+ * Analytics Tracking Component (Internal)
  * يتتبع تغييرات الصفحات تلقائياً
  */
-export default function AnalyticsProvider() {
+function AnalyticsTracking() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -20,4 +20,16 @@ export default function AnalyticsProvider() {
   }, [pathname, searchParams])
 
   return null
+}
+
+/**
+ * Analytics Provider Component
+ * Wraps analytics tracking with Suspense boundary
+ */
+export default function AnalyticsProvider() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsTracking />
+    </Suspense>
+  )
 }
