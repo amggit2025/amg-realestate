@@ -15,6 +15,7 @@ import { COMPANY_INFO } from '@/lib/constants'
 import SEOHead from '@/components/SEOHead'
 import { ChromeOptimizedMotion, chromeAnimations } from '@/components/ui/ChromeOptimizedMotion'
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 
 interface AboutPageData {
   companyName: string
