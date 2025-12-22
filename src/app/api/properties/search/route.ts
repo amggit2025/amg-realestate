@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc',
       },
       include: {
-        owner: {
+        users: {
           select: {
             name: true,
             email: true,
