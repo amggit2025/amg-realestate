@@ -1,11 +1,9 @@
-import { Metadata } from 'next'
+'use client'
+
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { WifiIcon } from '@heroicons/react/24/outline'
-
-export const metadata: Metadata = {
-  title: 'غير متصل بالإنترنت | AMG Real Estate',
-  description: 'أنت غير متصل بالإنترنت حالياً',
-}
 
 export default function OfflinePage() {
   return (
