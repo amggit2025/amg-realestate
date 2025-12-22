@@ -5,7 +5,7 @@ import prisma from '@/lib/db';
 // PATCH: تحديث حالة الاستفسار (قراءة / الرد)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '') || 
@@ -28,7 +28,7 @@ export async function PATCH(
     }
 
     const { status } = await request.json();
-    const inquiryId = params.id;
+    const { id: inquiryId } = await params;
 
     // التحقق من أن الاستفسار يخص هذا اليوزر
     const inquiry = await prisma.inquiry.findUnique({
@@ -64,7 +64,7 @@ export async function PATCH(
 // DELETE: حذف استفسار
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '') || 
@@ -86,7 +86,7 @@ export async function DELETE(
       );
     }
 
-    const inquiryId = params.id;
+    const { id: inquiryId } = await params;
 
     // التحقق من أن الاستفسار يخص هذا اليوزر
     const inquiry = await prisma.inquiry.findUnique({

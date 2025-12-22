@@ -48,7 +48,7 @@ export async function GET(
 // PUT /api/admin/services/[id] - Update service
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const adminAuth = await verifyAdminToken(request);
@@ -80,9 +80,11 @@ export async function PUT(
       order
     } = body;
 
+    const { id } = await params
+
     // Check if service exists
     const existingService = await prisma.service.findUnique({
-      where: { id: params.id }
+      where: { id }
     }) as any;
 
     if (!existingService) {
@@ -119,7 +121,7 @@ export async function PUT(
     }
 
     const service = await prisma.service.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(slug && { slug }),
         ...(title && { title }),
@@ -154,7 +156,7 @@ export async function PUT(
 // DELETE /api/admin/services/[id] - Delete service
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const adminAuth = await verifyAdminToken(request);
@@ -165,9 +167,11 @@ export async function DELETE(
       );
     }
 
+    const { id } = await params
+
     // Check if service exists
     const service = await prisma.service.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: { portfolioItems: true }
@@ -210,7 +214,7 @@ export async function DELETE(
     }
 
     await prisma.service.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ success: true });

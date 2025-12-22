@@ -5,12 +5,13 @@ import { deleteImageFromCloudinary } from '@/lib/cloudinary-helper';
 // GET - جلب testimonial واحد
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // @ts-ignore
     const testimonial = await prisma.testimonial.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!testimonial) {
@@ -33,11 +34,12 @@ export async function GET(
 // PUT - تعديل testimonial
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
     const { content, clientName, position, location, image, imagePublicId, rating, featured, published, order } = body;
+    const { id } = await params
 
     // Validation
     if (rating && (rating < 1 || rating > 5)) {
@@ -50,7 +52,7 @@ export async function PUT(
     // 🗑️ جلب التوصية القديمة لحذف الصورة إذا تغيرت
     // @ts-ignore
     const existingTestimonial = await prisma.testimonial.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!existingTestimonial) {
@@ -68,7 +70,7 @@ export async function PUT(
 
     // @ts-ignore
     const testimonial = await prisma.testimonial.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(content && { content }),
         ...(clientName && { clientName }),
@@ -96,13 +98,14 @@ export async function PUT(
 // DELETE - حذف testimonial
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // 🗑️ جلب التوصية لحذف الصورة من Cloudinary
     // @ts-ignore
     const testimonial = await prisma.testimonial.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!testimonial) {
@@ -120,7 +123,7 @@ export async function DELETE(
 
     // @ts-ignore
     await prisma.testimonial.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ message: 'Testimonial deleted successfully' });

@@ -6,12 +6,13 @@ const prisma = new PrismaClient()
 // GET - جلب عضو واحد
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // @ts-ignore
     const teamMember = await prisma.teamMember.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!teamMember) {
@@ -37,14 +38,15 @@ export async function GET(
 // PUT - تحديث عضو
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json()
+    const { id } = await params
 
     // @ts-ignore
     const teamMember = await prisma.teamMember.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: body.name,
         position: body.position,
@@ -72,12 +74,13 @@ export async function PUT(
 // DELETE - حذف عضو
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     // @ts-ignore
     await prisma.teamMember.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({
