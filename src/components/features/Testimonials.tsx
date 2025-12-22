@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { StarIcon } from '@heroicons/react/24/solid'
 import { ChevronLeftIcon, ChevronRightIcon, MapPinIcon } from '@heroicons/react/24/outline'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo, useCallback } from 'react'
 import Image from 'next/image'
 
 interface TestimonialStats {
@@ -26,7 +26,7 @@ interface Testimonial {
   order: number
 }
 
-export default function Testimonials() {
+function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [loading, setLoading] = useState(true)
@@ -321,3 +321,5 @@ export default function Testimonials() {
     </section>
   )
 }
+
+export default memo(Testimonials)

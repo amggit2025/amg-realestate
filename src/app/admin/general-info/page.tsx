@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import { 
   InformationCircleIcon,
   ChartBarIcon,
@@ -138,7 +139,7 @@ export default function GeneralInfoPage() {
         })
       }
     } catch (err) {
-      console.error('Error fetching hero stats:', err)
+      logger.error('Error fetching hero stats:', err)
     }
   }
 
@@ -156,7 +157,7 @@ export default function GeneralInfoPage() {
         })
       }
     } catch (err) {
-      console.error('Error fetching testimonial stats:', err)
+      logger.error('Error fetching testimonial stats:', err)
     }
   }
 
@@ -179,7 +180,7 @@ export default function GeneralInfoPage() {
         })
       }
     } catch (err) {
-      console.error('Error fetching footer info:', err)
+      logger.error('Error fetching footer info:', err)
     }
   }
 
@@ -196,12 +197,12 @@ export default function GeneralInfoPage() {
       
       const data = await response.json()
       if (data.success) {
-        console.log('✅ تم حذف صورة Hero القديمة من Cloudinary')
+        logger.log('✅ تم حذف صورة Hero القديمة من Cloudinary')
       } else {
-        console.warn('⚠️ فشل حذف صورة Hero القديمة:', data.message)
+        logger.warn('⚠️ فشل حذف صورة Hero القديمة:', data.message)
       }
     } catch (err) {
-      console.error('❌ خطأ في حذف صورة Hero القديمة:', err)
+      logger.error('❌ خطأ في حذف صورة Hero القديمة:', err)
     }
   }
 
@@ -270,7 +271,7 @@ export default function GeneralInfoPage() {
       } else {
         setError('حدث خطأ أثناء رفع الصورة: ' + (err.message || 'غير معروف'))
       }
-      console.error('Upload error:', err)
+      logger.error('Upload error:', err)
     } finally {
       setLoading(false)
     }
@@ -305,7 +306,7 @@ export default function GeneralInfoPage() {
       setTimeout(() => setSuccess(false), 2000)
     } catch (err) {
       setError('حدث خطأ أثناء حذف الصورة')
-      console.error('Delete error:', err)
+      logger.error('Delete error:', err)
     } finally {
       setLoading(false)
     }
@@ -410,7 +411,7 @@ export default function GeneralInfoPage() {
         setPortfolioStats(data.data)
       }
     } catch (err) {
-      console.error('Error fetching portfolio stats:', err)
+      logger.error('Error fetching portfolio stats:', err)
     }
   }
 
@@ -462,7 +463,7 @@ export default function GeneralInfoPage() {
         })
       }
     } catch (err) {
-      console.error('Error fetching social links:', err)
+      logger.error('Error fetching social links:', err)
     }
   }
 

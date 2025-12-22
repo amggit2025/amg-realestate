@@ -58,7 +58,10 @@ export function middleware(request: NextRequest) {
         })
       }
     } catch (error) {
-      console.error('Token decode error:', error)
+      // Token decode failed - redirect to login
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Token decode error:', error)
+      }
     }
 
     // إذا فشل فك التشفير، إعادة توجيه لصفحة تسجيل الدخول
@@ -93,7 +96,9 @@ export function middleware(request: NextRequest) {
               })
             }
           } catch (error) {
-            console.error('Session token decode error:', error)
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Session token decode error:', error)
+            }
           }
         }
       }
@@ -153,7 +158,9 @@ export function middleware(request: NextRequest) {
         })
       }
     } catch (error) {
-      console.error('Token decode error in API:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Token decode error in API:', error)
+      }
     }
 
     // السماح بالمرور - سيتم التحقق من صحة الـ token في API route

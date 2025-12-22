@@ -40,7 +40,9 @@ export async function createNotification(params: CreateNotificationParams) {
     
     return notification;
   } catch (error) {
-    console.error('Error creating notification:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error creating notification:', error);
+    }
     return null;
   }
 }
@@ -68,7 +70,9 @@ export async function getUserNotifications(userId: string, limit = 20) {
 
     return notifications;
   } catch (error) {
-    console.error('Error fetching notifications:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching notifications:', error);
+    }
     return [];
   }
 }
@@ -82,7 +86,9 @@ export async function markNotificationAsRead(notificationId: string) {
     });
     return true;
   } catch (error) {
-    console.error('Error marking notification as read:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error marking notification as read:', error);
+    }
     return false;
   }
 }
@@ -96,7 +102,9 @@ export async function markAllNotificationsAsRead(userId: string) {
     });
     return true;
   } catch (error) {
-    console.error('Error marking all notifications as read:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error marking all notifications as read:', error);
+    }
     return false;
   }
 }
@@ -109,7 +117,9 @@ export async function deleteNotification(notificationId: string) {
     });
     return true;
   } catch (error) {
-    console.error('Error deleting notification:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error deleting notification:', error);
+    }
     return false;
   }
 }
@@ -122,7 +132,9 @@ export async function deleteAllUserNotifications(userId: string) {
     });
     return true;
   } catch (error) {
-    console.error('Error deleting all notifications:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error deleting all notifications:', error);
+    }
     return false;
   }
 }
@@ -135,7 +147,9 @@ export async function getUnreadNotificationCount(userId: string) {
     });
     return count;
   } catch (error) {
-    console.error('Error getting unread count:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error getting unread count:', error);
+    }
     return 0;
   }
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import AdvancedAdminDashboard from '@/components/admin/AdvancedAdminDashboard'
+import { logger } from '@/lib/logger'
 import { 
   CircleStackIcon,
   ChartBarIcon,
@@ -42,7 +43,7 @@ export default function AdminPage() {
       const data = await response.json()
       setStats(data.data)
     } catch (error) {
-      console.error('Failed to fetch stats:', error)
+      logger.error('Failed to fetch stats:', error)
     } finally {
       setLoading(false)
     }
@@ -53,19 +54,19 @@ export default function AdminPage() {
     setLoading(true)
     setTestResult(null)
     try {
-      console.log('🔄 Testing database connection...')
+      logger.log('🔄 Testing database connection...')
       const response = await fetch('/api/admin/database/test')
-      console.log('📡 Response status:', response.status)
+      logger.log('📡 Response status:', response.status)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
       const data = await response.json()
-      console.log('📋 Response data:', data)
+      logger.log('📋 Response data:', data)
       setTestResult(data)
     } catch (error) {
-      console.error('💥 Failed to test connection:', error)
+      logger.error('💥 Failed to test connection:', error)
       setTestResult({ 
         success: false, 
         message: error instanceof Error ? error.message : 'خطأ غير محدد'
@@ -80,16 +81,16 @@ export default function AdminPage() {
     setLoading(true)
     setSeedResult(null)
     try {
-      console.log('🌱 Seeding database...')
+      logger.log('🌱 Seeding database...')
       const response = await fetch('/api/seed')
-      console.log('📡 Response status:', response.status)
+      logger.log('📡 Response status:', response.status)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
       const data = await response.json()
-      console.log('📋 Seed result:', data)
+      logger.log('📋 Seed result:', data)
       setSeedResult(data)
       
       // إعادة جلب الإحصائيات بعد إضافة البيانات
@@ -99,7 +100,7 @@ export default function AdminPage() {
         }, 1000)
       }
     } catch (error) {
-      console.error('💥 Failed to seed database:', error)
+      logger.error('💥 Failed to seed database:', error)
       setSeedResult({ 
         success: false, 
         message: error instanceof Error ? error.message : 'خطأ في إضافة البيانات'

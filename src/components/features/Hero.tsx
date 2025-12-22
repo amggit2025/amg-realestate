@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -15,7 +15,7 @@ interface HeroStats {
   heroImagePublicId?: string
 }
 
-export default function Hero() {
+function Hero() {
   const [stats, setStats] = useState<HeroStats>({
     yearsOfExperience: 15,
     completedProjects: 200,
@@ -156,3 +156,5 @@ export default function Hero() {
     </section>
   )
 }
+
+export default memo(Hero)

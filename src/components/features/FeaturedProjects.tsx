@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ImageLoader } from '@/components/ui'
@@ -68,7 +68,7 @@ const getFallbackProjects = (): Project[] => [
   }
 ]
 
-export default function FeaturedProjects() {
+function FeaturedProjects() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -345,3 +345,5 @@ export default function FeaturedProjects() {
     </section>
   )
 }
+
+export default memo(FeaturedProjects)

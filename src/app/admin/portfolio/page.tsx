@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   PlusIcon,
   PencilIcon,
@@ -88,7 +89,7 @@ export default function AdminPortfolioPage() {
         setError(data.message || 'حدث خطأ في تحميل الأعمال')
       }
     } catch (error) {
-      console.error('خطأ في تحميل الأعمال:', error)
+      logger.error('خطأ في تحميل الأعمال:', error)
       setError('حدث خطأ في الاتصال بالخادم')
     } finally {
       setLoading(false)
@@ -104,7 +105,7 @@ export default function AdminPortfolioPage() {
         setProjects(data.projects || [])
       }
     } catch (error) {
-      console.error('خطأ في تحميل المشاريع:', error)
+      logger.error('خطأ في تحميل المشاريع:', error)
     }
   }
 
@@ -184,7 +185,7 @@ export default function AdminPortfolioPage() {
         alert('حدث خطأ في إضافة العمل: ' + data.message)
       }
     } catch (error) {
-      console.error('خطأ في إضافة العمل:', error)
+      logger.error('خطأ في إضافة العمل:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     } finally {
       setSubmitting(false)
@@ -208,7 +209,7 @@ export default function AdminPortfolioPage() {
         alert('حدث خطأ في حذف العمل: ' + data.message)
       }
     } catch (error) {
-      console.error('خطأ في حذف العمل:', error)
+      logger.error('خطأ في حذف العمل:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     }
   }
@@ -232,7 +233,7 @@ export default function AdminPortfolioPage() {
         alert('حدث خطأ في تحديث حالة النشر: ' + data.message)
       }
     } catch (error) {
-      console.error('خطأ في تحديث حالة النشر:', error)
+      logger.error('خطأ في تحديث حالة النشر:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     }
   }
@@ -256,7 +257,7 @@ export default function AdminPortfolioPage() {
         alert('حدث خطأ في تحديث حالة المميز: ' + data.message)
       }
     } catch (error) {
-      console.error('خطأ في تحديث حالة المميز:', error)
+      logger.error('خطأ في تحديث حالة المميز:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     }
   }

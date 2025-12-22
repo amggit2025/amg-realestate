@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import { motion } from 'framer-motion'
 import { 
   HomeIcon,
@@ -166,7 +167,7 @@ export default function ServicePage() {
         setService(null)
       }
     } catch (error) {
-      console.error('Error fetching service:', error)
+      logger.error('Error fetching service:', error)
       setService(null)
     } finally {
       setLoading(false)
@@ -181,7 +182,7 @@ export default function ServicePage() {
         setOtherServices(data.services.filter((s: Service) => s.slug !== slug))
       }
     } catch (error) {
-      console.error('Error fetching other services:', error)
+      logger.error('Error fetching other services:', error)
     }
   }
 

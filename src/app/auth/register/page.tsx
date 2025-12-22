@@ -4,6 +4,7 @@ import { useState } from 'react'
 import AuthForm from '@/components/ui/AuthForm'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/AuthContext'
+import { logger } from '@/lib/logger'
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -32,7 +33,7 @@ export default function RegisterPage() {
         setError(result.message)
       }
     } catch (error) {
-      console.error('Registration error:', error)
+      logger.error('Registration error:', error)
       setError('حدث خطأ أثناء إنشاء الحساب. حاول مرة أخرى.')
     } finally {
       setIsLoading(false)

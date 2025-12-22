@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import { logger } from '@/lib/logger'
 import {
   ArrowLeftIcon,
   PhotoIcon,

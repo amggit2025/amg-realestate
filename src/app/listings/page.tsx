@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { logger } from '@/lib/logger'
 import { 
   MagnifyingGlassIcon,
   MapPinIcon,
@@ -86,10 +87,10 @@ export default function ListingsPage() {
         setTotalPages(data.totalPages)
         setTotalProperties(data.total || data.properties.length)
       } else {
-        console.error('فشل في تحميل العقارات')
+        logger.error('فشل في تحميل العقارات')
       }
     } catch (error) {
-      console.error('خطأ في تحميل العقارات:', error)
+      logger.error('خطأ في تحميل العقارات:', error)
     } finally {
       setLoading(false)
       setInitialLoad(false)
@@ -170,7 +171,7 @@ export default function ListingsPage() {
   const handleView = (propertyId: string) => {
     setViewedProperties(prev => new Set([...prev, propertyId]))
     // يمكنك إضافة منطق هنا لفتح modal أو تفاصيل العقار
-    console.log(`عرض تفاصيل العقار: ${propertyId}`)
+    logger.log(`عرض تفاصيل العقار: ${propertyId}`)
   }
 
   const handleContact = async (contactType: 'phone' | 'message', property: Property) => {
@@ -216,7 +217,7 @@ export default function ListingsPage() {
       await new Promise(resolve => setTimeout(resolve, 1500))
       
     } catch (error) {
-      console.error('خطأ في التواصل:', error)
+      logger.error('خطأ في التواصل:', error)
       alert('حدث خطأ أثناء محاولة التواصل. يرجى المحاولة مرة أخرى.')
     } finally {
       setContactingProperty(null)

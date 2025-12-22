@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { PlusIcon, PencilIcon, TrashIcon, StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid'
+import { logger } from '@/lib/logger'
 
 interface Testimonial {
   id: string
@@ -50,7 +51,7 @@ export default function TestimonialsPage() {
         setTestimonials(data)
       }
     } catch (error) {
-      console.error('Error fetching testimonials:', error)
+      logger.error('Error fetching testimonials:', error)
     } finally {
       setLoading(false)
     }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import { 
   UsersIcon,
   CheckCircleIcon,
@@ -85,7 +86,7 @@ export default function AdminUsersPage() {
         setError('حدث خطأ أثناء جلب المستخدمين')
       }
     } catch (error) {
-      console.error('Error fetching users:', error)
+      logger.error('Error fetching users:', error)
       setError('حدث خطأ في الاتصال')
     } finally {
       setLoading(false)
@@ -108,10 +109,10 @@ export default function AdminUsersPage() {
         fetchUsers() // إعادة جلب البيانات
         setShowUserModal(false)
       } else {
-        console.error('Failed to update user status')
+        logger.error('Failed to update user status')
       }
     } catch (error) {
-      console.error('Error updating user:', error)
+      logger.error('Error updating user:', error)
     }
   }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   UserGroupIcon,
   ShieldCheckIcon,
@@ -147,7 +148,7 @@ export default function AdminsPage() {
         setSessions(sessionsData.data)
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
+      logger.error('Error fetching data:', error)
       showMessage('error', 'حدث خطأ أثناء جلب البيانات')
     } finally {
       setIsLoading(false)
@@ -199,9 +200,9 @@ export default function AdminsPage() {
   const handleEditAdmin = async () => {
     if (!selectedAdmin) return
 
-    console.log('📤 Sending update request...');
-    console.log('Admin ID:', selectedAdmin.id);
-    console.log('Form Data:', formData);
+    logger.log('📤 Sending update request...');
+    logger.log('Admin ID:', selectedAdmin.id);
+    logger.log('Form Data:', formData);
 
     try {
       const response = await fetch('/api/admin/admins', {
@@ -215,7 +216,7 @@ export default function AdminsPage() {
       })
 
       const result = await response.json()
-      console.log('📥 Response:', result);
+      logger.log('📥 Response:', result);
 
       if (result.success) {
         showMessage('success', 'تم تحديث المشرف بنجاح')

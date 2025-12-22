@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   WrenchScrewdriverIcon,
   PaintBrushIcon,
@@ -79,10 +80,10 @@ export default function AdminServicesPage() {
         const data = await response.json()
         setServices(data.services || [])
       } else {
-        console.error('Failed to fetch services:', response.status)
+        logger.error('Failed to fetch services:', response.status)
       }
     } catch (error) {
-      console.error('Error fetching services:', error)
+      logger.error('Error fetching services:', error)
     } finally {
       setLoading(false)
     }

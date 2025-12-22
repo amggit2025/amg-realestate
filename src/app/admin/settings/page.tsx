@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   UserCircleIcon,
   KeyIcon,
@@ -116,7 +117,7 @@ export default function SettingsPage() {
         }))
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
+      logger.error('Error fetching data:', error)
       showMessage('error', 'حدث خطأ أثناء جلب البيانات')
     } finally {
       setIsLoading(false)

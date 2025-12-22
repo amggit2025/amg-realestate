@@ -4,6 +4,7 @@ import { useParams, notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import { motion } from 'framer-motion'
 import { 
   ArrowRightIcon, 
@@ -72,7 +73,7 @@ export default function PortfolioDetailPage() {
           }
         }
       } catch (error) {
-        console.error('Error:', error)
+        logger.error('Error:', error)
       }
       setLoading(false)
     }

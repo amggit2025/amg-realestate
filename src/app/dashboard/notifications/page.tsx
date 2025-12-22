@@ -50,7 +50,7 @@ export default function NotificationsPage() {
         setUnreadCount(data.unreadCount);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      logger.error('Error fetching notifications:', error);
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
       ));
       setUnreadCount(Math.max(0, unreadCount - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logger.error('Error marking notification as read:', error);
     }
   };
 
@@ -111,7 +111,7 @@ export default function NotificationsPage() {
         setUnreadCount(Math.max(0, unreadCount - 1));
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      logger.error('Error deleting notification:', error);
     }
   };
 
@@ -125,7 +125,7 @@ export default function NotificationsPage() {
       setNotifications(notifications.map(n => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      logger.error('Error marking all as read:', error);
     }
   };
 
@@ -141,7 +141,7 @@ export default function NotificationsPage() {
       setNotifications([]);
       setUnreadCount(0);
     } catch (error) {
-      console.error('Error clearing notifications:', error);
+      logger.error('Error clearing notifications:', error);
     }
   };
 

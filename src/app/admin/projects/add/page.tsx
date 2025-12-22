@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import { 
   ArrowLeftIcon,
   PlusIcon,
@@ -179,7 +180,7 @@ export default function AddProjectPage() {
         setTimeout(() => setError(null), 5000)
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      logger.error('Error uploading image:', error)
       setError('خطأ في رفع الصورة')
       setTimeout(() => setError(null), 5000)
     } finally {
@@ -305,7 +306,7 @@ export default function AddProjectPage() {
         setError(data.message || 'حدث خطأ أثناء إنشاء المشروع')
       }
     } catch (error) {
-      console.error('Error creating project:', error)
+      logger.error('Error creating project:', error)
       setError('حدث خطأ أثناء إنشاء المشروع')
     } finally {
       setLoading(false)

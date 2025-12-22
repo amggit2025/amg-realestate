@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   EnvelopeIcon,
   PhoneIcon,
@@ -83,7 +84,7 @@ export default function InquiriesPage() {
         setStats(result.stats)
       }
     } catch (error) {
-      console.error('Error fetching inquiries:', error)
+      logger.error('Error fetching inquiries:', error)
       showMessage('error', 'حدث خطأ أثناء جلب البيانات')
     } finally {
       setIsLoading(false)

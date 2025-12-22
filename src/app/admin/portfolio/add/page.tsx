@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 
 import {
   ArrowLeftIcon,
@@ -77,7 +78,7 @@ export default function AddPortfolioPage() {
           setServices(data.services || [])
         }
       } catch (error) {
-        console.error('Error fetching services:', error)
+        logger.error('Error fetching services:', error)
       } finally {
         setLoadingServices(false)
       }
@@ -93,7 +94,7 @@ export default function AddPortfolioPage() {
           setProjects(data.projects || [])
         }
       } catch (error) {
-        console.error('Error fetching projects:', error)
+        logger.error('Error fetching projects:', error)
       } finally {
         setLoadingProjects(false)
       }
@@ -181,7 +182,7 @@ export default function AddPortfolioPage() {
           setUploadProgress(prev => ({ ...prev, main: 100 }))
         }
       } catch (error) {
-        console.error('خطأ في رفع الصورة الرئيسية إلى Cloudinary:', error)
+        logger.error('خطأ في رفع الصورة الرئيسية إلى Cloudinary:', error)
         setUploadProgress(prev => ({ ...prev, main: -1 }))
       }
     }
@@ -208,7 +209,7 @@ export default function AddPortfolioPage() {
           setUploadProgress(prev => ({ ...prev, [progressKey]: 100 }))
         }
       } catch (error) {
-        console.error('خطأ في رفع صورة المعرض إلى Cloudinary:', error)
+        logger.error('خطأ في رفع صورة المعرض إلى Cloudinary:', error)
         setUploadProgress(prev => ({ ...prev, [progressKey]: -1 }))
       }
     }
@@ -297,7 +298,7 @@ export default function AddPortfolioPage() {
         alert('حدث خطأ في إضافة العمل: ' + data.message)
       }
     } catch (error) {
-      console.error('خطأ في إضافة العمل:', error)
+      logger.error('خطأ في إضافة العمل:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     } finally {
       setSubmitting(false)

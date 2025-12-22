@@ -13,7 +13,9 @@ const initializeFirebaseAdmin = () => {
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
     if (!projectId || !clientEmail || !privateKey) {
-      console.warn('Firebase Admin credentials not configured');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Firebase Admin credentials not configured');
+      }
       return null;
     }
 
@@ -41,7 +43,9 @@ export const sendPushNotification = async (
   try {
     const app = initializeFirebaseAdmin();
     if (!app) {
-      console.warn('Firebase Admin not initialized');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Firebase Admin not initialized');
+      }
       return null;
     }
 
@@ -59,7 +63,9 @@ export const sendPushNotification = async (
     const response = await messaging.send(message);
     return response;
   } catch (error) {
-    console.error('Error sending push notification:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error sending push notification:', error);
+    }
     return null;
   }
 };
@@ -74,7 +80,9 @@ export const sendMultiplePushNotifications = async (
   try {
     const app = initializeFirebaseAdmin();
     if (!app) {
-      console.warn('Firebase Admin not initialized');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Firebase Admin not initialized');
+      }
       return null;
     }
 
@@ -92,7 +100,9 @@ export const sendMultiplePushNotifications = async (
     const response = await messaging.sendEachForMulticast(message);
     return response;
   } catch (error) {
-    console.error('Error sending multiple push notifications:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error sending multiple push notifications:', error);
+    }
     return null;
   }
 };

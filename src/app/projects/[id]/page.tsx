@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { logger } from '@/lib/logger'
 import Image from 'next/image'
 import { ImageLoader } from '@/components/ui'
 import { 
@@ -156,7 +157,7 @@ export default function ProjectDetailsPage() {
           setError(data.message || 'خطأ في جلب المشروع')
         }
       } catch (error) {
-        console.error('Error fetching project:', error)
+        logger.error('Error fetching project:', error)
         setError('خطأ في الاتصال بالخادم')
       } finally {
         setLoading(false)
@@ -241,7 +242,7 @@ export default function ProjectDetailsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // هنا سيتم إرسال البيانات للسيرفر
-    console.log('Form submitted:', formData)
+    logger.log('Form submitted:', formData)
     setShowContactForm(false)
     // يمكن إضافة رسالة نجاح
   }

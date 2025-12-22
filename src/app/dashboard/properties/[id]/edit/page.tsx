@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth, withAuth } from '@/lib/AuthContext'
 import { useRouter, useParams } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import { 
   BuildingOffice2Icon,
   PhotoIcon,
@@ -178,7 +179,7 @@ function EditPropertyPage() {
         router.push('/dashboard')
       }
     } catch (error) {
-      console.error('Error fetching property:', error)
+      logger.error('Error fetching property:', error)
       setError('خطأ في تحميل بيانات العقار')
     } finally {
       setLoading(false)
@@ -239,7 +240,7 @@ function EditPropertyPage() {
         setError(data.message || 'حدث خطأ في تحديث العقار')
       }
     } catch (error) {
-      console.error('Error updating property:', error)
+      logger.error('Error updating property:', error)
       setError('حدث خطأ في تحديث العقار')
     } finally {
       setSaving(false)

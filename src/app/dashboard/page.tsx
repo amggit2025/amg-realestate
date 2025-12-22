@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import { 
   ChartBarIcon,
   EyeIcon,
@@ -118,7 +119,7 @@ function DashboardPage() {
         setProperties(data.properties || [])
       }
     } catch (error) {
-      console.error('Error fetching properties:', error)
+      logger.error('Error fetching properties:', error)
     } finally {
       setLoadingProperties(false)
     }
@@ -133,7 +134,7 @@ function DashboardPage() {
   const confirmDeleteProperty = async (propertyId: string) => {
     setDeletingProperty(propertyId)
     try {
-      console.log('محاولة حذف العقار:', propertyId)
+      logger.log('محاولة حذف العقار:', propertyId)
       const response = await fetch(`/api/properties/${propertyId}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -142,7 +143,7 @@ function DashboardPage() {
         }
       })
 
-      console.log('استجابة الحذف:', response.status)
+      logger.log('استجابة الحذف:', response.status)
 
       if (response.ok) {
         // إزالة العقار من القائمة
@@ -151,11 +152,11 @@ function DashboardPage() {
         alert('تم حذف العقار بنجاح')
       } else {
         const errorData = await response.json()
-        console.error('خطأ في الحذف:', errorData)
+        logger.error('خطأ في الحذف:', errorData)
         alert(errorData.message || 'حدث خطأ في حذف العقار')
       }
     } catch (error) {
-      console.error('خطأ في شبكة الاتصال:', error)
+      logger.error('خطأ في شبكة الاتصال:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     } finally {
       setDeletingProperty(null)
@@ -168,7 +169,7 @@ function DashboardPage() {
     const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
     
     try {
-      console.log('محاولة تغيير حالة العقار:', propertyId, 'من', currentStatus, 'إلى', newStatus)
+      logger.log('محاولة تغيير حالة العقار:', propertyId, 'من', currentStatus, 'إلى', newStatus)
       const response = await fetch(`/api/properties/${propertyId}`, {
         method: 'PATCH',
         credentials: 'include',
@@ -178,7 +179,7 @@ function DashboardPage() {
         body: JSON.stringify({ status: newStatus }),
       })
 
-      console.log('استجابة تغيير الحالة:', response.status)
+      logger.log('استجابة تغيير الحالة:', response.status)
 
       if (response.ok) {
         // تحديث حالة العقار في القائمة
@@ -192,11 +193,11 @@ function DashboardPage() {
         alert('تم تغيير حالة العقار بنجاح')
       } else {
         const errorData = await response.json()
-        console.error('خطأ في تغيير الحالة:', errorData)
+        logger.error('خطأ في تغيير الحالة:', errorData)
         alert(errorData.message || 'حدث خطأ في تغيير حالة العقار')
       }
     } catch (error) {
-      console.error('خطأ في شبكة الاتصال:', error)
+      logger.error('خطأ في شبكة الاتصال:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     } finally {
       setToggleStatus(null)

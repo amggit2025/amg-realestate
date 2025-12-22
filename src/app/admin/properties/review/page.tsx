@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import { 
   BuildingOfficeIcon,
   EyeIcon,
@@ -125,7 +126,7 @@ export default function AdminPropertiesReviewPage() {
         setError('حدث خطأ أثناء جلب العقارات')
       }
     } catch (error) {
-      console.error('Error fetching properties:', error)
+      logger.error('Error fetching properties:', error)
       setError('حدث خطأ في الاتصال')
     } finally {
       setLoading(false)
@@ -172,7 +173,7 @@ export default function AdminPropertiesReviewPage() {
         setError(errorData.message || 'حدث خطأ أثناء التحديث')
       }
     } catch (error) {
-      console.error('Error updating review:', error)
+      logger.error('Error updating review:', error)
       setError('حدث خطأ في الاتصال')
     } finally {
       setIsSubmitting(false)

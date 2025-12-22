@@ -86,7 +86,7 @@ export default function InquiriesPage() {
         setFilteredInquiries(data.inquiries || []);
       }
     } catch (error) {
-      console.error('Error fetching inquiries:', error);
+      logger.error('Error fetching inquiries:', error);
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export default function InquiriesPage() {
         i.id === id ? { ...i, status: 'READ' } : i
       ));
     } catch (error) {
-      console.error('Error marking inquiry as read:', error);
+      logger.error('Error marking inquiry as read:', error);
     }
   };
 
@@ -120,7 +120,7 @@ export default function InquiriesPage() {
 
       setInquiries(inquiries.filter(i => i.id !== id));
     } catch (error) {
-      console.error('Error deleting inquiry:', error);
+      logger.error('Error deleting inquiry:', error);
     }
   };
 

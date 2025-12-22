@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import { 
   ArrowLeftIcon,
   PhotoIcon,
@@ -189,7 +190,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
         setError(data.message || 'خطأ في جلب بيانات المشروع')
       }
     } catch (error) {
-      console.error('Error fetching project:', error)
+      logger.error('Error fetching project:', error)
       setError('خطأ في جلب بيانات المشروع')
     } finally {
       setLoading(false)
@@ -248,7 +249,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           setTimeout(() => setError(null), 5000)
         }
       } catch (error) {
-        console.error('Error adding image:', error)
+        logger.error('Error adding image:', error)
         setError('خطأ في إضافة الصورة')
         setTimeout(() => setError(null), 5000)
       }
@@ -290,7 +291,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
         setTimeout(() => setError(null), 5000)
       }
     } catch (error) {
-      console.error('Error removing image:', error)
+      logger.error('Error removing image:', error)
       setError('خطأ في حذف الصورة')
       setTimeout(() => setError(null), 5000)
     }
@@ -340,7 +341,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
         setTimeout(() => setError(null), 5000)
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      logger.error('Error uploading image:', error)
       setError('خطأ في رفع الصورة')
       setTimeout(() => setError(null), 5000)
     } finally {
@@ -394,7 +395,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
         setError(data.message || 'خطأ في تحديث المشروع')
       }
     } catch (error) {
-      console.error('Error updating project:', error)
+      logger.error('Error updating project:', error)
       setError('خطأ في تحديث المشروع')
     } finally {
       setSaving(false)

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import Image from 'next/image'
 import Link from 'next/link'
 import { 
@@ -96,14 +97,14 @@ export default function PropertyDetailPage() {
       })
       
       if (!response.ok) {
-        console.error('Failed to fetch property, status:', response.status)
+        logger.error('Failed to fetch property, status:', response.status)
         setLoading(false)
         return
       }
 
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        console.error('Response is not JSON:', await response.text())
+        logger.error('Response is not JSON:', await response.text())
         setLoading(false)
         return
       }
@@ -122,7 +123,7 @@ export default function PropertyDetailPage() {
       }
       setProperty(propertyData)
     } catch (error) {
-      console.error('Error fetching property:', error)
+      logger.error('Error fetching property:', error)
     } finally {
       setLoading(false)
     }
@@ -189,7 +190,7 @@ export default function PropertyDetailPage() {
           url: window.location.href,
         })
       } catch (err) {
-        console.log('Error sharing:', err)
+        logger.log('Error sharing:', err)
       }
     } else {
       // Fallback: Copy to clipboard
@@ -236,7 +237,7 @@ export default function PropertyDetailPage() {
         alert(data.message || 'حدث خطأ أثناء إرسال الاستفسار')
       }
     } catch (error) {
-      console.error('Error submitting inquiry:', error)
+      logger.error('Error submitting inquiry:', error)
       alert('حدث خطأ أثناء إرسال الاستفسار. يرجى المحاولة مرة أخرى.')
     } finally {
       setSubmittingInquiry(false)

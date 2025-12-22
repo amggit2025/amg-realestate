@@ -18,13 +18,15 @@ const transporter = nodemailer.createTransport({
 })
 
 // التحقق من الاتصال
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Email service connection error:', error)
-  } else {
-    console.log('✅ Email service is ready to send messages')
-  }
-})
+if (process.env.NODE_ENV === 'development') {
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('❌ Email service connection error:', error)
+    } else {
+      console.log('✅ Email service is ready to send messages')
+    }
+  })
+}
 
 // دالة لإرسال رمز التحقق
 export async function sendVerificationEmail(
@@ -178,11 +180,15 @@ export async function sendVerificationEmail(
     }
 
     const info = await transporter.sendMail(mailOptions)
-    console.log('✅ Email sent successfully:', info.messageId)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Email sent successfully:', info.messageId)
+    }
     return true
 
   } catch (error) {
-    console.error('❌ Error sending email:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Error sending email:', error)
+    }
     return false
   }
 }
@@ -239,11 +245,15 @@ export async function sendWelcomeEmail(
     }
 
     const info = await transporter.sendMail(mailOptions)
-    console.log('✅ Welcome email sent:', info.messageId)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Welcome email sent:', info.messageId)
+    }
     return true
 
   } catch (error) {
-    console.error('❌ Error sending welcome email:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Error sending welcome email:', error)
+    }
     return false
   }
 }
@@ -271,11 +281,15 @@ export async function sendEmail({
     }
 
     const info = await transporter.sendMail(mailOptions)
-    console.log('✅ Email sent successfully:', info.messageId)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Email sent successfully:', info.messageId)
+    }
     return true
 
   } catch (error) {
-    console.error('❌ Error sending email:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Error sending email:', error)
+    }
     return false
   }
 }

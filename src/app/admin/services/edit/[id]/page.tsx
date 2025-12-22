@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -125,7 +126,7 @@ export default function EditServicePage() {
         setTimelines(Array.isArray(options.timelines) ? options.timelines : [])
       }
     } catch (error) {
-      console.error('Error fetching service:', error)
+      logger.error('Error fetching service:', error)
       alert('فشل في تحميل بيانات الخدمة')
     } finally {
       setLoading(false)
@@ -140,7 +141,7 @@ export default function EditServicePage() {
     try {
       // 🗑️ حذف الصورة القديمة من Cloudinary
       if (formData.heroImagePublicId) {
-        console.log('🗑️ حذف صورة Hero القديمة:', formData.heroImagePublicId)
+        logger.log('🗑️ حذف صورة Hero القديمة:', formData.heroImagePublicId)
         await fetch('/api/delete-image', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -170,7 +171,7 @@ export default function EditServicePage() {
         alert(data.message || 'فشل رفع الصورة')
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      logger.error('Error uploading image:', error)
       alert('حدث خطأ أثناء رفع الصورة')
     } finally {
       setUploadingHero(false)

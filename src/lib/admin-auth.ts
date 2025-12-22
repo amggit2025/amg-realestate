@@ -3,7 +3,11 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
 // JWT Secret Keys
-const JWT_ADMIN_SECRET = process.env.JWT_ADMIN_SECRET || 'fallback-admin-secret-key-amg-real-estate'
+if (!process.env.JWT_ADMIN_SECRET) {
+  throw new Error('JWT_ADMIN_SECRET is not configured')
+}
+
+const JWT_ADMIN_SECRET = process.env.JWT_ADMIN_SECRET
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d'
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '30d'
 

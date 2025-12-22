@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   PhoneIcon,
   EnvelopeIcon,
@@ -57,7 +58,7 @@ export default function ServiceRequestsPage() {
         setRequests(data.requests || [])
       }
     } catch (error) {
-      console.error('Error fetching service requests:', error)
+      logger.error('Error fetching service requests:', error)
     } finally {
       setLoading(false)
     }
@@ -83,7 +84,7 @@ export default function ServiceRequestsPage() {
         setAdminNotes('')
       }
     } catch (error) {
-      console.error('Error updating request:', error)
+      logger.error('Error updating request:', error)
     }
   }
 
@@ -100,7 +101,7 @@ export default function ServiceRequestsPage() {
         fetchRequests()
       }
     } catch (error) {
-      console.error('Error deleting request:', error)
+      logger.error('Error deleting request:', error)
     }
   }
 

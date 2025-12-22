@@ -49,7 +49,9 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
     
     return null;
   } catch (error) {
-    console.error('Error getting notification permission:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error getting notification permission:', error);
+    }
     return null;
   }
 };

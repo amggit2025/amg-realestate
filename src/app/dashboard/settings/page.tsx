@@ -74,7 +74,7 @@ function SettingsPage() {
         })
       }
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      logger.error('Error fetching profile:', error)
     } finally {
       setIsLoading(false)
     }
@@ -104,7 +104,7 @@ function SettingsPage() {
         alert(errorData.message || 'حدث خطأ في تحديث الملف الشخصي')
       }
     } catch (error) {
-      console.error('Error updating profile:', error)
+      logger.error('Error updating profile:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     } finally {
       setIsSaving(false)
@@ -152,7 +152,7 @@ function SettingsPage() {
         alert(errorData.message || 'حدث خطأ في تغيير كلمة المرور')
       }
     } catch (error) {
-      console.error('Error changing password:', error)
+      logger.error('Error changing password:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     } finally {
       setIsSaving(false)

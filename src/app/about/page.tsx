@@ -60,7 +60,7 @@ export default function AboutPage() {
         setData(result.data)
       }
     } catch (err) {
-      console.error('Error fetching about page data:', err)
+      logger.error('Error fetching about page data:', err)
     } finally {
       setLoading(false)
     }

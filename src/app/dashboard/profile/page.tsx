@@ -96,7 +96,7 @@ function ProfilePage() {
         alert(error.message || 'حدث خطأ أثناء التحديث')
       }
     } catch (error) {
-      console.error('Error updating profile:', error)
+      logger.error('Error updating profile:', error)
       alert('حدث خطأ في الاتصال')
     } finally {
       setLoading(false)

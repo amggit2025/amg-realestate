@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { 
@@ -70,7 +72,7 @@ export default function ProjectsPage() {
         setError(data.message || 'خطأ في جلب المشاريع')
       }
     } catch (error) {
-      console.error('Error fetching projects:', error)
+      logger.error('Error fetching projects:', error)
       setError('خطأ في الاتصال بالخادم')
     } finally {
       setLoading(false)

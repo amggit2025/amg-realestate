@@ -44,6 +44,7 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'], // AVIF first for better compression
     deviceSizes: [640, 750, 828, 1080, 1200, 1920], // Reduced sizes
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    qualities: [70, 75, 95], // Support different quality levels
     minimumCacheTTL: 31536000, // 1 year cache for better performance
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
@@ -56,7 +57,8 @@ const nextConfig: NextConfig = {
   },
   
   typescript: {
-    ignoreBuildErrors: true, // Ignore TypeScript errors during build on Vercel
+    // Only ignore errors during development - ensure proper types in production
+    ignoreBuildErrors: false,
   },
   
   // Headers for better performance and security

@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import NextImage from 'next/image'
@@ -91,7 +93,7 @@ export default function ServicesPage() {
           setServices(data.services || [])
         }
       } catch (error) {
-        console.error('Error fetching services:', error)
+        logger.error('Error fetching services:', error)
       } finally {
         setLoading(false)
       }

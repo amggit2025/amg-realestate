@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { motion } from 'framer-motion'
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
@@ -104,10 +106,10 @@ export default function PortfolioPage() {
         if (data.success) {
           setPortfolioProjects(data.portfolioItems || [])
         } else {
-          console.error('خطأ في تحميل الأعمال:', data.message)
+          logger.error('خطأ في تحميل الأعمال:', data.message)
         }
       } catch (error) {
-        console.error('خطأ في الاتصال:', error)
+        logger.error('خطأ في الاتصال:', error)
       } finally {
         setLoading(false)
       }

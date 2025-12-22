@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 
+// Base URL
+const getBaseUrl = () => process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://amg-realestate.com'
+
 // Base metadata for the website
 export const baseMetadata: Metadata = {
-  metadataBase: new URL('https://amg-realestate.com'),
+  metadataBase: new URL(getBaseUrl()),
   title: {
     default: 'AMG العقارية - الحلول العقارية الشاملة في مصر',
     template: '%s | AMG العقارية'
@@ -20,11 +23,17 @@ export const baseMetadata: Metadata = {
     'القاهرة الجديدة',
     'العاصمة الإدارية',
     'التجمع الخامس',
-    'AMG العقارية'
+    'AMG العقارية',
+    'عقارات للبيع',
+    'استثمار عقاري',
+    'بيت الوطن',
+    'حسن علام'
   ],
-  authors: [{ name: 'AMG Real Estate' }],
+  authors: [{ name: 'AMG Real Estate', url: 'https://amg-invest.com' }],
   creator: 'AMG Real Estate',
   publisher: 'AMG Real Estate',
+  applicationName: 'AMG Real Estate',
+  category: 'Real Estate',
   formatDetection: {
     email: false,
     address: false,
@@ -33,7 +42,8 @@ export const baseMetadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ar_EG',
-    url: 'https://amg-realestate.com',
+    alternateLocale: ['en_US'],
+    url: getBaseUrl(),
     siteName: 'AMG العقارية',
     title: 'AMG العقارية - الحلول العقارية الشاملة في مصر',
     description: 'شركة AMG العقارية الرائدة في مصر. نقدم خدمات عقارية شاملة من البيع والتسويق إلى الإنشاءات والأثاث والمطابخ العصرية.',
@@ -43,11 +53,14 @@ export const baseMetadata: Metadata = {
         width: 1200,
         height: 630,
         alt: 'AMG العقارية - الحلول العقارية الشاملة',
+        type: 'image/jpeg',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@amgrealestate',
+    creator: '@amgrealestate',
     title: 'AMG العقارية - الحلول العقارية الشاملة في مصر',
     description: 'شركة AMG العقارية الرائدة في مصر. نقدم خدمات عقارية شاملة من البيع والتسويق إلى الإنشاءات والأثاث والمطابخ العصرية.',
     images: ['/images/og-image.jpg'],
@@ -66,6 +79,13 @@ export const baseMetadata: Metadata = {
   verification: {
     google: 'your-google-verification-code',
     yandex: 'your-yandex-verification-code',
+  },
+  alternates: {
+    canonical: getBaseUrl(),
+    languages: {
+      'ar-EG': getBaseUrl(),
+      'en-US': `${getBaseUrl()}/en`,
+    },
   },
 }
 
@@ -122,30 +142,44 @@ export const pagesMetadata = {
 
 // JSON-LD structured data
 export const generateStructuredData = (type: string, data?: Record<string, unknown>) => {
+  const baseUrl = getBaseUrl()
   const baseSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'AMG العقارية',
-    url: 'https://amg-realestate.com',
-    logo: 'https://amg-realestate.com/images/logo.png',
+    alternateName: 'AMG Real Estate',
+    url: baseUrl,
+    logo: `${baseUrl}/images/logo.png`,
     description: 'شركة AMG العقارية الرائدة في مصر للخدمات العقارية الشاملة',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'القاهرة الجديدة',
+      streetAddress: 'التجمع الخامس، القاهرة الجديدة',
       addressLocality: 'القاهرة',
+      addressRegion: 'محافظة القاهرة',
+      postalCode: '11835',
       addressCountry: 'EG'
     },
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+20-1234567890',
+      telephone: '+20-10-0002-5080',
       contactType: 'customer service',
-      availableLanguage: ['Arabic', 'English']
+      email: 'info@amg-invest.com',
+      availableLanguage: ['Arabic', 'English'],
+      areaServed: 'EG'
     },
     sameAs: [
-      'https://www.facebook.com/amgrealestate',
-      'https://www.instagram.com/amgrealestate',
-      'https://www.linkedin.com/company/amgrealestate'
-    ]
+      'https://www.facebook.com/ahmedelmalahgroup/',
+      'https://www.facebook.com/amgrealestate'
+    ],
+    founder: {
+      '@type': 'Person',
+      name: 'Ahmed El Malah'
+    },
+    foundingDate: '2015',
+    numberOfEmployees: {
+      '@type': 'QuantitativeValue',
+      value: '50+'
+    }
   }
 
   switch (type) {
@@ -195,15 +229,20 @@ export const generatePageMetadata = (
   customData?: Partial<Metadata>
 ): Metadata => {
   const pageData = pagesMetadata[pageKey]
+  const baseUrl = getBaseUrl()
+  const pageUrl = `${baseUrl}/${pageKey === 'home' ? '' : pageKey}`
   
   return {
     title: pageData.title,
     description: pageData.description,
     keywords: pageData.keywords,
+    alternates: {
+      canonical: pageUrl,
+    },
     openGraph: {
       title: `${pageData.title} | AMG العقارية`,
       description: pageData.description,
-      url: `https://amg-realestate.com/${pageKey === 'home' ? '' : pageKey}`,
+      url: pageUrl,
       images: [
         {
           url: `/images/og-${pageKey}.jpg`,

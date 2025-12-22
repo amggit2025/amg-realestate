@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { logger } from '@/lib/logger'
 import { 
   EnvelopeIcon,
   CheckCircleIcon,
@@ -54,7 +55,7 @@ export default function SubscriptionsPage() {
         setStats(result.stats)
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error)
+      logger.error('Error fetching subscriptions:', error)
       showMessage('error', 'حدث خطأ أثناء جلب البيانات')
     } finally {
       setIsLoading(false)

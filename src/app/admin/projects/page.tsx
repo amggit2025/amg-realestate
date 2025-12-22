@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -48,7 +49,7 @@ export default function AdminProjectsPage() {
         setError(data.message || 'خطأ في جلب المشاريع')
       }
     } catch (error) {
-      console.error('Error fetching projects:', error)
+      logger.error('Error fetching projects:', error)
       setError('خطأ في الاتصال بالخادم')
     } finally {
       setLoading(false)
@@ -71,7 +72,7 @@ export default function AdminProjectsPage() {
         alert('خطأ: ' + data.message)
       }
     } catch (error) {
-      console.error('Error adding sample projects:', error)
+      logger.error('Error adding sample projects:', error)
       alert('خطأ في إضافة المشاريع التجريبية')
     } finally {
       setSeedLoading(false)
@@ -94,14 +95,14 @@ export default function AdminProjectsPage() {
         alert(data.message || 'خطأ في حذف المشروع')
       }
     } catch (error) {
-      console.error('Error deleting project:', error)
+      logger.error('Error deleting project:', error)
       alert('خطأ في الاتصال بالخادم')
     }
   }
 
   const toggleProjectStatus = async (id: string, field: 'featured' | 'published', currentValue: boolean) => {
     try {
-      console.log(`🔄 Toggling ${field} for project ${id} from ${currentValue} to ${!currentValue}`)
+      logger.log(`🔄 Toggling ${field} for project ${id} from ${currentValue} to ${!currentValue}`)
       
       const response = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
@@ -109,21 +110,21 @@ export default function AdminProjectsPage() {
         body: JSON.stringify({ [field]: !currentValue })
       })
       
-      console.log('📡 Response status:', response.status)
+      logger.log('📡 Response status:', response.status)
       const data = await response.json()
-      console.log('📋 Response data:', data)
+      logger.log('📋 Response data:', data)
 
       if (data.success) {
-        console.log('✅ Successfully updated project status')
+        logger.log('✅ Successfully updated project status')
         setProjects(prev => prev.map(p => 
           p.id === id ? { ...p, [field]: !currentValue } : p
         ))
       } else {
-        console.error('❌ API returned error:', data.message)
+        logger.error('❌ API returned error:', data.message)
         alert(`خطأ: ${data.message}`)
       }
     } catch (error) {
-      console.error('💥 Error updating project:', error)
+      logger.error('💥 Error updating project:', error)
       alert(`خطأ في الاتصال: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`)
     }
   }

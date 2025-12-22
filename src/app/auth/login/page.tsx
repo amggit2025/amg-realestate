@@ -5,6 +5,7 @@ import { useState } from 'react'
 import AuthForm from '@/components/ui/AuthForm'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/AuthContext'
+import { logger } from '@/lib/logger'
 
 // Moved metadata to a separate const for client component
 const metadata = {
@@ -32,7 +33,7 @@ export default function LoginPage() {
         setError(result.message)
       }
     } catch (error) {
-      console.error('Login error:', error)
+      logger.error('Login error:', error)
       setError('حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.')
     } finally {
       setIsLoading(false)

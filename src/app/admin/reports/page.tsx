@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   ArrowDownTrayIcon,
   DocumentArrowDownIcon,
@@ -132,7 +133,7 @@ export default function ReportsPage() {
         },
       })
     } catch (error) {
-      console.error('Error fetching stats:', error)
+      logger.error('Error fetching stats:', error)
       showMessage('error', 'حدث خطأ في جلب الإحصائيات')
     } finally {
       setIsLoading(false)
@@ -174,7 +175,7 @@ export default function ReportsPage() {
 
       showMessage('success', `تم تصدير ${type} بنجاح بصيغة ${format.toUpperCase()}`)
     } catch (error) {
-      console.error('Export error:', error)
+      logger.error('Export error:', error)
       showMessage('error', 'حدث خطأ أثناء التصدير')
     } finally {
       setExportLoading(null)

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/AuthContext'
+import { logger } from '@/lib/logger'
 import { 
   BuildingOffice2Icon,
   PhotoIcon,
@@ -100,9 +101,9 @@ export default function AddPropertyPage() {
 
   // تأثير للتحقق من المصادقة
   useEffect(() => {
-    console.log('🔐 AddProperty: Authentication check - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated, 'user:', user ? user.email : 'null')
+    logger.log('🔐 AddProperty: Authentication check - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated, 'user:', user ? user.email : 'null')
     if (!isLoading && !isAuthenticated) {
-      console.log('⏭️ AddProperty: Redirecting to login page')
+      logger.log('⏭️ AddProperty: Redirecting to login page')
       router.push('/auth/login')
     }
   }, [isAuthenticated, isLoading, router, user])
@@ -253,7 +254,7 @@ export default function AddPropertyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form submitted, user:', user ? 'Authenticated' : 'Not authenticated')
+    logger.log('Form submitted, user:', user ? 'Authenticated' : 'Not authenticated')
     
     if (!user) {
       setError('يجب تسجيل الدخول أولاً')
@@ -264,8 +265,8 @@ export default function AddPropertyPage() {
     setError('')
 
     try {
-      console.log('Starting property submission...')
-      console.log('Form data before validation:', formData)
+      logger.log('Starting property submission...')
+      logger.log('Form data before validation:', formData)
       
       // Client-side validation
       const requiredFields = {
@@ -284,7 +285,7 @@ export default function AddPropertyPage() {
       for (const [field, label] of Object.entries(requiredFields)) {
         const value = formData[field as keyof PropertyFormData]
         if (!value || (typeof value === 'string' && value.trim() === '')) {
-          console.log(`Validation failed for field: ${field}, value:`, value)
+          logger.log(`Validation failed for field: ${field}, value:`, value)
           throw new Error(`${label} مطلوب`)
         }
       }
@@ -322,14 +323,14 @@ export default function AddPropertyPage() {
         submitData.append('images', image)
       })
 
-      console.log('Sending request to API with data:', Object.fromEntries(submitData.entries()))
+      logger.log('Sending request to API with data:', Object.fromEntries(submitData.entries()))
       
       const response = await fetch('/api/properties', {
         method: 'POST',
         body: submitData,
       })
 
-      console.log('API Response status:', response.status)
+      logger.log('API Response status:', response.status)
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -351,8 +352,8 @@ export default function AddPropertyPage() {
       }, 2000)
 
     } catch (error) {
-      console.error('Error adding property:', error)
-      console.error('Error details:', {
+      logger.error('Error adding property:', error)
+      logger.error('Error details:', {
         name: error instanceof Error ? error.name : 'Unknown',
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : 'No stack trace'

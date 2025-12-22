@@ -16,10 +16,15 @@ export interface TokenPayload {
 // دالة للتحقق من صحة Token
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as TokenPayload
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is not configured')
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as TokenPayload
     return decoded
   } catch (error) {
-    console.error('Invalid token:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Invalid token:', error)
+    }
     return null
   }
 }
@@ -55,7 +60,9 @@ export async function getUserFromToken(token: string) {
 
     return user
   } catch (error) {
-    console.error('Error getting user from token:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error getting user from token:', error)
+    }
     return null
   }
 }
@@ -110,7 +117,9 @@ export async function requireAuth(request: Request) {
     }
 
   } catch (error) {
-    console.error('Auth error:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Auth error:', error)
+    }
     return {
       success: false,
       message: 'حدث خطأ في التحقق من المصادقة',
@@ -144,6 +153,8 @@ export async function withAuth(handler: (request: Request, user: any) => Promise
 
 // دالة إنشاء JWT token
 export function createToken(payload: Record<string, any>, expiresIn = '7d'): string {
-  const secret = process.env.JWT_SECRET || 'fallback-secret'
-  return jwt.sign(payload, secret, { expiresIn } as jwt.SignOptions)
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured')
+  }
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn } as jwt.SignOptions)
 }

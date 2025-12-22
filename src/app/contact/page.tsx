@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -40,7 +40,7 @@ export default function ContactPage() {
         setSocialLinks(result.data);
       }
     } catch (error) {
-      console.error('Error fetching social links:', error);
+      logger.error('Error fetching social links:', error);
     }
   };
 

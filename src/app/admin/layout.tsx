@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
+import { logger } from '@/lib/logger';
 
 export default function AdminLayout({
   children,
@@ -58,7 +59,7 @@ export default function AdminLayout({
 
   // Debug logging for admin session changes (simplified)
   useEffect(() => {
-    console.log('AdminLayout - Page:', currentPage, 'Role:', adminSession?.role)
+    logger.log('AdminLayout - Page:', currentPage, 'Role:', adminSession?.role)
   }, [currentPage, adminSession]);
 
   const checkAuthentication = async () => {
@@ -102,7 +103,7 @@ export default function AdminLayout({
         router.push('/admin/login');
       }
     } catch (error) {
-      console.error('Authentication check failed:', error);
+      logger.error('Authentication check failed:', error);
       setIsAuthenticated(false);
       localStorage.removeItem('amg_admin_session');
       router.push('/admin/login');
@@ -178,7 +179,7 @@ export default function AdminLayout({
                       credentials: 'include',
                     });
                   } catch (error) {
-                    console.error('Logout error:', error);
+                    logger.error('Logout error:', error);
                   }
                   localStorage.removeItem('amg_admin_session');
                   router.push('/admin/login');

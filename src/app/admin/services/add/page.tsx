@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -112,7 +113,7 @@ export default function AddServicePage() {
         alert(data.message || 'فشل رفع الصورة')
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
+      logger.error('Error uploading image:', error)
       alert('حدث خطأ أثناء رفع الصورة')
     } finally {
       setUploadingHero(false)

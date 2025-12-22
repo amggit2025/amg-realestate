@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { logger } from '@/lib/logger'
 import { 
   LockClosedIcon,
   UserIcon,
@@ -35,7 +36,7 @@ export default function AdminLoginPage() {
     setIsLoading(true)
     setError('')
 
-    console.log('🔐 محاولة تسجيل الدخول...', formData);
+    logger.log('🔐 محاولة تسجيل الدخول...', formData);
 
     try {
       const response = await fetch('/api/admin/login', {
@@ -47,27 +48,27 @@ export default function AdminLoginPage() {
         body: JSON.stringify(formData),
       })
 
-      console.log('📡 Response status:', response.status);
+      logger.log('📡 Response status:', response.status);
       
       const result = await response.json()
-      console.log('📦 Response data:', result);
+      logger.log('📦 Response data:', result);
 
       if (result.success) {
-        console.log('✅ تسجيل الدخول نجح!');
+        logger.log('✅ تسجيل الدخول نجح!');
         
         // حفظ معلومات الأدمن في localStorage كـ backup فقط (ليس للمصادقة)
         localStorage.setItem('amg_admin_session', JSON.stringify(result.data))
         
-        console.log('🔄 إعادة التوجيه إلى /admin...');
+        logger.log('🔄 إعادة التوجيه إلى /admin...');
         
         // استخدام window.location بدلاً من router.push لضمان إرسال الـ cookies
         window.location.href = '/admin'
       } else {
-        console.error('❌ فشل تسجيل الدخول:', result.message);
+        logger.error('❌ فشل تسجيل الدخول:', result.message);
         setError(result.message || 'حدث خطأ في تسجيل الدخول')
       }
     } catch (error) {
-      console.error('💥 Login error:', error)
+      logger.error('💥 Login error:', error)
       setError('حدث خطأ في الاتصال بالخادم')
     } finally {
       setIsLoading(false)

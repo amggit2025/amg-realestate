@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { memo } from 'react'
 import { 
   WrenchScrewdriverIcon,
   PaintBrushIcon,
@@ -57,7 +58,7 @@ const services = [
   }
 ]
 
-export default function Services() {
+function Services() {
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -158,3 +159,5 @@ export default function Services() {
     </section>
   )
 }
+
+export default memo(Services)

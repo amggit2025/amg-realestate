@@ -121,7 +121,7 @@ function ActivitiesPage() {
         setError('حدث خطأ أثناء جلب الأنشطة')
       }
     } catch (error) {
-      console.error('Error fetching activities:', error)
+      logger.error('Error fetching activities:', error)
       setError('حدث خطأ في الاتصال')
     } finally {
       setLoading(false)

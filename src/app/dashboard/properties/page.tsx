@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -97,7 +99,7 @@ function MyPropertiesPage() {
         setError('حدث خطأ أثناء جلب العقارات')
       }
     } catch (error) {
-      console.error('Error fetching properties:', error)
+      logger.error('Error fetching properties:', error)
       setError('حدث خطأ في الاتصال')
     } finally {
       setIsLoading(false)
@@ -117,7 +119,7 @@ function MyPropertiesPage() {
   const confirmDeleteProperty = async (propertyId: string) => {
     setDeletingProperty(propertyId)
     try {
-      console.log('محاولة حذف العقار:', propertyId)
+      logger.log('محاولة حذف العقار:', propertyId)
       const response = await fetch(`/api/properties/${propertyId}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -126,7 +128,7 @@ function MyPropertiesPage() {
         }
       })
 
-      console.log('استجابة الحذف:', response.status)
+      logger.log('استجابة الحذف:', response.status)
 
       if (response.ok) {
         // إزالة العقار من القائمة وإعادة حساب الإحصائيات
@@ -138,11 +140,11 @@ function MyPropertiesPage() {
         fetchProperties()
       } else {
         const errorData = await response.json()
-        console.error('خطأ في الحذف:', errorData)
+        logger.error('خطأ في الحذف:', errorData)
         alert(errorData.message || 'حدث خطأ في حذف العقار')
       }
     } catch (error) {
-      console.error('خطأ في شبكة الاتصال:', error)
+      logger.error('خطأ في شبكة الاتصال:', error)
       alert('حدث خطأ في الاتصال بالخادم')
     } finally {
       setDeletingProperty(null)
