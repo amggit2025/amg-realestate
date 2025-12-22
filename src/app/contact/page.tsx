@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ContactForm from '@/components/features/ContactForm'
 import FreeMap from '@/components/ui/FreeMap';
+import { logger } from '@/lib/logger';
 import { 
   PhoneIcon,
   EnvelopeIcon,
