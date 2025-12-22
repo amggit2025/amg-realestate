@@ -21,15 +21,15 @@ async function migrateServices() {
 
     // عرض الخدمات
     services.forEach((service, index) => {
-      console.log(`${index + 1}. ${service.titleAr}`);
+      console.log(`${index + 1}. ${service.title}`);
       console.log(`   - Slug: ${service.slug}`);
-      console.log(`   - الوصف: ${service.descriptionAr?.substring(0, 50)}...`);
-      console.log(`   - الحالة: ${service.active ? '✅ نشط' : '❌ غير نشط'}\n`);
+      console.log(`   - الوصف: ${service.description?.substring(0, 50)}...`);
+      console.log(`   - الحالة: ${service.published ? '✅ نشط' : '❌ غير نشط'}\n`);
     });
 
     console.log('\n📊 إحصائيات:');
     console.log(`   - إجمالي الخدمات: ${services.length}`);
-    console.log(`   - الخدمات النشطة: ${services.filter(s => s.active).length}`);
+    console.log(`   - الخدمات المنشورة: ${services.filter(s => s.published).length}`);
     console.log(`   - الخدمات المميزة: ${services.filter(s => s.featured).length}`);
 
     console.log('\n✅ البيانات جاهزة للنقل!');
