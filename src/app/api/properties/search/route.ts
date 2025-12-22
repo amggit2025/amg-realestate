@@ -61,7 +61,8 @@ export async function GET(request: NextRequest) {
       include: {
         users: {
           select: {
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
           },
         },
