@@ -12,6 +12,7 @@ import AnalyticsProvider from '@/components/AnalyticsProvider'
 import { PWAProvider } from '@/components/PWAProvider'
 import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt'
 import OnlineStatusIndicator from '@/components/ui/OnlineStatusIndicator'
+import NewsletterPopup from '@/components/features/NewsletterPopup'
 
 // Optimize Cairo font loading
 const cairo = Cairo({
@@ -89,6 +90,7 @@ export default function RootLayout({
               <AnalyticsProvider />
               <OnlineStatusIndicator />
               <PWAInstallPrompt />
+              <NewsletterPopup />
               <LayoutWrapper>
                 {children}
               </LayoutWrapper>
