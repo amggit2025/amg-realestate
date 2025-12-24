@@ -13,6 +13,7 @@ import { PWAProvider } from '@/components/PWAProvider'
 import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt'
 import OnlineStatusIndicator from '@/components/ui/OnlineStatusIndicator'
 import NewsletterPopup from '@/components/features/NewsletterPopup'
+import LiveChat from '@/components/features/LiveChat'
 
 // Optimize Cairo font loading
 const cairo = Cairo({
@@ -91,6 +92,7 @@ export default function RootLayout({
               <OnlineStatusIndicator />
               <PWAInstallPrompt />
               <NewsletterPopup />
+              <LiveChat />
               <LayoutWrapper>
                 {children}
               </LayoutWrapper>
