@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { XMarkIcon, EnvelopeIcon, CheckCircleIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 
 export default function NewsletterPopup() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
@@ -13,13 +15,18 @@ export default function NewsletterPopup() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    // Show popup after 3 seconds on every page load (for testing)
+    // Don't show popup in admin pages
+    if (pathname?.startsWith('/admin')) {
+      return
+    }
+
+    // Show popup after 6 seconds on every page load
     const timer = setTimeout(() => {
       setIsOpen(true)
-    }, 3000)
+    }, 6000)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [pathname])
 
   const handleClose = () => {
     setIsOpen(false)
