@@ -86,27 +86,52 @@ export default function AppointmentsPage() {
   const [cancellationReason, setCancellationReason] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [lastFetchedCount, setLastFetchedCount] = useState<number>(0)
+  const [showNewAppointmentToast, setShowNewAppointmentToast] = useState(false)
   const itemsPerPage = 10
 
   useEffect(() => {
     fetchAppointments()
+    // تحديث تلقائي كل 30 ثانية
+    const interval = setInterval(() => {
+      fetchAppointments(true) // silent fetch (without loading indicator)
+    }, 30000)
+    return () => clearInterval(interval)
   }, [])
 
-  const fetchAppointments = async () => {
-    setIsLoading(true)
+  const fetchAppointments = async (silent = false) => {
+    if (!silent) setIsLoading(true)
     try {
       const response = await fetch('/api/appointments')
       const result = await response.json()
 
       if (result.success) {
-        setAppointments(result.appointments)
-        calculateStats(result.appointments)
+        const newAppointments = result.appointments
+        
+        // التحقق من وجود مواعيد جديدة
+        if (lastFetchedCount > 0 && newAppointments.length > lastFetchedCount) {
+          const newCount = newAppointments.length - lastFetchedCount
+          setShowNewAppointmentToast(true)
+          showMessage('success', `📅 تم استلام ${newCount} موعد${newCount > 1 ? ' جديد' : ' جديد'}!`)
+          // تشغيل صوت إشعار (اختياري)
+          try {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.volume = 0.3
+            audio.play().catch(() => {}) // تجاهل الخطأ إذا لم يكن هناك ملف صوتي
+          } catch {}
+          // إخفاء Toast بعد 5 ثواني
+          setTimeout(() => setShowNewAppointmentToast(false), 5000)
+        }
+        
+        setLastFetchedCount(newAppointments.length)
+        setAppointments(newAppointments)
+        calculateStats(newAppointments)
       }
     } catch (error) {
       console.error('Error fetching appointments:', error)
-      showMessage('error', 'حدث خطأ أثناء جلب المواعيد')
+      if (!silent) showMessage('error', 'حدث خطأ أثناء جلب المواعيد')
     } finally {
-      setIsLoading(false)
+      if (!silent) setIsLoading(false)
     }
   }
 
@@ -274,10 +299,61 @@ export default function AppointmentsPage() {
   return (
     <PermissionGuard module="appointments" permission="view">
       <div className="p-6 max-w-7xl mx-auto">
+        {/* Floating New Appointment Toast */}
+        <AnimatePresence>
+          {showNewAppointmentToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -100, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: -100, x: '-50%' }}
+              className="fixed top-4 left-1/2 z-50 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3"
+            >
+              <span className="text-2xl animate-bounce">🔔</span>
+              <span className="font-semibold">موعد جديد وصل الآن!</span>
+              <button 
+                onClick={() => setShowNewAppointmentToast(false)}
+                className="ml-2 text-white/80 hover:text-white"
+              >
+                ✕
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">📅 إدارة المواعيد</h1>
-          <p className="text-gray-600">إدارة مواعيد معاينة العقارات</p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">📅 إدارة المواعيد</h1>
+            <p className="text-gray-600">إدارة مواعيد معاينة العقارات</p>
+          </div>
+          
+          {/* Refresh Button */}
+          <button
+            onClick={() => fetchAppointments()}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            <motion.svg
+              animate={isLoading ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: isLoading ? Infinity : 0, ease: 'linear' }}
+              className="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </motion.svg>
+            <span>{isLoading ? 'جاري التحديث...' : 'تحديث'}</span>
+          </button>
+        </div>
+
+        {/* Real-time indicator */}
+        <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+          </span>
+          <span>تحديث تلقائي كل 30 ثانية</span>
         </div>
 
         {/* Message */}

@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
       pendingTestimonials,
       newSubscriptions,
       pendingServiceRequests,
+      pendingAppointments,
     ] = await Promise.all([
       // العقارات المعلقة (تحتاج مراجعة)
       prisma.property.count({
@@ -59,6 +60,11 @@ export async function GET(request: NextRequest) {
       prisma.serviceRequest.count({
         where: { status: 'PENDING' },
       }),
+
+      // مواعيد المعاينات المعلقة
+      prisma.appointment.count({
+        where: { status: 'PENDING' },
+      }),
     ]);
 
     return NextResponse.json({
@@ -70,6 +76,7 @@ export async function GET(request: NextRequest) {
         testimonials: pendingTestimonials,
         subscriptions: newSubscriptions,
         serviceRequests: pendingServiceRequests,
+        appointments: pendingAppointments,
       },
     });
   } catch (error) {

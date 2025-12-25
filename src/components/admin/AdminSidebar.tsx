@@ -39,6 +39,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
     testimonials: 0,
     subscriptions: 0,
     serviceRequests: 0,
+    appointments: 0,
   })
   const router = useRouter()
   const pathname = usePathname()
@@ -433,6 +434,13 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                                 className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-white animate-pulse"
                               />
                             )}
+                            {item.id === 'appointments' && stats.appointments > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-500 rounded-full border-2 border-white animate-pulse"
+                              />
+                            )}
                           </>
                         )}
                       </div>
@@ -527,6 +535,19 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             }`}
                           >
                             {stats.serviceRequests}
+                          </motion.span>
+                        )}
+                        {item.id === 'appointments' && stats.appointments > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+                              isActive
+                                ? 'bg-white/20 text-white'
+                                : 'bg-cyan-500 text-white animate-pulse'
+                            }`}
+                          >
+                            {stats.appointments}
                           </motion.span>
                         )}
                       </>
