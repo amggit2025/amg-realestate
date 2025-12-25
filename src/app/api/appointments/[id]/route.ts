@@ -5,11 +5,12 @@ import { sendEmail } from '@/lib/email';
 // GET - Get single appointment
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const appointment = await prisma.appointment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         user: {
           select: {
@@ -66,14 +67,15 @@ export async function GET(
 // PATCH - Update appointment status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json();
     const { status, adminNotes, confirmedBy, cancellationReason } = body;
 
     const appointment = await prisma.appointment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         property: {
           select: { title: true, address: true, city: true }
@@ -109,7 +111,7 @@ export async function PATCH(
     }
 
     const updatedAppointment = await prisma.appointment.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData
     });
 
@@ -242,11 +244,12 @@ export async function PATCH(
 // DELETE - Cancel appointment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const appointment = await prisma.appointment.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!appointment) {
@@ -257,7 +260,7 @@ export async function DELETE(
     }
 
     await prisma.appointment.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: 'CANCELLED',
         cancelledAt: new Date(),
