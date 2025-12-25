@@ -18,6 +18,7 @@ export type Module =
   | 'portfolio'
   | 'services'
   | 'inquiries'
+  | 'appointments'
   | 'newsletter'
   | 'reports'
   | 'admins'

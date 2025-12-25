@@ -272,7 +272,7 @@ export default function AppointmentsPage() {
   }
 
   return (
-    <PermissionGuard permission="appointments.read">
+    <PermissionGuard module="appointments" permission="view">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
