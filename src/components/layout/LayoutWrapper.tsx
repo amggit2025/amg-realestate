@@ -22,7 +22,7 @@ function LayoutContent({ children }: LayoutWrapperProps) {
   
   if (isAdminRoute || isAuthRoute) {
     // Admin & Auth routes - بدون Header/Footer/LoadingScreen
-    return <main>{children}</main>
+    return <main suppressHydrationWarning>{children}</main>
   }
   
   // Regular website routes - مع Header/Footer
@@ -41,7 +41,7 @@ function LayoutContent({ children }: LayoutWrapperProps) {
 
 export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   return (
-    <Suspense fallback={<main>{children}</main>}>
+    <Suspense fallback={<main suppressHydrationWarning>{children}</main>}>
       <LayoutContent>{children}</LayoutContent>
     </Suspense>
   )

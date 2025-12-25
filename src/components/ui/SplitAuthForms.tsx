@@ -98,6 +98,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className="w-full pr-11 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 transition-colors text-gray-900 placeholder-gray-400"
             placeholder="example@email.com"
+            suppressHydrationWarning
           />
         </div>
       </div>
@@ -121,6 +122,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             className="w-full pr-11 pl-11 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 transition-colors text-gray-900 placeholder-gray-400"
             placeholder="••••••••"
+            suppressHydrationWarning
           />
           <button
             type="button"
@@ -289,6 +291,7 @@ export function RegisterForm({ onSubmit, isLoading = false, error }: RegisterFor
                       errors.firstName ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
                     }`}
                     placeholder="أحمد"
+                    suppressHydrationWarning
                   />
                 </div>
                 {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
@@ -307,6 +310,7 @@ export function RegisterForm({ onSubmit, isLoading = false, error }: RegisterFor
                       errors.lastName ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
                     }`}
                     placeholder="محمد"
+                    suppressHydrationWarning
                   />
                 </div>
                 {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
@@ -328,6 +332,7 @@ export function RegisterForm({ onSubmit, isLoading = false, error }: RegisterFor
                     errors.phone ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
                   }`}
                   placeholder="+20 10 1234 5678"
+                  suppressHydrationWarning
                 />
               </div>
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
@@ -411,6 +416,7 @@ export function RegisterForm({ onSubmit, isLoading = false, error }: RegisterFor
                     errors.email ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
                   }`}
                   placeholder="example@email.com"
+                  suppressHydrationWarning
                 />
               </div>
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
@@ -431,6 +437,7 @@ export function RegisterForm({ onSubmit, isLoading = false, error }: RegisterFor
                     errors.password ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
                   }`}
                   placeholder="••••••••"
+                  suppressHydrationWarning
                 />
                 <button
                   type="button"
@@ -458,6 +465,7 @@ export function RegisterForm({ onSubmit, isLoading = false, error }: RegisterFor
                     errors.confirmPassword ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'
                   }`}
                   placeholder="••••••••"
+                  suppressHydrationWarning
                 />
               </div>
               {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}

@@ -117,8 +117,12 @@ export default function LiveChat() {
     return () => {
       // Remove script when component unmounts
       const existingScript = document.querySelector(`script[src*="tawk.to"]`)
-      if (existingScript) {
-        document.body.removeChild(existingScript)
+      if (existingScript && existingScript.parentNode) {
+        try {
+          existingScript.parentNode.removeChild(existingScript)
+        } catch (e) {
+          // Silent fail - node may have already been removed
+        }
       }
       
       // Remove Tawk widget

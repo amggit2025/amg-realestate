@@ -56,7 +56,7 @@ export default function AuthLayout({ children, type }: AuthLayoutProps) {
   const currentImage = backgroundImages[currentImageIndex]
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" suppressHydrationWarning>
       {/* الجانب الأيسر - الصورة (مخفي في الموبايل) */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 relative overflow-hidden">
         {/* صور الخلفية المتحركة */}
