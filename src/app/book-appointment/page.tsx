@@ -73,10 +73,10 @@ export default function BookAppointmentPage() {
 
   const fetchProperties = async () => {
     try {
-      const response = await fetch('/api/properties/public?limit=50&status=ACTIVE')
+      const response = await fetch('/api/properties/public?limit=50')
       const data = await response.json()
-      if (data.success) {
-        setProperties(data.properties || [])
+      if (data.properties && data.properties.length > 0) {
+        setProperties(data.properties)
       }
     } catch (error) {
       console.error('Error fetching properties:', error)
