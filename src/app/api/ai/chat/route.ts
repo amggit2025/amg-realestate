@@ -96,8 +96,7 @@ export async function POST(request: NextRequest) {
       select: {
         title: true,
         description: true,
-        category: true,
-        icon: true
+        iconName: true
       }
     })
 
