@@ -257,6 +257,16 @@ ${message}
 - للاستفسارات التفصيلية: أحِل العميل للفريق المتخصص
 - قدم خدمة جدولة معاينات للعقارات
 
+📅 **حجز مواعيد المعاينة:**
+عندما يطلب العميل حجز موعد معاينة أو يبدي اهتماماً بعقار معين:
+1. اسأله عن التاريخ المفضل للمعاينة
+2. اقترح أوقات متاحة: "صباحاً (9-12)"، "ظهراً (12-3)"، "عصراً (3-6)"
+3. خذ رقم هاتفه إذا لم يكن مسجلاً
+4. أخبره أن الحجز سيُرسل للإدارة للتأكيد خلال 24 ساعة
+5. **تنبيه مهم**: عند جمع كل المعلومات، اكتب في ردك:
+   "BOOK_APPOINTMENT:{propertyId},{date},{timeSlot},{phone},{notes}"
+   مثال: "BOOK_APPOINTMENT:prop123,2024-12-30,صباحاً (9-12),01234567890,أريد معاينة الشقة"
+
 ⚠️ **الحالات الخاصة:**
 - **لم تجد عقار مناسب**: استخدم معرفتك العامة عن السوق + اقترح تعديل المعايير أو التواصل معنا
 - **سؤال عن منطقة ما عندناش فيها عقارات**: قدم معلومات عامة عن المنطقة وأسعارها
@@ -297,6 +307,51 @@ ${message}
     const result = await model.generateContent(prompt)
     const response = result.response
     const aiMessage = response.text()
+
+    // Check if AI wants to book an appointment
+    const bookingMatch = aiMessage.match(/BOOK_APPOINTMENT:([^,]+),([^,]+),([^,]+),([^,]+),(.+)/)
+    
+    if (bookingMatch) {
+      const [, propertyId, date, timeSlot, phone, notes] = bookingMatch
+      
+      // Extract user info from history or request
+      const userName = history?.find((msg: any) => msg.sender === 'user')?.userName || 'عميل'
+      const userEmail = history?.find((msg: any) => msg.sender === 'user')?.userEmail || 'noemail@temp.com'
+      
+      try {
+        // Create appointment
+        const appointmentResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/appointments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            propertyId: propertyId.trim(),
+            contactName: userName,
+            contactEmail: userEmail,
+            contactPhone: phone.trim(),
+            appointmentDate: date.trim(),
+            timeSlot: timeSlot.trim(),
+            notes: notes.trim()
+          })
+        })
+
+        if (appointmentResponse.ok) {
+          const cleanMessage = aiMessage.replace(/BOOK_APPOINTMENT:.+/, '').trim()
+          return NextResponse.json({
+            success: true,
+            message: cleanMessage + '\n\n✅ تم حجز الموعد بنجاح! سيتم التواصل معك خلال 24 ساعة لتأكيد الموعد. 📅',
+            quickReplies: [
+              'شكراً لكم',
+              'أريد حجز موعد آخر',
+              'عرض مواعيدي',
+              'أبحث عن عقار آخر'
+            ],
+            appointmentBooked: true
+          })
+        }
+      } catch (error) {
+        console.error('Error booking appointment:', error)
+      }
+    }
 
     // Generate smart quick replies based on context
     const quickReplies = generateQuickReplies(message, aiMessage)
@@ -391,9 +446,19 @@ function generateQuickReplies(userMessage: string, aiResponse: string): string[]
   if (response.includes('وجدت') || response.includes('لدينا') || response.includes('متاح')) {
     return [
       'عرض تفاصيل أكثر',
-      'أريد معاينة',
+      'أريد حجز موعد معاينة 📅',
       'مقارنة العقارات',
-      'حجز موعد'
+      'التواصل مع مندوب'
+    ]
+  }
+
+  // حجز موعد
+  if (message.includes('حجز') || message.includes('موعد') || message.includes('معاينة')) {
+    return [
+      'صباحاً (9-12)',
+      'ظهراً (12-3)',
+      'عصراً (3-6)',
+      'أي وقت متاح'
     ]
   }
   
@@ -401,7 +466,7 @@ function generateQuickReplies(userMessage: string, aiResponse: string): string[]
   return [
     'أبحث عن شقة للسكن',
     'أريد استثمار عقاري',
-    'معلومات عن التمويل',
+    'حجز موعد معاينة 📅',
     'التحدث مع مندوب مبيعات'
   ]
 }
