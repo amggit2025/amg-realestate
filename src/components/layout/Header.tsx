@@ -17,7 +17,8 @@ import {
   PhoneIcon,
   UserIcon,
   ArrowRightOnRectangleIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  CalendarDaysIcon
 } from '@heroicons/react/24/outline'
 import { COMPANY_INFO } from '@/lib/constants'
 
@@ -179,6 +180,13 @@ export default function Header() {
             ) : (
               <div className="hidden lg:flex items-center gap-3">
                 <Link
+                  href="/book-appointment"
+                  className="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg"
+                >
+                  <CalendarDaysIcon className="w-4 h-4" />
+                  حجز معاينة
+                </Link>
+                <Link
                   href="/auth/login"
                   className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
                 >
@@ -330,6 +338,14 @@ export default function Header() {
                       </div>
                     ) : (
                       <div className="space-y-3">
+                        <Link
+                          href="/book-appointment"
+                          className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors"
+                          onClick={closeMenu}
+                        >
+                          <CalendarDaysIcon className="w-5 h-5" />
+                          حجز موعد معاينة
+                        </Link>
                         <Link
                           href="/auth/login"
                           className="block w-full text-center py-3 px-4 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"

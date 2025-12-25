@@ -15,6 +15,7 @@ import {
   EnvelopeIcon,
   UserIcon,
   CalendarIcon,
+  CalendarDaysIcon,
   EyeIcon,
   HeartIcon,
   ShareIcon,
@@ -25,6 +26,7 @@ import {
   SparklesIcon,
   BuildingOfficeIcon,
   CurrencyDollarIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid'
 import { generatePropertyWhatsAppLink } from '@/lib/whatsapp'
@@ -86,6 +88,19 @@ export default function PropertyDetailPage() {
     message: ''
   })
   const [submittingInquiry, setSubmittingInquiry] = useState(false)
+  
+  // Appointment booking states
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false)
+  const [appointmentForm, setAppointmentForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    date: '',
+    timeSlot: '',
+    notes: ''
+  })
+  const [submittingAppointment, setSubmittingAppointment] = useState(false)
+  const [appointmentSuccess, setAppointmentSuccess] = useState(false)
 
   // جلب بيانات العقار
   useEffect(() => {
@@ -245,6 +260,64 @@ export default function PropertyDetailPage() {
       setSubmittingInquiry(false)
     }
   }
+
+  // Handle appointment booking
+  const handleAppointmentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!appointmentForm.name || !appointmentForm.email || !appointmentForm.phone || !appointmentForm.date || !appointmentForm.timeSlot) {
+      alert('يرجى ملء جميع الحقول المطلوبة')
+      return
+    }
+
+    setSubmittingAppointment(true)
+
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listingId: property?.id,
+          contactName: appointmentForm.name,
+          contactEmail: appointmentForm.email,
+          contactPhone: appointmentForm.phone,
+          appointmentDate: appointmentForm.date,
+          timeSlot: appointmentForm.timeSlot,
+          notes: appointmentForm.notes || `حجز معاينة لعقار: ${property?.title}`,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setAppointmentSuccess(true)
+        setAppointmentForm({ name: '', email: '', phone: '', date: '', timeSlot: '', notes: '' })
+      } else {
+        alert(data.message || 'حدث خطأ أثناء حجز الموعد')
+      }
+    } catch (error) {
+      logger.error('Error booking appointment:', error)
+      alert('حدث خطأ أثناء حجز الموعد. يرجى المحاولة مرة أخرى.')
+    } finally {
+      setSubmittingAppointment(false)
+    }
+  }
+
+  // Get minimum date (tomorrow)
+  const getMinDate = () => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return tomorrow.toISOString().split('T')[0]
+  }
+
+  const timeSlots = [
+    'صباحاً (9:00 - 12:00)',
+    'ظهراً (12:00 - 3:00)',
+    'عصراً (3:00 - 6:00)',
+    'مساءً (6:00 - 9:00)',
+  ]
 
   if (loading) {
     return (
@@ -674,6 +747,17 @@ export default function PropertyDetailPage() {
                   <EnvelopeIcon className="w-5 h-5" />
                   إرسال استفسار
                 </motion.button>
+
+                {/* Appointment Booking Button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowAppointmentModal(true)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
+                >
+                  <CalendarDaysIcon className="w-5 h-5" />
+                  حجز موعد معاينة
+                </motion.button>
               </div>
 
               {/* Property Info */}
@@ -865,6 +949,202 @@ export default function PropertyDetailPage() {
                 </button>
               </div>
             </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Appointment Booking Modal */}
+      {showAppointmentModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <CalendarDaysIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">حجز موعد معاينة</h3>
+                    <p className="text-sm text-white/80 mt-1">احجز موعدك لمعاينة العقار</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setShowAppointmentModal(false); setAppointmentSuccess(false); }}
+                  className="text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {appointmentSuccess ? (
+              /* Success Message */
+              <div className="p-8 text-center">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircleIcon className="w-12 h-12 text-green-600" />
+                </div>
+                <h4 className="text-2xl font-bold text-gray-900 mb-2">تم الحجز بنجاح! 🎉</h4>
+                <p className="text-gray-600 mb-6">
+                  سيتم التواصل معك خلال 24 ساعة لتأكيد الموعد
+                </p>
+                <button
+                  onClick={() => { setShowAppointmentModal(false); setAppointmentSuccess(false); }}
+                  className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all"
+                >
+                  حسناً
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Property Info */}
+                <div className="p-4 bg-gray-50 border-b">
+                  <div className="flex items-center gap-3">
+                    {property.images[0] && (
+                      <img
+                        src={property.images[0].url}
+                        alt={property.title}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-900">{property.title}</h4>
+                      <p className="text-sm text-gray-600">
+                        {property.city} - {formatPrice(property.price, property.currency)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleAppointmentSubmit} className="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        الاسم <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={appointmentForm.name}
+                        onChange={(e) => setAppointmentForm({ ...appointmentForm, name: e.target.value })}
+                        placeholder="أدخل اسمك"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        رقم الهاتف <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={appointmentForm.phone}
+                        onChange={(e) => setAppointmentForm({ ...appointmentForm, phone: e.target.value })}
+                        placeholder="01XXXXXXXXX"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      البريد الإلكتروني <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={appointmentForm.email}
+                      onChange={(e) => setAppointmentForm({ ...appointmentForm, email: e.target.value })}
+                      placeholder="example@email.com"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <CalendarDaysIcon className="w-4 h-4 inline ml-1" />
+                        تاريخ المعاينة <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        min={getMinDate()}
+                        value={appointmentForm.date}
+                        onChange={(e) => setAppointmentForm({ ...appointmentForm, date: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <ClockIcon className="w-4 h-4 inline ml-1" />
+                        وقت المعاينة <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        required
+                        value={appointmentForm.timeSlot}
+                        onChange={(e) => setAppointmentForm({ ...appointmentForm, timeSlot: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      >
+                        <option value="">اختر الوقت</option>
+                        {timeSlots.map((slot) => (
+                          <option key={slot} value={slot}>{slot}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      ملاحظات إضافية (اختياري)
+                    </label>
+                    <textarea
+                      value={appointmentForm.notes}
+                      onChange={(e) => setAppointmentForm({ ...appointmentForm, notes: e.target.value })}
+                      placeholder="أي ملاحظات أو متطلبات خاصة..."
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                    />
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowAppointmentModal(false)}
+                      className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submittingAppointment}
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    >
+                      {submittingAppointment ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          جاري الحجز...
+                        </>
+                      ) : (
+                        <>
+                          <CalendarDaysIcon className="w-5 h-5" />
+                          تأكيد الحجز
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </motion.div>
         </div>
       )}
