@@ -87,6 +87,22 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Get services (الخدمات)
+    const services = await prisma.services.findMany({
+      where: {
+        published: true
+      },
+      orderBy: { order: 'asc' },
+      select: {
+        title: true,
+        titleAr: true,
+        description: true,
+        descriptionAr: true,
+        category: true,
+        features: true
+      }
+    })
+
     // Build AI context with real estate data
     const propertiesContext = recentListings.length > 0
       ? recentListings.map(p => `
@@ -126,6 +142,16 @@ export async function POST(request: NextRequest) {
 `).join('\n')
       : ''
 
+    // Build services context
+    const servicesContext = services.length > 0
+      ? services.map(s => `
+- ${s.titleAr || s.title}
+  الفئة: ${s.category || 'خدمات عقارية'}
+  الوصف: ${s.descriptionAr || s.description || ''}
+  ${s.features ? `المميزات: ${JSON.parse(s.features).slice(0, 3).join('، ')}` : ''}
+`).join('\n')
+      : ''
+
     // Build conversation history
     const conversationHistory = history && history.length > 0
       ? history.map((msg: any) => `${msg.sender === 'user' ? 'العميل' : 'المساعد'}: ${msg.text}`).join('\n')
@@ -162,8 +188,12 @@ ${portfolioContext ? `✨ من معرض أعمالنا السابقة (مشار�
 ${portfolioContext}
 ` : ''}
 
+${servicesContext ? `🔧 خدماتنا المتكاملة:
+${servicesContext}
+` : ''}
+
 🔍 **نظام الإجابة المختلط:**
-- **أولاً**: استخدم العقارات والمشاريع المتاحة أعلاه إذا كانت تناسب طلب العميل
+- **أولاً**: استخدم العقارات والمشاريع والخدمات المتاحة أعلاه إذا كانت تناسب طلب العميل
 - **ثانياً**: إذا لم تجد عقار مناسب أو سأل عن معلومات عامة، استخدم معرفتك العامة عن:
   * السوق العقاري المصري (أسعار، مناطق، اتجاهات)
   * المناطق الجديدة والمشروعات الكبرى في مصر
