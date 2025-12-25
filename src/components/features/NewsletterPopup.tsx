@@ -20,6 +20,12 @@ export default function NewsletterPopup() {
       return
     }
 
+    // Check if user already closed or subscribed
+    const hasInteracted = localStorage.getItem('newsletter_closed')
+    if (hasInteracted) {
+      return
+    }
+
     // Detect if mobile device
     const isMobile = window.innerWidth < 768
     
@@ -34,7 +40,8 @@ export default function NewsletterPopup() {
 
   const handleClose = () => {
     setIsOpen(false)
-    // Just close without saving to localStorage (testing mode)
+    // Save to localStorage so it doesn't show again
+    localStorage.setItem('newsletter_closed', 'true')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,7 +63,8 @@ export default function NewsletterPopup() {
 
       if (response.ok) {
         setSuccess(true)
-        // Don't save to localStorage in testing mode
+        // Save to localStorage so it doesn't show again
+        localStorage.setItem('newsletter_closed', 'true')
         
         // Close popup after 3 seconds
         setTimeout(() => {
