@@ -7,14 +7,12 @@ import "./chrome-fixes.css";
 import { baseMetadata, generateStructuredData } from '@/lib/metadata'
 import { AuthProvider } from '@/lib/AuthContext'
 import LayoutWrapper from '@/components/layout/LayoutWrapper'
+import GlobalWidgets from '@/components/layout/GlobalWidgets'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import AnalyticsProvider from '@/components/AnalyticsProvider'
 import { PWAProvider } from '@/components/PWAProvider'
 import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt'
 import OnlineStatusIndicator from '@/components/ui/OnlineStatusIndicator'
-import NewsletterPopup from '@/components/features/NewsletterPopup'
-import LiveChat from '@/components/features/LiveChat'
-import AIAssistant from '@/components/features/AIAssistant'
 
 // Optimize Cairo font loading
 const cairo = Cairo({
@@ -92,9 +90,7 @@ export default function RootLayout({
               <AnalyticsProvider />
               <OnlineStatusIndicator />
               <PWAInstallPrompt />
-              <NewsletterPopup />
-              <LiveChat />
-              <AIAssistant />
+              <GlobalWidgets />
               <LayoutWrapper>
                 {children}
               </LayoutWrapper>

@@ -17,8 +17,11 @@ function LayoutContent({ children }: LayoutWrapperProps) {
   // Check if it's an admin route
   const isAdminRoute = pathname?.startsWith('/admin')
   
-  if (isAdminRoute) {
-    // Admin routes - بدون Header/Footer/LoadingScreen
+  // Check if it's an auth route (login, register, etc.)
+  const isAuthRoute = pathname?.startsWith('/auth')
+  
+  if (isAdminRoute || isAuthRoute) {
+    // Admin & Auth routes - بدون Header/Footer/LoadingScreen
     return <main>{children}</main>
   }
   

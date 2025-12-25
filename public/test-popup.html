@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسح localStorage - AMG Real Estate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .status {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .status.success {
+            background: #f0fdf4;
+            border-color: #22c55e;
+        }
+        .status h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .status.success h3 {
+            color: #15803d;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background: #6b7280;
+        }
+        .info-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: right;
+        }
+        .info-box h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+        .info-box ol {
+            color: #78350f;
+            text-align: right;
+            padding-right: 20px;
+        }
+        .info-box li {
+            margin: 5px 0;
+        }
+        .counter {
+            font-size: 60px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🎯</div>
+        <h1>اختبار البوب أب (Newsletter Popup)</h1>
+        <p class="subtitle">AMG Real Estate</p>
+
+        <div id="status" class="status">
+            <h3>⏳ جاري التحقق...</h3>
+        </div>
+
+        <div id="counter" class="counter"></div>
+
+        <button class="btn" onclick="clearAndReload()">
+            🗑️ مسح localStorage وإعادة التحميل
+        </button>
+
+        <button class="btn btn-secondary" onclick="window.location.href='/'">
+            🏠 العودة للرئيسية
+        </button>
+
+        <div class="info-box">
+            <h3>💡 معلومات مهمة:</h3>
+            <ol>
+                <li>البوب أب يظهر بعد <strong>6 ثواني</strong> (10 ثواني على الموبايل)</li>
+                <li>لو قفلت البوب أب مرة، مش هيظهر تاني (localStorage)</li>
+                <li>لإظهاره مرة أخرى، اضغط الزر بالأعلى</li>
+                <li>أو افتح Console (F12) واكتب: <code>localStorage.clear()</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let countdown = 6;
+        let cleared = false;
+
+        function updateStatus() {
+            const statusDiv = document.getElementById('status');
+            const counterDiv = document.getElementById('counter');
+            
+            // Check localStorage
+            const isClosed = localStorage.getItem('newsletter_closed');
+            
+            if (isClosed && !cleared) {
+                statusDiv.innerHTML = '<h3>⚠️ البوب أب محفوظ كـ "مغلق" في المتصفح</h3><p>اضغط الزر بالأسفل لمسح البيانات</p>';
+                statusDiv.className = 'status';
+                counterDiv.textContent = '❌';
+            } else {
+                if (countdown > 0) {
+                    statusDiv.innerHTML = '<h3>✅ localStorage نظيف - البوب أب سيظهر قريباً!</h3>';
+                    statusDiv.className = 'status success';
+                    counterDiv.textContent = countdown;
+                    counterDiv.className = 'counter pulse';
+                    countdown--;
+                } else {
+                    statusDiv.innerHTML = '<h3>🎉 البوب أب من المفترض أن يكون ظاهراً الآن!</h3><p>لو مش شايفه، جرب تحديث الصفحة</p>';
+                    statusDiv.className = 'status success';
+                    counterDiv.textContent = '🎉';
+                    counterDiv.className = 'counter';
+                    clearInterval(timer);
+                }
+            }
+        }
+
+        function clearAndReload() {
+            localStorage.clear();
+            console.log('✅ تم مسح localStorage بالكامل');
+            alert('✅ تم مسح localStorage!\nسيتم إعادة تحميل الصفحة...');
+            window.location.reload();
+        }
+
+        // Initial check
+        updateStatus();
+
+        // Update every second
+        const timer = setInterval(updateStatus, 1000);
+
+        // Auto clear on load if parameter exists
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('clear') === 'true') {
+            localStorage.clear();
+            cleared = true;
+            console.log('✅ تم مسح localStorage تلقائياً');
+        }
+    </script>
+</body>
+</html>

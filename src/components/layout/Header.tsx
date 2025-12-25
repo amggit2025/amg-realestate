@@ -188,15 +188,9 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/auth/login"
-                  className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  تسجيل دخول
-                </Link>
-                <Link
-                  href="/auth/register"
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
-                  حساب جديد
+                  تسجيل الدخول
                 </Link>
               </div>
             )}
@@ -348,17 +342,10 @@ export default function Header() {
                         </Link>
                         <Link
                           href="/auth/login"
-                          className="block w-full text-center py-3 px-4 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                          onClick={closeMenu}
-                        >
-                          تسجيل دخول
-                        </Link>
-                        <Link
-                          href="/auth/register"
                           className="block w-full text-center py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                           onClick={closeMenu}
                         >
-                          حساب جديد
+                          تسجيل الدخول
                         </Link>
                       </div>
                     )}
