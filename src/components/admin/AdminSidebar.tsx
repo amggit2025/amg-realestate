@@ -16,7 +16,8 @@ import {
   Bars3Icon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  CalendarDaysIcon
 } from '@heroicons/react/24/outline'
 import { usePermissions } from '@/hooks/usePermissions'
 import type { Module } from '@/lib/permissions'
@@ -100,6 +101,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
       '/admin/portfolio': 'portfolio',
       '/admin/services': 'services',
       '/admin/inquiries': 'inquiries',
+      '/admin/appointments': 'appointments',
       '/admin/service-requests': 'service-requests',
       '/admin/subscriptions': 'subscriptions',
       '/admin/testimonials': 'testimonials',
@@ -158,6 +160,12 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
       name: 'الاستفسارات',
       icon: ChatBubbleLeftRightIcon,
       module: 'inquiries' as Module,
+    },
+    {
+      id: 'appointments',
+      name: 'مواعيد المعاينات',
+      icon: CalendarDaysIcon,
+      module: 'appointments' as Module,
     },
     {
       id: 'subscriptions',
@@ -232,6 +240,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
       'portfolio': '/admin/portfolio',
       'services': '/admin/services',
       'inquiries': '/admin/inquiries',
+      'appointments': '/admin/appointments',
       'subscriptions': '/admin/subscriptions',
       'service-requests': '/admin/service-requests',
       'testimonials': '/admin/testimonials',

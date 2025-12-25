@@ -12,7 +12,8 @@ import {
   PlusIcon,
   BuildingOfficeIcon,
   HomeIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  CalendarDaysIcon
 } from '@heroicons/react/24/outline'
 import { useAuth, withAuth } from '@/lib/AuthContext'
 import Link from 'next/link'
@@ -456,6 +457,12 @@ function DashboardPage() {
                 <Link href="/dashboard/profile">
                   <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition-colors">
                     عرض الملف الشخصي
+                  </button>
+                </Link>
+                <Link href="/dashboard/appointments">
+                  <button className="w-full mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2">
+                    <CalendarDaysIcon className="w-4 h-4" />
+                    مواعيد المعاينات
                   </button>
                 </Link>
               </div>
