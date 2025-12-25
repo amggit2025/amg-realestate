@@ -95,11 +95,9 @@ export async function POST(request: NextRequest) {
       orderBy: { order: 'asc' },
       select: {
         title: true,
-        titleAr: true,
         description: true,
-        descriptionAr: true,
         category: true,
-        features: true
+        icon: true
       }
     })
 
@@ -145,10 +143,9 @@ export async function POST(request: NextRequest) {
     // Build services context
     const servicesContext = services.length > 0
       ? services.map((s: any) => `
-- ${s.titleAr || s.title}
+- ${s.title}
   الفئة: ${s.category || 'خدمات عقارية'}
-  الوصف: ${s.descriptionAr || s.description || ''}
-  ${s.features ? `المميزات: ${JSON.parse(s.features).slice(0, 3).join('، ')}` : ''}
+  الوصف: ${s.description || ''}
 `).join('\n')
       : ''
 
