@@ -28,8 +28,15 @@ export default function AIAssistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Don't show in admin pages
-  const isAdminPage = pathname?.startsWith('/admin')
+  const [isAdminPage, setIsAdminPage] = useState(true) // Default to true to hide initially
   const [showButton, setShowButton] = useState(false)
+
+  // Check if admin page
+  useEffect(() => {
+    if (pathname) {
+      setIsAdminPage(pathname.startsWith('/admin'))
+    }
+  }, [pathname])
 
   // Prevent hydration errors by only rendering on client
   useEffect(() => {
