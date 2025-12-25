@@ -93,11 +93,19 @@ export default function AdminPropertiesReviewPage() {
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | 'needs_edit' | 'revert_to_pending'>('approve')
   const [rejectionReason, setRejectionReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [lastFetchedCount, setLastFetchedCount] = useState<number>(0)
+  const [showNewPropertyToast, setShowNewPropertyToast] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage(null), 5000)
+  }
 
   // جلب العقارات
-  const fetchProperties = async (page = 1, status = filterStatus) => {
+  const fetchProperties = async (page = 1, status = filterStatus, silent = false) => {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       
       // الحصول على session token
       const session = localStorage.getItem('amg_admin_session')
@@ -118,18 +126,38 @@ export default function AdminPropertiesReviewPage() {
 
       if (response.ok) {
         const data: PropertiesResponse = await response.json()
-        setProperties(data.data.properties)
+        const newProperties = data.data.properties
+        
+        // التحقق من وجود عقارات جديدة للمراجعة
+        if (status === 'PENDING' && lastFetchedCount > 0 && data.data.stats.pending > lastFetchedCount) {
+          const newCount = data.data.stats.pending - lastFetchedCount
+          setShowNewPropertyToast(true)
+          showMessage('success', `🏠 تم استلام ${newCount} عقار${newCount > 1 ? ' جديد' : ' جديد'} للمراجعة!`)
+          // تشغيل صوت إشعار
+          try {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.volume = 0.3
+            audio.play().catch(() => {})
+          } catch {}
+          setTimeout(() => setShowNewPropertyToast(false), 5000)
+        }
+        
+        if (status === 'PENDING') {
+          setLastFetchedCount(data.data.stats.pending)
+        }
+        
+        setProperties(newProperties)
         setStats(data.data.stats)
         setCurrentPage(page)
         setError('')
       } else {
-        setError('حدث خطأ أثناء جلب العقارات')
+        if (!silent) setError('حدث خطأ أثناء جلب العقارات')
       }
     } catch (error) {
       logger.error('Error fetching properties:', error)
-      setError('حدث خطأ في الاتصال')
+      if (!silent) setError('حدث خطأ في الاتصال')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
@@ -182,6 +210,11 @@ export default function AdminPropertiesReviewPage() {
 
   useEffect(() => {
     fetchProperties(1, filterStatus)
+    // تحديث تلقائي كل 30 ثانية
+    const interval = setInterval(() => {
+      fetchProperties(currentPage, filterStatus, true) // silent fetch
+    }, 30000)
+    return () => clearInterval(interval)
   }, [filterStatus])
 
   const getStatusColor = (status: string) => {
@@ -241,6 +274,43 @@ export default function AdminPropertiesReviewPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
+        {/* Floating New Property Toast */}
+        <AnimatePresence>
+          {showNewPropertyToast && (
+            <motion.div
+              initial={{ opacity: 0, y: -100, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: -100, x: '-50%' }}
+              className="fixed top-4 left-1/2 z-50 bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3"
+            >
+              <span className="text-2xl animate-bounce">🏠</span>
+              <span className="font-semibold">عقار جديد للمراجعة!</span>
+              <button 
+                onClick={() => setShowNewPropertyToast(false)}
+                className="ml-2 text-white/80 hover:text-white"
+              >
+                ✕
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Message Toast */}
+        <AnimatePresence>
+          {message && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-40 px-6 py-3 rounded-lg shadow-lg ${
+                message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+              }`}
+            >
+              {message.text}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -259,6 +329,15 @@ export default function AdminPropertiesReviewPage() {
               <ArrowPathIcon className={`h-5 w-5 ml-2 ${loading ? 'animate-spin' : ''}`} />
               تحديث
             </button>
+          </div>
+          
+          {/* Real-time indicator */}
+          <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+            <span>تحديث تلقائي كل 30 ثانية</span>
           </div>
         </div>
 

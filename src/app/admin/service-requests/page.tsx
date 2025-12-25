@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { logger } from '@/lib/logger'
 import {
   PhoneIcon,
@@ -44,25 +44,58 @@ export default function ServiceRequestsPage() {
   const [showModal, setShowModal] = useState(false)
   const [adminNotes, setAdminNotes] = useState('')
   const [newStatus, setNewStatus] = useState<string>('')
+  const [lastFetchedCount, setLastFetchedCount] = useState<number>(0)
+  const [showNewRequestToast, setShowNewRequestToast] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage(null), 5000)
+  }
 
   useEffect(() => {
     fetchRequests()
+    // تحديث تلقائي كل 30 ثانية
+    const interval = setInterval(() => {
+      fetchRequests(true) // silent fetch
+    }, 30000)
+    return () => clearInterval(interval)
   }, [])
 
-  const fetchRequests = async () => {
+  const fetchRequests = async (silent = false) => {
     try {
+      if (!silent) setLoading(true)
       const response = await fetch('/api/admin/service-requests', {
         credentials: 'include'
       })
       
       if (response.ok) {
         const data = await response.json()
-        setRequests(data.requests || [])
+        const newRequests = data.requests || []
+        const pendingCount = newRequests.filter((r: ServiceRequest) => r.status === 'PENDING').length
+        
+        // التحقق من وجود طلبات جديدة
+        if (lastFetchedCount > 0 && pendingCount > lastFetchedCount) {
+          const newCount = pendingCount - lastFetchedCount
+          setShowNewRequestToast(true)
+          showMessage('success', `📋 تم استلام ${newCount} طلب استشارة${newCount > 1 ? ' جديد' : ' جديد'}!`)
+          // تشغيل صوت إشعار
+          try {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.volume = 0.3
+            audio.play().catch(() => {})
+          } catch {}
+          setTimeout(() => setShowNewRequestToast(false), 5000)
+        }
+        
+        setLastFetchedCount(pendingCount)
+        setRequests(newRequests)
       }
     } catch (error) {
       logger.error('Error fetching service requests:', error)
+      if (!silent) showMessage('error', 'حدث خطأ أثناء جلب البيانات')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
@@ -159,10 +192,76 @@ export default function ServiceRequestsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Floating New Request Toast */}
+      <AnimatePresence>
+        {showNewRequestToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -100, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -100, x: '-50%' }}
+            className="fixed top-4 left-1/2 z-50 bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3"
+          >
+            <span className="text-2xl animate-bounce">📋</span>
+            <span className="font-semibold">طلب استشارة جديد!</span>
+            <button 
+              onClick={() => setShowNewRequestToast(false)}
+              className="ml-2 text-white/80 hover:text-white"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Message Toast */}
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-40 px-6 py-3 rounded-lg shadow-lg ${
+              message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+            }`}
+          >
+            {message.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">طلبات الاستشارات المجانية</h1>
-        <p className="text-gray-600 mt-2">إدارة ومتابعة طلبات الاستشارات من صفحة الخدمات</p>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">طلبات الاستشارات المجانية</h1>
+          <p className="text-gray-600 mt-2">إدارة ومتابعة طلبات الاستشارات من صفحة الخدمات</p>
+          {/* Real-time indicator */}
+          <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+            <span>تحديث تلقائي كل 30 ثانية</span>
+          </div>
+        </div>
+        
+        {/* Refresh Button */}
+        <button
+          onClick={() => fetchRequests()}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          <motion.svg
+            animate={loading ? { rotate: 360 } : {}}
+            transition={{ duration: 1, repeat: loading ? Infinity : 0, ease: 'linear' }}
+            className="w-5 h-5 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </motion.svg>
+          <span>{loading ? 'جاري التحديث...' : 'تحديث'}</span>
+        </button>
       </div>
 
       {/* Stats Cards */}

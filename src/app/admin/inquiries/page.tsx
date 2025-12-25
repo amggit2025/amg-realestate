@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { logger } from '@/lib/logger'
 import {
   EnvelopeIcon,
@@ -67,27 +67,51 @@ export default function InquiriesPage() {
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [lastFetchedCount, setLastFetchedCount] = useState<number>(0)
+  const [showNewInquiryToast, setShowNewInquiryToast] = useState(false)
   const itemsPerPage = 10
 
   useEffect(() => {
     fetchInquiries()
+    // تحديث تلقائي كل 30 ثانية
+    const interval = setInterval(() => {
+      fetchInquiries(true) // silent fetch
+    }, 30000)
+    return () => clearInterval(interval)
   }, [])
 
-  const fetchInquiries = async () => {
-    setIsLoading(true)
+  const fetchInquiries = async (silent = false) => {
+    if (!silent) setIsLoading(true)
     try {
       const response = await fetch('/api/admin/inquiries')
       const result = await response.json()
       
       if (result.success) {
-        setInquiries(result.data)
+        const newInquiries = result.data
+        
+        // التحقق من وجود استفسارات جديدة
+        if (lastFetchedCount > 0 && result.stats.pending > lastFetchedCount) {
+          const newCount = result.stats.pending - lastFetchedCount
+          setShowNewInquiryToast(true)
+          showMessage('success', `💬 تم استلام ${newCount} استفسار${newCount > 1 ? ' جديد' : ' جديد'}!`)
+          // تشغيل صوت إشعار
+          try {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.volume = 0.3
+            audio.play().catch(() => {})
+          } catch {}
+          setTimeout(() => setShowNewInquiryToast(false), 5000)
+        }
+        
+        setLastFetchedCount(result.stats.pending)
+        setInquiries(newInquiries)
         setStats(result.stats)
       }
     } catch (error) {
       logger.error('Error fetching inquiries:', error)
-      showMessage('error', 'حدث خطأ أثناء جلب البيانات')
+      if (!silent) showMessage('error', 'حدث خطأ أثناء جلب البيانات')
     } finally {
-      setIsLoading(false)
+      if (!silent) setIsLoading(false)
     }
   }
 
@@ -201,12 +225,76 @@ export default function InquiriesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Floating New Inquiry Toast */}
+      <AnimatePresence>
+        {showNewInquiryToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -100, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -100, x: '-50%' }}
+            className="fixed top-4 left-1/2 z-50 bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3"
+          >
+            <span className="text-2xl animate-bounce">💬</span>
+            <span className="font-semibold">استفسار جديد وصل الآن!</span>
+            <button 
+              onClick={() => setShowNewInquiryToast(false)}
+              className="ml-2 text-white/80 hover:text-white"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Message Toast */}
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-40 px-6 py-3 rounded-lg shadow-lg ${
+              message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+            }`}
+          >
+            {message.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">إدارة الاستفسارات</h1>
           <p className="text-gray-600 mt-1">عرض وإدارة استفسارات العملاء</p>
+          {/* Real-time indicator */}
+          <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+            <span>تحديث تلقائي كل 30 ثانية</span>
+          </div>
         </div>
+        
+        {/* Refresh Button */}
+        <button
+          onClick={() => fetchInquiries()}
+          disabled={isLoading}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          <motion.svg
+            animate={isLoading ? { rotate: 360 } : {}}
+            transition={{ duration: 1, repeat: isLoading ? Infinity : 0, ease: 'linear' }}
+            className="w-5 h-5 text-gray-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </motion.svg>
+          <span>{isLoading ? 'جاري التحديث...' : 'تحديث'}</span>
+        </button>
       </div>
 
       {/* Stats Cards */}
