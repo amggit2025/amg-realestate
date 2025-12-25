@@ -29,10 +29,21 @@ export default function AIAssistant() {
 
   // Don't show in admin pages
   const isAdminPage = pathname?.startsWith('/admin')
+  const [showButton, setShowButton] = useState(false)
 
   // Prevent hydration errors by only rendering on client
   useEffect(() => {
     setIsMounted(true)
+    
+    // Show AI button after delay (50s on mobile, immediate on desktop)
+    const isMobile = window.innerWidth < 768
+    const delay = isMobile ? 50000 : 0
+    
+    const timer = setTimeout(() => {
+      setShowButton(true)
+    }, delay)
+    
+    return () => clearTimeout(timer)
   }, [])
 
   // Initial greeting
@@ -124,7 +135,7 @@ export default function AIAssistant() {
   }
 
   // Don't render on server or in admin pages
-  if (!isMounted || isAdminPage) {
+  if (!isMounted || isAdminPage || !showButton) {
     return null
   }
 

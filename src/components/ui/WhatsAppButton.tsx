@@ -36,6 +36,10 @@ export default function WhatsAppButton({
   }
 
   if (position === 'fixed') {
+    // Detect if mobile device
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+    const delay = isMobile ? 50 : 2 // 50 seconds on mobile, 2 seconds on desktop
+    
     return (
       <motion.button
         onClick={handleWhatsAppClick}
@@ -46,7 +50,7 @@ export default function WhatsAppButton({
         whileTap={{ scale: 0.95 }}
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2 }} // يظهر بعد تحميل الصفحة
+        transition={{ delay }} // يظهر بعد 50 ثانية على الموبايل
       >
         {/* أيقونة WhatsApp */}
         <motion.div

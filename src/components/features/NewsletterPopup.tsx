@@ -20,10 +20,14 @@ export default function NewsletterPopup() {
       return
     }
 
-    // Show popup after 6 seconds on every page load
+    // Detect if mobile device
+    const isMobile = window.innerWidth < 768
+    
+    // Show popup after 10 seconds on mobile, 6 seconds on desktop
+    const delay = isMobile ? 10000 : 6000
     const timer = setTimeout(() => {
       setIsOpen(true)
-    }, 6000)
+    }, delay)
 
     return () => clearTimeout(timer)
   }, [pathname])
