@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 /**
  * Live Chat Component using Tawk.to
@@ -15,7 +16,28 @@ import { useEffect } from 'react'
  */
 
 export default function LiveChat() {
+  const pathname = usePathname()
+  const [isAdminPage, setIsAdminPage] = useState(true) // Default true to hide initially
+  
+  // Check if on admin page
   useEffect(() => {
+    if (pathname) {
+      setIsAdminPage(pathname.startsWith('/admin'))
+    }
+  }, [pathname])
+
+  useEffect(() => {
+    // Don't load on admin pages
+    if (isAdminPage) {
+      // Hide widget if already loaded
+      // @ts-ignore
+      if (window.Tawk_API && window.Tawk_API.hideWidget) {
+        // @ts-ignore
+        window.Tawk_API.hideWidget()
+      }
+      return
+    }
+
     // Get Tawk.to credentials from environment variables
     const propertyId = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID
     const widgetId = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID
@@ -23,6 +45,14 @@ export default function LiveChat() {
     // Don't load if credentials are not set
     if (!propertyId || !widgetId) {
       console.warn('⚠️ Tawk.to credentials not found. Please set NEXT_PUBLIC_TAWK_PROPERTY_ID and NEXT_PUBLIC_TAWK_WIDGET_ID in .env.local')
+      return
+    }
+
+    // Show widget if already loaded
+    // @ts-ignore
+    if (window.Tawk_API && window.Tawk_API.showWidget) {
+      // @ts-ignore
+      window.Tawk_API.showWidget()
       return
     }
 
@@ -102,7 +132,7 @@ export default function LiveChat() {
         }
       }
     }
-  }, [])
+  }, [isAdminPage])
 
   // This component doesn't render anything visible
   // The Tawk.to widget is injected directly into the page
