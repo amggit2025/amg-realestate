@@ -47,6 +47,46 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Get featured projects
+    const featuredProjects = await prisma.projects.findMany({
+      take: 5,
+      where: {
+        featured: true,
+        published: true
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        title: true,
+        description: true,
+        location: true,
+        developer: true,
+        minPrice: true,
+        maxPrice: true,
+        bedrooms: true,
+        area: true,
+        projectType: true,
+        deliveryDate: true
+      }
+    })
+
+    // Get portfolio items (معرض الأعمال)
+    const portfolioItems = await prisma.portfolio_items.findMany({
+      take: 8,
+      where: {
+        featured: true,
+        published: true
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        title: true,
+        description: true,
+        location: true,
+        category: true,
+        area: true,
+        completionDate: true
+      }
+    })
+
     // Build AI context with real estate data
     const propertiesContext = recentListings.length > 0
       ? recentListings.map(p => `
@@ -59,6 +99,32 @@ export async function POST(request: NextRequest) {
   ${p.area ? `المساحة: ${p.area}م²` : ''}
 `).join('\n')
       : 'لا توجد عقارات متاحة حالياً.'
+
+    // Build projects context
+    const projectsContext = featuredProjects.length > 0
+      ? featuredProjects.map(p => `
+- ${p.title}
+  المطور: ${p.developer || 'غير محدد'}
+  الموقع: ${p.location}
+  النوع: ${p.projectType || 'مشروع سكني'}
+  ${p.minPrice ? `السعر من: ${formatPrice(Number(p.minPrice))}` : ''}
+  ${p.maxPrice ? ` إلى ${formatPrice(Number(p.maxPrice))}` : ''}
+  ${p.area ? `المساحات من: ${p.area}` : ''}
+  ${p.deliveryDate ? `التسليم: ${p.deliveryDate}` : ''}
+  الوصف: ${p.description || ''}
+`).join('\n')
+      : ''
+
+    // Build portfolio context
+    const portfolioContext = portfolioItems.length > 0
+      ? portfolioItems.map(p => `
+- ${p.title} (${p.category || 'مشروع عقاري'})
+  الموقع: ${p.location || 'مصر'}
+  ${p.area ? `المساحة: ${p.area}` : ''}
+  ${p.completionDate ? `تم التنفيذ: ${new Date(p.completionDate).getFullYear()}` : ''}
+  ${p.description ? `التفاصيل: ${p.description.substring(0, 150)}...` : ''}
+`).join('\n')
+      : ''
 
     // Build conversation history
     const conversationHistory = history && history.length > 0
@@ -88,8 +154,16 @@ export async function POST(request: NextRequest) {
 📊 العقارات المتاحة حالياً في قاعدة بياناتنا:
 ${propertiesContext}
 
+${projectsContext ? `🏗️ المشاريع المميزة التي نديرها:
+${projectsContext}
+` : ''}
+
+${portfolioContext ? `✨ من معرض أعمالنا السابقة (مشاريع منفذة):
+${portfolioContext}
+` : ''}
+
 🔍 **نظام الإجابة المختلط:**
-- **أولاً**: استخدم العقارات المتاحة أعلاه إذا كانت تناسب طلب العميل
+- **أولاً**: استخدم العقارات والمشاريع المتاحة أعلاه إذا كانت تناسب طلب العميل
 - **ثانياً**: إذا لم تجد عقار مناسب أو سأل عن معلومات عامة، استخدم معرفتك العامة عن:
   * السوق العقاري المصري (أسعار، مناطق، اتجاهات)
   * المناطق الجديدة والمشروعات الكبرى في مصر
