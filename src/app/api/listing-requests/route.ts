@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/db'
 import { verifyAdminToken } from '@/lib/admin-auth'
 import { sendListingRequestConfirmation, sendNewListingRequestNotification } from '@/lib/email'
 
@@ -141,14 +141,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // التحقق من صلاحيات الأدمن
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
-    }
-
-    const token = authHeader.split(' ')[1]
-    const admin = await verifyAdminToken(token)
-    if (!admin) {
+    const authResult = await verifyAdminToken(request)
+    if (!authResult.isValid) {
       return NextResponse.json({ error: 'غير مصرح' }, { status: 401 })
     }
 

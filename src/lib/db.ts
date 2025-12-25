@@ -2,6 +2,7 @@
 // 🗄️ AMG Real Estate - Database Connection Setup
 // ======================================================
 // إعداد الاتصال بقاعدة البيانات باستخدام Prisma
+// Last updated: 2025-12-26
 
 import { PrismaClient } from '@prisma/client'
 
@@ -10,7 +11,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query'],
+  log: process.env.NODE_ENV === 'development' ? ['query'] : [],
 })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
