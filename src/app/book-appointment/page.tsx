@@ -117,7 +117,7 @@ export default function BookAppointmentPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          listingId: selectedProperty.id,
+          propertyId: selectedProperty.id,
           contactName: form.name,
           contactEmail: form.email,
           contactPhone: form.phone,

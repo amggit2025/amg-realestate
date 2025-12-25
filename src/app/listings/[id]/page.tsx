@@ -279,7 +279,7 @@ export default function PropertyDetailPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          listingId: property?.id,
+          propertyId: property?.id,
           contactName: appointmentForm.name,
           contactEmail: appointmentForm.email,
           contactPhone: appointmentForm.phone,
