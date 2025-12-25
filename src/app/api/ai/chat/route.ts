@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Get featured projects
-    const featuredProjects = await prisma.projects.findMany({
+    const featuredProjects = await prisma.project.findMany({
       take: 5,
       where: {
         featured: true,
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Get portfolio items (معرض الأعمال)
-    const portfolioItems = await prisma.portfolio_items.findMany({
+    const portfolioItems = await prisma.portfolioItem.findMany({
       take: 8,
       where: {
         featured: true,
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Get services (الخدمات)
-    const services = await prisma.services.findMany({
+    const services = await prisma.service.findMany({
       where: {
         published: true
       },
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
     // Build projects context
     const projectsContext = featuredProjects.length > 0
-      ? featuredProjects.map(p => `
+      ? featuredProjects.map((p: any) => `
 - ${p.title}
   المطور: ${p.developer || 'غير محدد'}
   الموقع: ${p.location}
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
 
     // Build portfolio context
     const portfolioContext = portfolioItems.length > 0
-      ? portfolioItems.map(p => `
+      ? portfolioItems.map((p: any) => `
 - ${p.title} (${p.category || 'مشروع عقاري'})
   الموقع: ${p.location || 'مصر'}
   ${p.area ? `المساحة: ${p.area}` : ''}
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
 
     // Build services context
     const servicesContext = services.length > 0
-      ? services.map(s => `
+      ? services.map((s: any) => `
 - ${s.titleAr || s.title}
   الفئة: ${s.category || 'خدمات عقارية'}
   الوصف: ${s.descriptionAr || s.description || ''}
