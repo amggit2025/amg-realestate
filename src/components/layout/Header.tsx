@@ -187,6 +187,13 @@ export default function Header() {
                   حجز معاينة
                 </Link>
                 <Link
+                  href="/list-your-property"
+                  className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 transition-colors bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg"
+                >
+                  <HomeIcon className="w-4 h-4" />
+                  اعرض عقارك
+                </Link>
+                <Link
                   href="/auth/login"
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
@@ -339,6 +346,14 @@ export default function Header() {
                         >
                           <CalendarDaysIcon className="w-5 h-5" />
                           حجز موعد معاينة
+                        </Link>
+                        <Link
+                          href="/list-your-property"
+                          className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-colors"
+                          onClick={closeMenu}
+                        >
+                          <HomeIcon className="w-5 h-5" />
+                          اعرض عقارك للتسويق
                         </Link>
                         <Link
                           href="/auth/login"

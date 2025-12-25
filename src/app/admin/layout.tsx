@@ -40,6 +40,8 @@ export default function AdminLayout({
       setCurrentPage('inquiries');
     } else if (pathname === '/admin/service-requests' || pathname.startsWith('/admin/service-requests/')) {
       setCurrentPage('service-requests');
+    } else if (pathname === '/admin/listing-requests' || pathname.startsWith('/admin/listing-requests/')) {
+      setCurrentPage('listing-requests');
     } else if (pathname === '/admin/subscriptions') {
       setCurrentPage('subscriptions');
     } else if (pathname === '/admin/testimonials') {

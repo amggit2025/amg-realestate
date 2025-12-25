@@ -104,6 +104,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
       '/admin/inquiries': 'inquiries',
       '/admin/appointments': 'appointments',
       '/admin/service-requests': 'service-requests',
+      '/admin/listing-requests': 'listing-requests',
       '/admin/subscriptions': 'subscriptions',
       '/admin/testimonials': 'testimonials',
       '/admin/general-info': 'general-info',
@@ -178,6 +179,12 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
       id: 'service-requests',
       name: 'طلبات الاستشارات',
       icon: ChatBubbleLeftRightIcon,
+      module: 'inquiries' as Module,
+    },
+    {
+      id: 'listing-requests',
+      name: 'طلبات عرض العقارات',
+      icon: BuildingOfficeIcon,
       module: 'inquiries' as Module,
     },
     {

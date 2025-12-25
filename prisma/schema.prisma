@@ -1001,6 +1001,108 @@ enum NotificationType {
   @@map("notification_type")
 }
 
+// ==========================================
+// طلبات عرض العقارات للتسويق
+// ==========================================
+
+model PropertyListingRequest {
+  id              String                      @id @default(cuid())
+  
+  // بيانات العقار
+  propertyType    PropertyListingType
+  purpose         ListingPurpose
+  area            Float
+  price           Float
+  currency        String                      @default("EGP")
+  
+  // الموقع
+  governorate     String
+  city            String
+  district        String
+  address         String?
+  
+  // التفاصيل
+  bedrooms        Int?
+  bathrooms       Int?
+  floors          Int?
+  floor           Int?
+  yearBuilt       Int?
+  features        Json?                       // JSON array of features
+  description     String                      @db.Text
+  
+  // الصور
+  images          Json                        // JSON array of image URLs
+  
+  // بيانات المالك
+  ownerName       String
+  ownerPhone      String
+  ownerEmail      String
+  preferredTime   String?                     // صباحاً، ظهراً، مساءً
+  
+  // الخدمة المطلوبة
+  serviceType     ListingServiceType
+  
+  // الحالة والمتابعة
+  status          ListingRequestStatus        @default(PENDING)
+  adminNotes      String?                     @db.Text
+  assignedTo      String?                     // Admin ID
+  
+  // المعاينة
+  visitDate       DateTime?
+  visitNotes      String?                     @db.Text
+  
+  // التواريخ
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  @@index([status])
+  @@index([propertyType])
+  @@index([createdAt])
+  @@index([ownerEmail])
+  @@map("property_listing_requests")
+}
+
+enum PropertyListingType {
+  APARTMENT       // شقة
+  VILLA           // فيلا
+  TOWNHOUSE       // تاون هاوس
+  DUPLEX          // دوبلكس
+  PENTHOUSE       // بنتهاوس
+  LAND            // أرض
+  OFFICE          // مكتب
+  COMMERCIAL      // محل تجاري
+  WAREHOUSE       // مخزن
+  BUILDING        // مبنى كامل
+  
+  @@map("property_listing_type")
+}
+
+enum ListingPurpose {
+  SALE            // بيع
+  RENT            // إيجار
+  
+  @@map("listing_purpose")
+}
+
+enum ListingServiceType {
+  MARKETING_ONLY       // تسويق فقط
+  MARKETING_AND_VISIT  // تسويق ومعاينة
+  VALUATION            // تقييم العقار
+  
+  @@map("listing_service_type")
+}
+
+enum ListingRequestStatus {
+  PENDING         // قيد الانتظار
+  REVIEWING       // قيد المراجعة
+  VISIT_SCHEDULED // تم جدولة معاينة
+  APPROVED        // تمت الموافقة
+  REJECTED        // مرفوض
+  COMPLETED       // مكتمل
+  
+  @@map("listing_request_status")
+}
+
 model ServiceRequest {
   id            String              @id @default(cuid())
   name          String
