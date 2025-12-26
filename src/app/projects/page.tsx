@@ -3,9 +3,9 @@
 export const dynamic = 'force-dynamic'
 
 import { logger } from '@/lib/logger'
-
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   HomeIcon, 
   BuildingOfficeIcon, 
@@ -42,6 +42,11 @@ interface Project {
 // تم إزالة خيارات الفلاتر لتبسيط الواجهة
 
 export default function ProjectsPage() {
+  // Get search parameters from URL
+  const searchParams = useSearchParams()
+  const urlLocation = searchParams?.get('location') || ''
+  const urlType = searchParams?.get('type') || ''
+  
   // حالات البيانات والتحميل
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -49,6 +54,27 @@ export default function ProjectsPage() {
 
   // تم إزالة حالات البحث والفلترة لتبسيط الواجهة
   const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({})
+
+  // Filter projects based on URL parameters
+  const filteredProjects = useMemo(() => {
+    let filtered = projects
+    
+    // Filter by location
+    if (urlLocation) {
+      filtered = filtered.filter(project => 
+        project.location.toLowerCase().includes(urlLocation.toLowerCase())
+      )
+    }
+    
+    // Filter by type
+    if (urlType) {
+      filtered = filtered.filter(project => 
+        project.type === urlType
+      )
+    }
+    
+    return filtered
+  }, [projects, urlLocation, urlType])
 
   // جلب البيانات من API
   useEffect(() => {
@@ -145,6 +171,18 @@ export default function ProjectsPage() {
           </motion.div>
         )}
 
+        {/* Search Info Banner */}
+        {(urlLocation || urlType) && !loading && (
+          <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <p className="text-blue-800">
+              <strong>نتائج البحث:</strong>
+              {urlLocation && ` الموقع: "${urlLocation}"`}
+              {urlType && ` نوع العقار: "${urlType}"`}
+              <span className="mr-2">({filteredProjects.length} نتيجة)</span>
+            </p>
+          </div>
+        )}
+
         {/* Projects Grid */}
         {!loading && !error && (
           <motion.div
@@ -153,13 +191,17 @@ export default function ProjectsPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {projects.length === 0 ? (
+            {filteredProjects.length === 0 ? (
               <div className="col-span-full text-center py-20">
                 <BuildingOfficeIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 text-lg">لا توجد مشاريع متاحة حاليًا</p>
+                <p className="text-gray-600 text-lg">
+                  {urlLocation || urlType
+                    ? 'لا توجد مشاريع تطابق البحث'
+                    : 'لا توجد مشاريع متاحة حاليًا'}
+                </p>
               </div>
             ) : (
-              projects.map((project, index) => (
+              filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 50 }}

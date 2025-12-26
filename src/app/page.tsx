@@ -25,6 +25,27 @@ export default function HomePage() {
   const { scrollY } = useScroll()
   const y1 = useTransform(scrollY, [0, 500], [0, 200])
   
+  // Search state
+  const [searchLocation, setSearchLocation] = useState('')
+  const [searchType, setSearchType] = useState('')
+  
+  // Handle search
+  const handleSearch = () => {
+    const params = new URLSearchParams()
+    if (searchLocation) params.append('location', searchLocation)
+    if (searchType) params.append('type', searchType)
+    
+    const queryString = params.toString()
+    window.location.href = `/projects${queryString ? `?${queryString}` : ''}`
+  }
+  
+  // Handle Enter key
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+  
   return (
     <main className="bg-white overflow-hidden">
       {/* 1. Genius Hero Section */}
@@ -81,6 +102,9 @@ export default function HomePage() {
                   <input 
                     type="text" 
                     placeholder="الموقع (مثال: التجمع الخامس)" 
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className="w-full h-14 pr-12 pl-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-blue-100 text-gray-900 placeholder-gray-400 transition-all"
                   />
                 </div>
@@ -88,14 +112,21 @@ export default function HomePage() {
                   <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                     <Home className="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
                   </div>
-                  <select className="w-full h-14 pr-12 pl-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-blue-100 text-gray-900 appearance-none cursor-pointer transition-all">
+                  <select 
+                    value={searchType}
+                    onChange={(e) => setSearchType(e.target.value)}
+                    className="w-full h-14 pr-12 pl-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-blue-100 text-gray-900 appearance-none cursor-pointer transition-all"
+                  >
                     <option value="">نوع العقار</option>
-                    <option value="apartment">شقة سكنية</option>
-                    <option value="villa">فيلا مستقلة</option>
-                    <option value="office">مكتب إداري</option>
+                    <option value="RESIDENTIAL">شقة سكنية</option>
+                    <option value="COMMERCIAL">مكتب إداري</option>
+                    <option value="MIXED_USE">مختلط</option>
                   </select>
                 </div>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white h-14 px-8 rounded-xl font-bold text-lg shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2">
+                <button 
+                  onClick={handleSearch}
+                  className="bg-blue-600 hover:bg-blue-700 text-white h-14 px-8 rounded-xl font-bold text-lg shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 hover:shadow-xl active:scale-95"
+                >
                   <Search className="w-5 h-5" />
                   بحث
                 </button>
