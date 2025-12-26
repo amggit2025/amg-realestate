@@ -75,6 +75,12 @@ export async function DELETE(
     const { id: projectId } = await params
     const { imageId } = await request.json()
 
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('🗑️ DELETE /api/admin/projects/[id]/images')
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('Project ID:', projectId)
+    console.log('Image ID:', imageId)
+
     if (!imageId) {
       return NextResponse.json(
         { success: false, message: 'معرف الصورة مطلوب' },
@@ -91,32 +97,75 @@ export async function DELETE(
     })
 
     if (!image) {
+      console.error('❌ Image not found')
       return NextResponse.json(
         { success: false, message: 'الصورة غير موجودة' },
         { status: 404 }
       )
     }
 
+    console.log('📸 Image details:')
+    console.log('   - URL:', image.url)
+    console.log('   - Public ID:', image.publicId || 'NOT SET')
+    console.log('   - isMain:', image.isMain)
+
     // 🗑️ حذف الصورة من Cloudinary أولاً
     if (image.publicId) {
-      await deleteImageFromCloudinary(image.publicId)
-      console.log('🗑️ تم حذف الصورة من Cloudinary:', image.publicId)
+      console.log('☁️ Deleting from Cloudinary:', image.publicId)
+      const deleted = await deleteImageFromCloudinary(image.publicId)
+      if (deleted) {
+        console.log('✅ Successfully deleted from Cloudinary')
+      } else {
+        console.warn('⚠️ Failed to delete from Cloudinary (continuing anyway)')
+      }
+    } else {
+      console.warn('⚠️ No publicId found - cannot delete from Cloudinary')
+      console.warn('   This image was likely uploaded without storing publicId')
     }
 
     // حذف الصورة من قاعدة البيانات
+    console.log('💾 Deleting from database...')
     await prisma.projectImage.delete({
       where: { id: imageId }
     })
+    console.log('✅ Deleted from database')
+
+    // If this was the main image, update project mainImage
+    if (image.isMain) {
+      console.log('⚠️ This was the main image - updating project...')
+      const remainingImages = await prisma.projectImage.findFirst({
+        where: { projectId: projectId },
+        orderBy: { order: 'asc' }
+      })
+
+      await prisma.project.update({
+        where: { id: projectId },
+        data: { mainImage: remainingImages?.url || null }
+      })
+      console.log('✅ Project mainImage updated to:', remainingImages?.url || 'null')
+    }
+
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('✅ Image deletion completed')
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
     return NextResponse.json({
       success: true,
-      message: 'تم حذف الصورة بنجاح من قاعدة البيانات و Cloudinary'
+      message: image.publicId 
+        ? 'تم حذف الصورة بنجاح من قاعدة البيانات و Cloudinary'
+        : 'تم حذف الصورة من قاعدة البيانات (لم يكن لها publicId على Cloudinary)',
+      deletedFromCloudinary: !!image.publicId
     })
 
-  } catch (error) {
-    console.error('Error deleting project image:', error)
+  } catch (error: any) {
+    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.error('💥 Image deletion error')
+    console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.error('Error:', error?.message)
+    console.error('Stack:', error?.stack)
+    
     return NextResponse.json(
-      { success: false, message: 'خطأ في حذف الصورة' },
+      { success: false, message: `خطأ في حذف الصورة: ${error?.message}` },
       { status: 500 }
     )
   }
