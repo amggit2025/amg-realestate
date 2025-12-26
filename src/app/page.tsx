@@ -36,7 +36,8 @@ export default function HomePage() {
     if (searchType) params.append('type', searchType)
     
     const queryString = params.toString()
-    window.location.href = `/projects${queryString ? `?${queryString}` : ''}`
+    // البحث يروح لصفحة العقارات (listings) مش المشاريع (projects)
+    window.location.href = `/listings${queryString ? `?${queryString}` : ''}`
   }
   
   // Handle Enter key

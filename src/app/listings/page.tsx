@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { logger } from '@/lib/logger'
@@ -49,16 +50,21 @@ interface Property {
 }
 
 export default function ListingsPage() {
+  // Get search parameters from URL
+  const searchParams = useSearchParams()
+  const urlLocation = searchParams?.get('location') || ''
+  const urlType = searchParams?.get('type') || ''
+  
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [initialLoad, setInitialLoad] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState(urlLocation) // Initialize with URL param
   const [filters, setFilters] = useState({
-    propertyType: '',
+    propertyType: urlType, // Initialize with URL param
     purpose: '',
     minPrice: '',
     maxPrice: '',
-    city: ''
+    city: urlLocation // Initialize with URL param
   })
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
