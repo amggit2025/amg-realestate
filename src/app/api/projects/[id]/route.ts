@@ -139,8 +139,37 @@ export async function PUT(
     const data = await request.json()
     
     console.log('🔄 PUT request for project ID:', projectId)
-    console.log('📋 Request data:', data)
+    console.log('📋 Request data:', JSON.stringify(data, null, 2))
 
+    // For simple toggle operations (featured/published)
+    if (Object.keys(data).length === 1 && (data.featured !== undefined || data.published !== undefined)) {
+      console.log('⚡ Simple toggle operation detected')
+      
+      const updateData: any = {}
+      if (data.featured !== undefined) {
+        updateData.featured = Boolean(data.featured)
+        console.log('  → Updating featured to:', updateData.featured)
+      }
+      if (data.published !== undefined) {
+        updateData.published = Boolean(data.published)
+        console.log('  → Updating published to:', updateData.published)
+      }
+
+      const project = await prisma.project.update({
+        where: { id: projectId },
+        data: updateData
+      })
+
+      console.log('✅ Toggle update successful')
+      return NextResponse.json({
+        success: true,
+        message: 'تم التحديث بنجاح',
+        data: project
+      })
+    }
+
+    // Full project update
+    console.log('📝 Full project update')
     const updateData = {
       title: data.title,
       description: data.description,
@@ -169,8 +198,8 @@ export async function PUT(
     if (data.paymentPlan) updateData.paymentPlan = JSON.stringify(data.paymentPlan);
     if (data.locationDetails) updateData.locationDetails = JSON.stringify(data.locationDetails);
     if (data.mainImage) updateData.mainImage = data.mainImage;
-    if (data.featured !== undefined) updateData.featured = data.featured;
-    if (data.published !== undefined) updateData.published = data.published;
+    if (data.featured !== undefined) updateData.featured = Boolean(data.featured);
+    if (data.published !== undefined) updateData.published = Boolean(data.published);
 
     const project = await prisma.project.update({
       where: { id: projectId },

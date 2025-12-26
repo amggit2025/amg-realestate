@@ -102,29 +102,59 @@ export default function AdminProjectsPage() {
 
   const toggleProjectStatus = async (id: string, field: 'featured' | 'published', currentValue: boolean) => {
     try {
-      logger.log(`🔄 Toggling ${field} for project ${id} from ${currentValue} to ${!currentValue}`)
+      const newValue = !currentValue
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      console.log('🔄 Toggle Project Status')
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      console.log('Project ID:', id)
+      console.log('Field:', field)
+      console.log('Current Value:', currentValue)
+      console.log('New Value:', newValue)
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      
+      const payload = { [field]: newValue }
+      console.log('📤 Sending payload:', JSON.stringify(payload, null, 2))
       
       const response = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [field]: !currentValue })
+        body: JSON.stringify(payload)
       })
       
-      logger.log('📡 Response status:', response.status)
-      const data = await response.json()
-      logger.log('📋 Response data:', data)
+      console.log('📡 Response status:', response.status, response.statusText)
+      
+      const responseText = await response.text()
+      console.log('📥 Response text:', responseText)
+      
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (e) {
+        console.error('❌ Failed to parse response as JSON')
+        throw new Error('Invalid JSON response from server')
+      }
+      
+      console.log('📋 Response data:', JSON.stringify(data, null, 2))
 
       if (data.success) {
-        logger.log('✅ Successfully updated project status')
+        console.log('✅ Successfully updated project status')
         setProjects(prev => prev.map(p => 
-          p.id === id ? { ...p, [field]: !currentValue } : p
+          p.id === id ? { ...p, [field]: newValue } : p
         ))
+        console.log('✅ Local state updated')
       } else {
-        logger.error('❌ API returned error:', data.message)
+        console.error('❌ API returned error:', data.message)
         alert(`خطأ: ${data.message}`)
       }
     } catch (error) {
-      logger.error('💥 Error updating project:', error)
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      console.error('💥 Error updating project')
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+      console.error('Error object:', error)
+      if (error instanceof Error) {
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
+      }
       alert(`خطأ في الاتصال: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`)
     }
   }
