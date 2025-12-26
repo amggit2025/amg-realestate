@@ -177,10 +177,12 @@ async function networkFirstWithOffline(request) {
 async function staleWhileRevalidate(request) {
   const cached = await caches.match(request)
   
-  const fetchPromise = fetch(request).then((response) => {
+  const fetchPromise = fetch(request).then(async (response) => {
     if (response.ok) {
-      const cache = caches.open(CACHE_NAME)
-      cache.then((c) => c.put(request, response.clone()))
+      // Clone the response BEFORE doing anything else
+      const responseToCache = response.clone()
+      const cache = await caches.open(CACHE_NAME)
+      await cache.put(request, responseToCache)
     }
     return response
   }).catch(() => {
