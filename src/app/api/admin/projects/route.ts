@@ -133,7 +133,6 @@ export async function POST(request: NextRequest) {
       
       console.log('✅ Images added successfully')
     }
-    }
 
     return NextResponse.json({
       success: true,
