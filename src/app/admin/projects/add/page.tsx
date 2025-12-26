@@ -724,10 +724,6 @@ export default function AddProjectPage() {
                     max="9999999999.99"
                     step="0.01"
                   />
-                    placeholder="أعلى سعر للوحدة"
-                    min="0"
-                    step="0.01"
-                  />
                 </div>
               </div>
             </div>
