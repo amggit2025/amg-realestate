@@ -705,6 +705,7 @@ export default function AddProjectPage() {
                     className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="أقل سعر للوحدة"
                     min="0"
+                    max="9999999999.99"
                     step="0.01"
                   />
                 </div>
@@ -718,6 +719,11 @@ export default function AddProjectPage() {
                     value={formData.maxPrice || ''}
                     onChange={(e) => handleInputChange('maxPrice', e.target.value ? parseFloat(e.target.value) : null)}
                     className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="أعلى سعر للوحدة"
+                    min="0"
+                    max="9999999999.99"
+                    step="0.01"
+                  />
                     placeholder="أعلى سعر للوحدة"
                     min="0"
                     step="0.01"

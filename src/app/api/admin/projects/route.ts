@@ -91,19 +91,29 @@ export async function POST(request: NextRequest) {
     // Add optional fields with validation
     if (data.totalUnits) {
       const totalUnits = parseInt(data.totalUnits)
-      if (!isNaN(totalUnits)) createData.totalUnits = totalUnits
+      if (!isNaN(totalUnits) && totalUnits >= 0) createData.totalUnits = totalUnits
     }
     if (data.availableUnits) {
       const availableUnits = parseInt(data.availableUnits)
-      if (!isNaN(availableUnits)) createData.availableUnits = availableUnits
+      if (!isNaN(availableUnits) && availableUnits >= 0) createData.availableUnits = availableUnits
     }
     if (data.minPrice) {
       const minPrice = parseFloat(data.minPrice)
-      if (!isNaN(minPrice)) createData.minPrice = minPrice
+      if (!isNaN(minPrice) && minPrice >= 0 && minPrice <= 9999999999.99) {
+        createData.minPrice = minPrice
+        console.log('✅ minPrice validated:', minPrice)
+      } else {
+        console.warn('⚠️ Invalid minPrice value:', data.minPrice, '- skipping')
+      }
     }
     if (data.maxPrice) {
       const maxPrice = parseFloat(data.maxPrice)
-      if (!isNaN(maxPrice)) createData.maxPrice = maxPrice
+      if (!isNaN(maxPrice) && maxPrice >= 0 && maxPrice <= 9999999999.99) {
+        createData.maxPrice = maxPrice
+        console.log('✅ maxPrice validated:', maxPrice)
+      } else {
+        console.warn('⚠️ Invalid maxPrice value:', data.maxPrice, '- skipping')
+      }
     }
     if (data.currency) createData.currency = data.currency
     if (data.deliveryDate) {
