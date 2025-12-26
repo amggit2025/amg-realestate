@@ -48,6 +48,9 @@ next-env.d.ts
 
 # vscode
 .vscode/*
+
+# figma plugin files
+figma/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
