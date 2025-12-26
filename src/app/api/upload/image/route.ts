@@ -35,32 +35,46 @@ export async function POST(request: NextRequest) {
     const base64 = buffer.toString('base64')
     const dataURI = `data:${file.type};base64,${base64}`
 
-    // Upload to Cloudinary using fetch API
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`
-    
-    const formData = new FormData()
-    formData.append('file', dataURI)
-    formData.append('upload_preset', 'amg_projects') // You'll create this preset
-    formData.append('folder', 'amg-projects')
-    
-    const cloudinaryResponse = await fetch(cloudinaryUrl, {
-      method: 'POST',
-      body: formData,
+    // Upload to Cloudinary using Cloudinary SDK with signed upload
+    const cloudinary = require('cloudinary').v2
+
+    cloudinary.config({
+      cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
     })
 
-    const result = await cloudinaryResponse.json()
-
-    if (!cloudinaryResponse.ok) {
-      throw new Error(result.error?.message || 'فشل رفع الصورة')
-    }
+    // Upload with signed request (no preset needed)
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload(
+        dataURI,
+        {
+          folder: 'amg-projects',
+          resource_type: 'image',
+          allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+          transformation: [
+            { width: 1920, height: 1080, crop: 'limit' }, // حد أقصى للدقة
+            { quality: 'auto:good' }, // جودة تلقائية
+            { fetch_format: 'auto' } // تحويل تلقائي للصيغة المناسبة
+          ]
+        },
+        (error: any, result: any) => {
+          if (error) reject(error)
+          else resolve(result)
+        }
+      )
+    })
 
     return NextResponse.json({
       success: true,
       message: 'تم رفع الصورة بنجاح على Cloudinary',
       data: {
-        url: result.secure_url,
-        public_id: result.public_id,
-        original_filename: file.name
+        url: (result as any).secure_url,
+        public_id: (result as any).public_id,
+        original_filename: file.name,
+        width: (result as any).width,
+        height: (result as any).height,
+        format: (result as any).format
       }
     })
 
