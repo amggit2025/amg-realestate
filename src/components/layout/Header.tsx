@@ -35,7 +35,13 @@ const navigation = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { user, isAuthenticated, logout } = useAuth()
+
+  // Prevent hydration mismatch by waiting for client mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // إغلاق القوائم عند النقر خارجها
   useEffect(() => {
@@ -112,20 +118,57 @@ export default function Header() {
 
           {/* Auth Buttons */}
           <div className="flex lg:flex-1 lg:justify-end items-center gap-2">
-            {isAuthenticated && user ? (
+            {/* Show skeleton/placeholder until mounted to prevent hydration mismatch */}
+            {!mounted ? (
+              // Server-side placeholder - same structure always
+              <div className="hidden lg:flex items-center gap-3">
+                <div className="h-9 w-24 bg-gray-100 rounded-lg animate-pulse"></div>
+                <div className="h-9 w-24 bg-gray-100 rounded-lg animate-pulse"></div>
+                <div className="h-9 w-28 bg-blue-100 rounded-lg animate-pulse"></div>
+              </div>
+            ) : (
+              // Client-side - render actual content based on auth state
               <>
-                {/* Notification Bell - Visible on all screen sizes */}
-                <NotificationBell />
-                
-                <div className="hidden lg:block relative user-menu-container">
-                  <button
-                    onClick={toggleUserMenu}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                <div className="hidden lg:flex items-center gap-3">
+                  <Link
+                    href="/book-appointment"
+                    className="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg"
                   >
-                    <UserIcon className="w-5 h-5" />
-                    <span className="font-medium">{user.firstName} {user.lastName}</span>
-                    <ChevronDownIcon className="w-4 h-4" />
-                  </button>
+                    <CalendarDaysIcon className="w-4 h-4" />
+                    حجز معاينة
+                  </Link>
+                  <Link
+                    href="/list-your-property"
+                    className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 transition-colors bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg"
+                  >
+                    <HomeIcon className="w-4 h-4" />
+                    اعرض عقارك
+                  </Link>
+                </div>
+
+                {/* Notification Bell - Only for authenticated users */}
+                {isAuthenticated && user && <NotificationBell />}
+                
+                {/* User Menu or Login Button */}
+                {!isAuthenticated || !user ? (
+                  <div className="hidden lg:block">
+                    <Link
+                      href="/auth/login"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      تسجيل الدخول
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="hidden lg:block relative user-menu-container">
+                    <button
+                      onClick={toggleUserMenu}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                    >
+                      <UserIcon className="w-5 h-5" />
+                      <span className="font-medium">{user.firstName} {user.lastName}</span>
+                      <ChevronDownIcon className="w-4 h-4" />
+                    </button>
                 
                 {/* User Dropdown */}
                 <AnimatePresence>
@@ -158,6 +201,13 @@ export default function Header() {
                         🏡 عقاراتي
                       </Link>
                       <Link
+                        href="/dashboard/my-requests"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        📋 طلبات التسويق
+                      </Link>
+                      <Link
                         href="/dashboard/inquiries"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setUserMenuOpen(false)}
@@ -175,31 +225,9 @@ export default function Header() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                </div>
-              </>
-            ) : (
-              <div className="hidden lg:flex items-center gap-3">
-                <Link
-                  href="/book-appointment"
-                  className="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg"
-                >
-                  <CalendarDaysIcon className="w-4 h-4" />
-                  حجز معاينة
-                </Link>
-                <Link
-                  href="/list-your-property"
-                  className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 transition-colors bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg"
-                >
-                  <HomeIcon className="w-4 h-4" />
-                  اعرض عقارك
-                </Link>
-                <Link
-                  href="/auth/login"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                >
-                  تسجيل الدخول
-                </Link>
               </div>
+            )}
+              </>
             )}
           </div>
 
@@ -287,8 +315,10 @@ export default function Header() {
                   </div>
 
                   {/* Auth Buttons */}
-                  <div className="p-4 border-t border-gray-200">
-                    {isAuthenticated && user ? (
+                  <div className="p-4 border-t border-gray-200" suppressHydrationWarning>
+                    {!mounted ? (
+                      <div className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+                    ) : isAuthenticated && user ? (
                       <div>
                         <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 rounded-lg">
                           <UserIcon className="w-8 h-8 text-blue-600" />
@@ -321,6 +351,13 @@ export default function Header() {
                             onClick={closeMenu}
                           >
                             🏡 عقاراتي
+                          </Link>
+                          <Link
+                            href="/dashboard/my-requests"
+                            className="block w-full text-right p-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+                            onClick={closeMenu}
+                          >
+                            📋 طلبات التسويق
                           </Link>
                           <Link
                             href="/dashboard/inquiries"

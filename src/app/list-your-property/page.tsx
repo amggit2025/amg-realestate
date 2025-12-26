@@ -1,930 +1,1053 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/AuthContext'
 import { 
-  HomeIcon, 
-  PhotoIcon, 
-  UserIcon, 
-  CheckCircleIcon,
-  ArrowRightIcon,
-  ArrowLeftIcon,
-  XMarkIcon,
-  CloudArrowUpIcon,
-  BuildingOfficeIcon,
-  MapPinIcon,
-  CurrencyDollarIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  ClockIcon
-} from '@heroicons/react/24/outline'
-import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
+  Building2, Camera, Phone, CheckCircle2, ChevronRight, ChevronLeft,
+  User, Mail, Clock, Home, TrendingUp, Users, Award, 
+  MapPin, DollarSign, Ruler, Upload, X, Star, Info, Trees,
+  Droplets, Car, Dumbbell, Shield, Wifi, MessageCircle, Share2,
+  Facebook, Twitter, Send, Key, Building, Warehouse, Landmark, Briefcase, Store,
+  LogIn
+} from 'lucide-react'
 
-// أنواع العقارات
+// --- Constants & Data ---
+
 const propertyTypes = [
-  { value: 'APARTMENT', label: 'شقة', icon: '🏢' },
-  { value: 'VILLA', label: 'فيلا', icon: '🏡' },
-  { value: 'TOWNHOUSE', label: 'تاون هاوس', icon: '🏘️' },
-  { value: 'DUPLEX', label: 'دوبلكس', icon: '🏠' },
-  { value: 'PENTHOUSE', label: 'بنتهاوس', icon: '🌆' },
-  { value: 'LAND', label: 'أرض', icon: '🌍' },
-  { value: 'OFFICE', label: 'مكتب', icon: '🏛️' },
-  { value: 'COMMERCIAL', label: 'محل تجاري', icon: '🏪' },
-  { value: 'WAREHOUSE', label: 'مخزن', icon: '📦' },
-  { value: 'BUILDING', label: 'مبنى كامل', icon: '🏗️' },
+  { id: 'apartment', label: 'شقة', icon: <Building2 size={32} /> },
+  { id: 'villa', label: 'فيلا', icon: <Home size={32} /> },
+  { id: 'townhouse', label: 'تاون هاوس', icon: <Building size={32} /> },
+  { id: 'duplex', label: 'دوبلكس', icon: <Warehouse size={32} /> },
+  { id: 'penthouse', label: 'بنتهاوس', icon: <Landmark size={32} /> },
+  { id: 'land', label: 'أرض', icon: <MapPin size={32} /> },
+  { id: 'office', label: 'مكتب', icon: <Briefcase size={32} /> },
+  { id: 'shop', label: 'محل تجاري', icon: <Store size={32} /> },
 ]
 
-// المحافظات
+const featuresList = [
+  { id: 'garden', label: 'حديقة', icon: <Trees size={18} /> },
+  { id: 'pool', label: 'مسبح', icon: <Droplets size={18} /> },
+  { id: 'garage', label: 'جراج', icon: <Car size={18} /> },
+  { id: 'gym', label: 'صالة رياضية', icon: <Dumbbell size={18} /> },
+  { id: 'security', label: 'حراسة أمنية', icon: <Shield size={18} /> },
+  { id: 'wifi', label: 'إنترنت', icon: <Wifi size={18} /> },
+]
+
 const governorates = [
-  'القاهرة', 'الجيزة', 'الإسكندرية', 'الدقهلية', 'البحر الأحمر', 'البحيرة',
-  'الفيوم', 'الغربية', 'الإسماعيلية', 'المنوفية', 'المنيا', 'القليوبية',
-  'الوادي الجديد', 'السويس', 'أسوان', 'أسيوط', 'بني سويف', 'بورسعيد',
-  'دمياط', 'الشرقية', 'جنوب سيناء', 'كفر الشيخ', 'مطروح', 'الأقصر',
-  'قنا', 'شمال سيناء', 'سوهاج'
+  'القاهرة', 'الجيزة', 'الإسكندرية', 'الشرقية', 'الدقهلية', 
+  'القليوبية', 'المنوفية', 'البحيرة', 'أسيوط', 'سوهاج'
 ]
 
-// المميزات
-const allFeatures = [
-  'حديقة خاصة', 'حمام سباحة', 'جراج', 'مصعد', 'أمن وحراسة', 'تكييف مركزي',
-  'غاز طبيعي', 'إنترنت', 'قريب من المترو', 'قريب من المدارس', 'قريب من المولات',
-  'تشطيب سوبر لوكس', 'تشطيب لوكس', 'نصف تشطيب', 'على الطوب الأحمر',
-  'فيو مفتوح', 'واجهة بحرية', 'واجهة قبلية', 'دور أرضي', 'روف'
+const timeSlots = [
+  { id: 'morning', label: 'صباحاً', time: '9 ص - 12 م', icon: '🌅' },
+  { id: 'afternoon', label: 'ظهراً', time: '12 م - 5 م', icon: '☀️' },
+  { id: 'evening', label: 'مساءً', time: '5 م - 9 م', icon: '🌙' },
 ]
 
-// أنواع الخدمات
 const serviceTypes = [
-  { 
-    value: 'MARKETING_ONLY', 
-    label: 'تسويق العقار فقط',
-    description: 'نقوم بتسويق عقارك عبر منصاتنا وقنواتنا المختلفة',
-    icon: '📢'
+  {
+    id: 'marketing',
+    title: 'تسويق فقط',
+    description: 'نقوم بتسويق عقارك على جميع المنصات والوصول لأكبر عدد من المهتمين',
+    icon: <TrendingUp size={32} />,
+    features: ['نشر على 10+ منصة', 'تسويق رقمي متقدم', 'تقارير أسبوعية'],
+    color: 'from-blue-500 to-blue-600',
   },
-  { 
-    value: 'MARKETING_AND_VISIT', 
-    label: 'تسويق ومعاينة',
-    description: 'معاينة العقار وتصويره احترافياً ثم تسويقه',
-    icon: '📸'
+  {
+    id: 'marketing_photo',
+    title: 'تسويق + تصوير احترافي',
+    description: 'تسويق شامل مع جلسة تصوير احترافية لعقارك',
+    icon: <Camera size={32} />,
+    features: ['تصوير احترافي', 'جولة افتراضية', 'تسويق مميز', 'تحرير احترافي'],
+    color: 'from-purple-500 to-purple-600',
+    recommended: true,
   },
-  { 
-    value: 'VALUATION', 
-    label: 'تقييم العقار',
-    description: 'تقييم سعر عقارك بناءً على السوق الحالي',
-    icon: '💰'
+  {
+    id: 'valuation',
+    title: 'تقييم عقاري',
+    description: 'احصل على تقييم دقيق لسعر عقارك من خبراء متخصصين',
+    icon: <CheckCircle2 size={32} />,
+    features: ['تقييم من خبراء', 'تقرير مفصل', 'تحليل السوق', 'استشارة مجانية'],
+    color: 'from-green-500 to-green-600',
   },
 ]
 
-interface FormData {
-  // بيانات العقار
-  propertyType: string
-  purpose: 'SALE' | 'RENT' | ''
-  area: string
-  price: string
-  currency: string
-  governorate: string
-  city: string
-  district: string
-  address: string
-  bedrooms: string
-  bathrooms: string
-  floors: string
-  floor: string
-  yearBuilt: string
-  features: string[]
-  description: string
-  
-  // الصور
-  images: string[]
-  
-  // بيانات المالك
-  ownerName: string
-  ownerPhone: string
-  ownerEmail: string
-  preferredTime: string
-  
-  // الخدمة
-  serviceType: string
-}
+// --- Components ---
 
-const initialFormData: FormData = {
-  propertyType: '',
-  purpose: '',
-  area: '',
-  price: '',
-  currency: 'EGP',
-  governorate: '',
-  city: '',
-  district: '',
-  address: '',
-  bedrooms: '',
-  bathrooms: '',
-  floors: '',
-  floor: '',
-  yearBuilt: '',
-  features: [],
-  description: '',
-  images: [],
-  ownerName: '',
-  ownerPhone: '',
-  ownerEmail: '',
-  preferredTime: '',
-  serviceType: ''
-}
+const StatCard = ({ value, label, icon }: { value: number, label: string, icon: React.ReactNode }) => {
+  const [count, setCount] = useState(0)
 
-export default function ListYourPropertyPage() {
-  const [step, setStep] = useState(1)
-  const [formData, setFormData] = useState<FormData>(initialFormData)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [requestId, setRequestId] = useState('')
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [uploadingImages, setUploadingImages] = useState(false)
+  useEffect(() => {
+    const duration = 2000
+    const steps = 60
+    const increment = value / steps
+    let current = 0
 
-  const steps = [
-    { number: 1, title: 'العقار', icon: HomeIcon },
-    { number: 2, title: 'الصور', icon: PhotoIcon },
-    { number: 3, title: 'التواصل', icon: UserIcon },
-    { number: 4, title: 'تأكيد', icon: CheckCircleIcon },
-  ]
-
-  // التحقق من صحة البيانات
-  const validateStep = (stepNumber: number): boolean => {
-    const newErrors: Record<string, string> = {}
-
-    if (stepNumber === 1) {
-      if (!formData.propertyType) newErrors.propertyType = 'اختر نوع العقار'
-      if (!formData.purpose) newErrors.purpose = 'اختر الغرض'
-      if (!formData.area) newErrors.area = 'أدخل المساحة'
-      if (!formData.price) newErrors.price = 'أدخل السعر'
-      if (!formData.governorate) newErrors.governorate = 'اختر المحافظة'
-      if (!formData.city) newErrors.city = 'أدخل المدينة'
-      if (!formData.district) newErrors.district = 'أدخل المنطقة'
-      if (!formData.description) newErrors.description = 'أدخل وصف العقار'
-    }
-
-    if (stepNumber === 2) {
-      if (formData.images.length === 0) newErrors.images = 'أضف صورة واحدة على الأقل'
-    }
-
-    if (stepNumber === 3) {
-      if (!formData.ownerName) newErrors.ownerName = 'أدخل اسمك'
-      if (!formData.ownerPhone) newErrors.ownerPhone = 'أدخل رقم هاتفك'
-      if (!formData.ownerEmail) newErrors.ownerEmail = 'أدخل بريدك الإلكتروني'
-      if (!formData.serviceType) newErrors.serviceType = 'اختر نوع الخدمة'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const nextStep = () => {
-    if (validateStep(step)) {
-      setStep(step + 1)
-    }
-  }
-
-  const prevStep = () => {
-    setStep(step - 1)
-  }
-
-  // رفع الصور
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
-
-    setUploadingImages(true)
-    const newImages: string[] = []
-
-    for (const file of Array.from(files)) {
-      try {
-        const formDataUpload = new FormData()
-        formDataUpload.append('file', file)
-        formDataUpload.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'amg_properties')
-
-        const res = await fetch(
-          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-          { method: 'POST', body: formDataUpload }
-        )
-
-        const data = await res.json()
-        if (data.secure_url) {
-          newImages.push(data.secure_url)
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error)
-      }
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, ...newImages]
-    }))
-    setUploadingImages(false)
-  }
-
-  // حذف صورة
-  const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }))
-  }
-
-  // إرسال النموذج
-  const handleSubmit = async () => {
-    if (!validateStep(3)) return
-
-    setIsSubmitting(true)
-
-    try {
-      const res = await fetch('/api/listing-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-
-      const data = await res.json()
-
-      if (res.ok) {
-        setIsSuccess(true)
-        setRequestId(data.requestId)
-        setStep(4)
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= value) {
+        setCount(value)
+        clearInterval(timer)
       } else {
-        setErrors({ submit: data.error || 'حدث خطأ أثناء الإرسال' })
+        setCount(Math.floor(current))
       }
-    } catch (error) {
-      setErrors({ submit: 'حدث خطأ في الاتصال' })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+    }, duration / steps)
 
-  // تبديل ميزة
-  const toggleFeature = (feature: string) => {
-    setFormData(prev => ({
-      ...prev,
-      features: prev.features.includes(feature)
-        ? prev.features.filter(f => f !== feature)
-        : [...prev.features, feature]
-    }))
-  }
+    return () => clearInterval(timer)
+  }, [value])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 py-16 lg:py-24">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10"></div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 border border-white/20"
+    >
+      <div className="text-[#d4af37]">{icon}</div>
+      <div>
+        <div className="text-2xl font-bold text-white">{count}+</div>
+        <div className="text-sm text-white/80">{label}</div>
+      </div>
+    </motion.div>
+  )
+}
+
+const FloatingIcon = ({ icon, delay, x, y, duration }: { icon: React.ReactNode, delay: number, x: string, y: string, duration: number }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{ 
+      opacity: [0.1, 0.3, 0.1],
+      scale: [1, 1.2, 1],
+      x: [0, 20, 0],
+      y: [0, -30, 0]
+    }}
+    transition={{
+      duration,
+      delay,
+      repeat: Infinity,
+      repeatType: "reverse"
+    }}
+    className="absolute text-white/20 pointer-events-none"
+    style={{ left: x, top: y }}
+  >
+    {icon}
+  </motion.div>
+)
+
+const Confetti = () => {
+  const colors = ['#d4af37', '#1e3a5f', '#10b981', '#f59e0b', '#ef4444']
+  const [particles, setParticles] = useState<any[]>([])
+
+  useEffect(() => {
+    setParticles(Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * window.innerWidth,
+      y: -20,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: Math.random() * 8 + 4,
+      rotation: Math.random() * 360,
+      duration: Math.random() * 2 + 3,
+    })))
+  }, [])
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          initial={{
+            x: particle.x,
+            y: particle.y,
+            rotate: 0,
+            opacity: 1,
+          }}
+          animate={{
+            y: window.innerHeight + 100,
+            rotate: particle.rotation * 4,
+            opacity: [1, 1, 0],
+          }}
+          transition={{
+            duration: particle.duration,
+            ease: "linear",
+          }}
+          style={{
+            position: 'absolute',
+            width: particle.size,
+            height: particle.size,
+            backgroundColor: particle.color,
+            borderRadius: '50%',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// --- Main Page Component ---
+
+export default function ListYourPropertyPage() {
+  const router = useRouter()
+  const { user, isLoading } = useAuth()
+  const [currentStep, setCurrentStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [shouldRedirect, setShouldRedirect] = useState(false)
+  const [formData, setFormData] = useState({
+    propertyType: '',
+    purpose: 'sale',
+    governorate: '',
+    city: '',
+    area: '',
+    price: '',
+    bedrooms: '',
+    bathrooms: '',
+    features: [] as string[],
+    description: '',
+    images: [] as string[], // Storing base64 strings for preview
+    imageFiles: [] as File[], // Storing actual files for upload
+    name: '',
+    phone: '',
+    email: '',
+    preferredTime: '',
+    services: [] as string[],
+    requestId: '', // Store request ID from API
+  })
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Prevent any auto-redirect
+  useEffect(() => {
+    // Block any redirect attempts
+    setShouldRedirect(false)
+  }, [])
+
+  // Auto-fill user info if logged in
+  useEffect(() => {
+    if (user && !formData.name) {
+      setFormData(prev => ({
+        ...prev,
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        phone: user.phone || '',
+      }))
+    }
+  }, [user])
+
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#1e3a5f] mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري التحميل...</p>
         </div>
-        <div className="relative container mx-auto px-4">
-          <div className="text-center text-white">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-3xl lg:text-5xl font-bold mb-4"
+      </div>
+    )
+  }
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-[#1e3a5f] via-[#2d5a8f] to-[#0f2441] flex items-center justify-center p-4 overflow-hidden z-[9999]">
+        {/* Background Decorations */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#d4af37] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-[#1e3a5f] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute -bottom-32 left-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '4s' }}></div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 max-w-lg w-full text-center relative z-10 border border-white/50"
+        >
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
+            className="w-24 h-24 bg-gradient-to-br from-[#1e3a5f] to-[#d4af37] rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl ring-4 ring-white/50"
+          >
+            <LogIn className="text-white" size={40} strokeWidth={2.5} />
+          </motion.div>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-4xl font-bold text-[#1e3a5f] mb-4 tracking-tight"
+          >
+            يجب تسجيل الدخول
+          </motion.h2>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-gradient-to-r from-blue-50/80 to-purple-50/80 rounded-2xl p-6 mb-8 border border-blue-100/50"
+          >
+            <p className="text-gray-700 text-lg leading-relaxed font-medium">
+              لعرض عقارك والاستفادة من خدماتنا المميزة، يرجى تسجيل الدخول أو إنشاء حساب جديد
+            </p>
+          </motion.div>
+
+          <div className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
             >
-              🏠 اعرض عقارك للتسويق مع AMG
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-lg lg:text-xl text-blue-100 max-w-2xl mx-auto"
-            >
-              نساعدك في بيع أو تأجير عقارك بأفضل سعر وفي أسرع وقت
-            </motion.p>
+              <Link
+                href="/auth/login?redirect=/list-your-property"
+                className="group relative w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-blue-900/20 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-3 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                <LogIn size={22} className="relative z-10" />
+                <span className="relative z-10">تسجيل الدخول</span>
+              </Link>
+            </motion.div>
             
-            {/* المميزات */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-wrap justify-center gap-4 mt-8"
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
             >
-              {['تسويق احترافي', 'تصوير عقاري', 'تقييم مجاني', 'فريق مبيعات متخصص'].map((item, i) => (
-                <div key={i} className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                  <CheckCircleSolid className="w-5 h-5 text-green-300" />
-                  <span>{item}</span>
-                </div>
-              ))}
+              <Link
+                href="/auth/register?redirect=/list-your-property"
+                className="group relative w-full bg-gradient-to-r from-[#d4af37] to-[#f0c866] text-white py-4 rounded-xl font-bold hover:shadow-lg hover:shadow-yellow-600/20 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-3 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                <User size={22} className="relative z-10" />
+                <span className="relative z-10">إنشاء حساب جديد</span>
+              </Link>
+            </motion.div>
+
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-400 font-medium">أو</span>
+              </div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <Link
+                href="/"
+                className="group w-full border-2 border-gray-200 text-gray-600 py-4 rounded-xl font-bold hover:border-[#1e3a5f] hover:text-[#1e3a5f] hover:bg-blue-50/50 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <Home size={20} className="group-hover:scale-110 transition-transform" />
+                العودة للصفحة الرئيسية
+              </Link>
             </motion.div>
           </div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-8 pt-6 border-t border-gray-100"
+          >
+            <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
+              <span className="text-xl">💡</span>
+              <span><strong>نصيحة:</strong> التسجيل يستغرق دقيقة واحدة فقط!</span>
+            </p>
+          </motion.div>
+        </motion.div>
+      </div>
+    )
+  }
+
+  // Handlers
+  const handleNext = () => {
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const handlePrev = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return
+
+    const newImages: string[] = []
+    const newFiles: File[] = []
+
+    Array.from(files).forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        newFiles.push(file)
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            newImages.push(e.target.result as string)
+            if (newImages.length === files.length) {
+              setFormData(prev => ({
+                ...prev,
+                images: [...prev.images, ...newImages],
+                imageFiles: [...prev.imageFiles, ...newFiles]
+              }))
+            }
+          }
+        }
+        reader.readAsDataURL(file)
+      }
+    })
+  }
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+    
+    try {
+      // Prepare FormData for API submission
+      const submitData = new FormData()
+      
+      // Add all form fields
+      submitData.append('propertyType', formData.propertyType)
+      submitData.append('purpose', formData.purpose)
+      submitData.append('governorate', formData.governorate)
+      submitData.append('city', formData.city)
+      submitData.append('area', formData.area)
+      submitData.append('price', formData.price)
+      submitData.append('bedrooms', formData.bedrooms || '0')
+      submitData.append('bathrooms', formData.bathrooms || '0')
+      submitData.append('features', JSON.stringify(formData.features))
+      submitData.append('description', formData.description)
+      submitData.append('name', formData.name)
+      submitData.append('phone', formData.phone)
+      submitData.append('email', formData.email)
+      submitData.append('preferredTime', formData.preferredTime)
+      submitData.append('services', JSON.stringify(formData.services))
+      
+      // Add image files
+      formData.imageFiles.forEach((file) => {
+        submitData.append('images', file)
+      })
+
+      // Submit to API
+      const response = await fetch('/api/properties/submit', {
+        method: 'POST',
+        body: submitData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'حدث خطأ أثناء الإرسال')
+      }
+
+      // Store request ID for success page
+      setFormData(prev => ({ 
+        ...prev, 
+        requestId: result.data?.requestId || `AMG-${Math.floor(Math.random() * 100000)}` 
+      }))
+
+      setIsSubmitting(false)
+      handleNext()
+
+    } catch (error) {
+      console.error('Submission error:', error)
+      setIsSubmitting(false)
+      alert(error instanceof Error ? error.message : 'حدث خطأ أثناء إرسال الطلب. الرجاء المحاولة مرة أخرى')
+    }
+  }
+
+  // Steps Data
+  const steps = [
+    { id: 1, title: 'بيانات العقار', icon: <Building2 size={24} /> },
+    { id: 2, title: 'صور العقار', icon: <Camera size={24} /> },
+    { id: 3, title: 'معلومات التواصل', icon: <Phone size={24} /> },
+    { id: 4, title: 'تأكيد', icon: <CheckCircle2 size={24} /> },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans" dir="rtl">
+      
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-[#1e3a5f] via-[#2d5a8f] to-[#1e3a5f] overflow-hidden pt-24 pb-32">
+        <FloatingIcon icon={<Building2 size={80} />} delay={0} x="10%" y="50px" duration={8} />
+        <FloatingIcon icon={<Home size={60} />} delay={1} x="85%" y="100px" duration={10} />
+        <FloatingIcon icon={<Key size={50} />} delay={0.5} x="15%" y="70%" duration={9} />
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+
+        <div className="relative container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mb-6"
+            >
+              <div className="inline-block bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-8 py-3">
+                <span className="text-2xl font-bold text-white">AMG Real Estate</span>
+              </div>
+            </motion.div>
+
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              اعرض عقارك للتسويق مع AMG
+            </h1>
+
+            <p className="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed">
+              نساعدك في تسويق وبيع عقارك بأفضل الأسعار مع فريق محترف ومتخصص
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+              <StatCard value={500} label="عقار تم بيعه" icon={<Building2 size={32} />} />
+              <StatCard value={1200} label="عميل راضٍ" icon={<Users size={32} />} />
+              <StatCard value={15} label="سنة خبرة" icon={<Award size={32} />} />
+            </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* Progress Steps */}
-      <div className="container mx-auto px-4 -mt-8">
-        <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
-          <div className="flex items-center justify-between max-w-2xl mx-auto">
-            {steps.map((s, index) => (
-              <div key={s.number} className="flex items-center">
-                <div className={`flex flex-col items-center ${step >= s.number ? 'text-blue-600' : 'text-gray-400'}`}>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
-                    step > s.number 
-                      ? 'bg-green-500 border-green-500 text-white' 
-                      : step === s.number 
-                        ? 'bg-blue-600 border-blue-600 text-white' 
-                        : 'border-gray-300'
-                  }`}>
-                    {step > s.number ? (
-                      <CheckCircleSolid className="w-6 h-6" />
-                    ) : (
-                      <s.icon className="w-6 h-6" />
-                    )}
+      {/* Progress Stepper */}
+      <div className="relative -mt-16 z-20 container mx-auto px-4 mb-12">
+        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+          <div className="relative">
+            {/* Progress Line Background */}
+            <div className="absolute top-6 right-0 left-0 h-1 bg-gray-200 rounded-full mx-8 md:mx-16"></div>
+            
+            {/* Animated Progress Line */}
+            <motion.div
+              className="absolute top-6 right-0 h-1 bg-gradient-to-l from-[#1e3a5f] to-[#d4af37] rounded-full mx-8 md:mx-16"
+              initial={{ width: 0 }}
+              animate={{ 
+                width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`
+              }}
+              transition={{ duration: 0.5 }}
+            ></motion.div>
+
+            <div className="relative flex justify-between">
+              {steps.map((step) => {
+                const isCompleted = currentStep > step.id
+                const isCurrent = currentStep === step.id
+                
+                return (
+                  <div key={step.id} className="flex flex-col items-center relative z-10">
+                    <motion.div
+                      animate={{
+                        scale: isCurrent ? 1.1 : 1,
+                        boxShadow: isCurrent ? '0 0 20px rgba(212, 175, 55, 0.5)' : '0 0 0 rgba(0,0,0,0)'
+                      }}
+                      className={`
+                        w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center border-4 transition-all duration-300
+                        ${isCompleted ? 'bg-green-500 border-green-500' : ''}
+                        ${isCurrent ? 'bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] border-[#d4af37]' : ''}
+                        ${!isCompleted && !isCurrent ? 'bg-white border-gray-300' : ''}
+                      `}
+                    >
+                      {isCompleted ? (
+                        <CheckCircle2 className="text-white w-6 h-6 md:w-8 md:h-8" />
+                      ) : (
+                        <div className={`${isCurrent ? 'text-white' : 'text-gray-400'}`}>
+                          {step.icon}
+                        </div>
+                      )}
+                    </motion.div>
+                    <div className={`mt-3 text-xs md:text-sm font-bold ${isCurrent ? 'text-[#1e3a5f]' : 'text-gray-500'}`}>
+                      {step.title}
+                    </div>
                   </div>
-                  <span className="text-sm mt-2 hidden sm:block">{s.title}</span>
-                </div>
-                {index < steps.length - 1 && (
-                  <div className={`w-12 sm:w-24 h-1 mx-2 rounded ${
-                    step > s.number ? 'bg-green-500' : 'bg-gray-200'
-                  }`} />
-                )}
-              </div>
-            ))}
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Form Container */}
-      <div className="container mx-auto px-4 pb-16">
-        <div className="max-w-4xl mx-auto">
-          <AnimatePresence mode="wait">
-            {/* Step 1: بيانات العقار */}
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white rounded-2xl shadow-lg p-6 lg:p-8"
-              >
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <HomeIcon className="w-7 h-7 text-blue-600" />
-                  بيانات العقار
-                </h2>
-
-                {/* نوع العقار */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    نوع العقار <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                    {propertyTypes.map(type => (
-                      <button
-                        key={type.value}
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, propertyType: type.value }))}
-                        className={`p-4 rounded-xl border-2 transition-all text-center ${
-                          formData.propertyType === type.value
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="text-2xl mb-1">{type.icon}</div>
-                        <div className="text-sm font-medium">{type.label}</div>
-                      </button>
-                    ))}
-                  </div>
-                  {errors.propertyType && <p className="text-red-500 text-sm mt-1">{errors.propertyType}</p>}
-                </div>
-
-                {/* الغرض */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    الغرض <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, purpose: 'SALE' }))}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        formData.purpose === 'SALE'
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+      {/* Form Content */}
+      <div className="container mx-auto px-4 pb-24">
+        <AnimatePresence mode="wait">
+          
+          {/* Step 1: Property Details */}
+          {currentStep === 1 && (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              className="max-w-5xl mx-auto bg-white rounded-3xl shadow-lg p-8 md:p-12 border border-gray-100"
+            >
+              <h3 className="text-2xl font-bold text-[#1e3a5f] mb-8">تفاصيل العقار</h3>
+              
+              {/* Property Type */}
+              <div className="mb-10">
+                <label className="block text-sm font-bold text-gray-700 mb-4">نوع العقار</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {propertyTypes.map((type, index) => (
+                    <motion.button
+                      key={type.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => setFormData({ ...formData, propertyType: type.id })}
+                      className={`
+                        relative p-6 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center gap-3
+                        ${formData.propertyType === type.id
+                          ? 'border-[#d4af37] bg-gradient-to-br from-[#1e3a5f]/5 to-[#d4af37]/5 shadow-lg scale-105'
+                          : 'border-gray-200 hover:border-[#d4af37]/50 hover:shadow-md'
+                        }
+                      `}
                     >
-                      <div className="text-2xl mb-1">💰</div>
-                      <div className="font-medium">للبيع</div>
-                    </button>
+                      <div className={`${formData.propertyType === type.id ? 'text-[#d4af37]' : 'text-gray-600'}`}>
+                        {type.icon}
+                      </div>
+                      <div className={`font-bold ${formData.propertyType === type.id ? 'text-[#1e3a5f]' : 'text-gray-700'}`}>
+                        {type.label}
+                      </div>
+                      {formData.propertyType === type.id && (
+                        <div className="absolute top-2 right-2 w-6 h-6 bg-[#d4af37] rounded-full flex items-center justify-center">
+                          <CheckCircle2 size={14} className="text-white" />
+                        </div>
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Purpose */}
+              <div className="mb-10">
+                <label className="block text-sm font-bold text-gray-700 mb-4">الغرض</label>
+                <div className="inline-flex rounded-2xl bg-gray-100 p-1.5">
+                  {['sale', 'rent'].map((p) => (
                     <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, purpose: 'RENT' }))}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        formData.purpose === 'RENT'
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      key={p}
+                      onClick={() => setFormData({ ...formData, purpose: p })}
+                      className={`
+                        px-8 py-3 rounded-xl font-bold transition-all duration-300
+                        ${formData.purpose === p
+                          ? 'bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white shadow-lg'
+                          : 'text-gray-600 hover:text-[#1e3a5f]'
+                        }
+                      `}
                     >
-                      <div className="text-2xl mb-1">🔑</div>
-                      <div className="font-medium">للإيجار</div>
+                      {p === 'sale' ? 'للبيع' : 'للإيجار'}
                     </button>
-                  </div>
-                  {errors.purpose && <p className="text-red-500 text-sm mt-1">{errors.purpose}</p>}
+                  ))}
                 </div>
+              </div>
 
-                {/* المساحة والسعر */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      المساحة (م²) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.area}
-                      onChange={(e) => setFormData(prev => ({ ...prev, area: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                      placeholder="150"
-                    />
-                    {errors.area && <p className="text-red-500 text-sm mt-1">{errors.area}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      السعر المطلوب <span className="text-red-500">*</span>
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        value={formData.price}
-                        onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                        className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="1500000"
-                      />
-                      <select
-                        value={formData.currency}
-                        onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
-                        className="px-3 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                      >
-                        <option value="EGP">ج.م</option>
-                        <option value="USD">$</option>
-                      </select>
-                    </div>
-                    {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
-                  </div>
-                </div>
-
-                {/* الموقع */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      المحافظة <span className="text-red-500">*</span>
-                    </label>
+              {/* Location & Details */}
+              <div className="grid md:grid-cols-2 gap-6 mb-10">
+                <div className="relative">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">المحافظة</label>
+                  <div className="relative">
+                    <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]" size={20} />
                     <select
                       value={formData.governorate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, governorate: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
+                      onChange={(e) => setFormData({ ...formData, governorate: e.target.value })}
+                      className="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none bg-white appearance-none"
                     >
                       <option value="">اختر المحافظة</option>
-                      {governorates.map(gov => (
-                        <option key={gov} value={gov}>{gov}</option>
-                      ))}
+                      {governorates.map(gov => <option key={gov} value={gov}>{gov}</option>)}
                     </select>
-                    {errors.governorate && <p className="text-red-500 text-sm mt-1">{errors.governorate}</p>}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      المدينة <span className="text-red-500">*</span>
-                    </label>
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">المدينة / المنطقة</label>
+                  <div className="relative">
+                    <Building2 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]" size={20} />
                     <input
                       type="text"
                       value={formData.city}
-                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                      placeholder="التجمع الخامس"
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder="مثال: التجمع الخامس"
+                      className="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none"
                     />
-                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      المنطقة <span className="text-red-500">*</span>
-                    </label>
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">المساحة (م²)</label>
+                  <div className="relative">
+                    <Ruler className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]" size={20} />
+                    <input
+                      type="number"
+                      value={formData.area}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                      placeholder="200"
+                      className="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">السعر (ج.م)</label>
+                  <div className="relative">
+                    <DollarSign className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]" size={20} />
+                    <input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="2,500,000"
+                      className="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Features */}
+              <div className="mb-10">
+                <label className="block text-sm font-bold text-gray-700 mb-4">المميزات</label>
+                <div className="flex flex-wrap gap-3">
+                  {featuresList.map((feature) => (
+                    <button
+                      key={feature.id}
+                      onClick={() => {
+                        const newFeatures = formData.features.includes(feature.id)
+                          ? formData.features.filter(f => f !== feature.id)
+                          : [...formData.features, feature.id]
+                        setFormData({ ...formData, features: newFeatures })
+                      }}
+                      className={`
+                        flex items-center gap-2 px-5 py-3 rounded-full border-2 transition-all duration-300 font-medium
+                        ${formData.features.includes(feature.id)
+                          ? 'border-[#d4af37] bg-[#d4af37] text-white shadow-md'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-[#d4af37]/50'
+                        }
+                      `}
+                    >
+                      {feature.icon}
+                      <span>{feature.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">وصف العقار</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="اكتب وصف تفصيلي للعقار..."
+                  rows={5}
+                  className="w-full px-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none resize-none"
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 2: Images */}
+          {currentStep === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              className="max-w-5xl mx-auto bg-white rounded-3xl shadow-lg p-8 md:p-12 border border-gray-100"
+            >
+              <div className="bg-gradient-to-r from-[#1e3a5f]/5 to-[#d4af37]/5 border-r-4 border-[#d4af37] rounded-2xl p-6 mb-8 flex items-start gap-4">
+                <Info className="text-[#d4af37] flex-shrink-0 mt-1" size={24} />
+                <div>
+                  <h4 className="font-bold text-[#1e3a5f] mb-2">نصيحة احترافية</h4>
+                  <p className="text-gray-600">صور احترافية وواضحة تزيد من فرص البيع بنسبة 80%. تأكد من التقاط صور في إضاءة جيدة.</p>
+                </div>
+              </div>
+
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+                onDragLeave={(e) => { e.preventDefault(); setIsDragging(false) }}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setIsDragging(false)
+                  handleFileSelect(e.dataTransfer.files)
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                className={`
+                  relative border-3 border-dashed rounded-3xl p-12 transition-all duration-300 cursor-pointer text-center
+                  ${isDragging
+                    ? 'border-[#d4af37] bg-[#d4af37]/10 scale-[1.02]'
+                    : 'border-gray-300 hover:border-[#d4af37]/50 hover:bg-gray-50'
+                  }
+                `}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => handleFileSelect(e.target.files)}
+                  className="hidden"
+                />
+                <div className="w-24 h-24 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] rounded-3xl flex items-center justify-center mx-auto shadow-xl mb-6">
+                  <Upload className="text-white" size={40} />
+                </div>
+                <h3 className="text-2xl font-bold text-[#1e3a5f] mb-3">
+                  {isDragging ? 'أفلت الصور هنا' : 'اسحب الصور أو انقر للتحميل'}
+                </h3>
+                <p className="text-gray-600">يمكنك تحميل عدة صور (JPG, PNG)</p>
+              </div>
+
+              {formData.images.length > 0 && (
+                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {formData.images.map((img, idx) => (
+                    <div key={idx} className="relative group aspect-square rounded-2xl overflow-hidden bg-gray-100">
+                      <Image src={img} alt={`Property ${idx}`} fill className="object-cover" />
+                      {idx === 0 && (
+                        <div className="absolute top-2 right-2 bg-[#d4af37] text-white px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
+                          <Star size={12} fill="white" /> الرئيسية
+                        </div>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setFormData(prev => ({
+                            ...prev,
+                            images: prev.images.filter((_, i) => i !== idx),
+                            imageFiles: prev.imageFiles.filter((_, i) => i !== idx)
+                          }))
+                        }}
+                        className="absolute top-2 left-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Step 3: Contact Info */}
+          {currentStep === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              className="max-w-5xl mx-auto bg-white rounded-3xl shadow-lg p-8 md:p-12 border border-gray-100"
+            >
+              <h3 className="text-2xl font-bold text-[#1e3a5f] mb-8">معلومات التواصل</h3>
+              
+              <div className="grid md:grid-cols-2 gap-6 mb-10">
+                <div className="relative">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">الاسم الكامل</label>
+                  <div className="relative">
+                    <User className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]" size={20} />
                     <input
                       type="text"
-                      value={formData.district}
-                      onChange={(e) => setFormData(prev => ({ ...prev, district: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                      placeholder="اللوتس"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none"
                     />
-                    {errors.district && <p className="text-red-500 text-sm mt-1">{errors.district}</p>}
                   </div>
                 </div>
-
-                {/* العنوان التفصيلي */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    العنوان التفصيلي (اختياري)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                    placeholder="شارع 90، عمارة 5"
-                  />
-                </div>
-
-                {/* تفاصيل إضافية */}
-                {formData.propertyType && formData.propertyType !== 'LAND' && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">غرف النوم</label>
-                      <input
-                        type="number"
-                        value={formData.bedrooms}
-                        onChange={(e) => setFormData(prev => ({ ...prev, bedrooms: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="3"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">الحمامات</label>
-                      <input
-                        type="number"
-                        value={formData.bathrooms}
-                        onChange={(e) => setFormData(prev => ({ ...prev, bathrooms: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="2"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">الدور</label>
-                      <input
-                        type="number"
-                        value={formData.floor}
-                        onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="5"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">سنة البناء</label>
-                      <input
-                        type="number"
-                        value={formData.yearBuilt}
-                        onChange={(e) => setFormData(prev => ({ ...prev, yearBuilt: e.target.value }))}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="2020"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* المميزات */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">المميزات</label>
-                  <div className="flex flex-wrap gap-2">
-                    {allFeatures.map(feature => (
-                      <button
-                        key={feature}
-                        type="button"
-                        onClick={() => toggleFeature(feature)}
-                        className={`px-4 py-2 rounded-full text-sm transition-all ${
-                          formData.features.includes(feature)
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {feature}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* الوصف */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    وصف العقار <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    rows={4}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0 resize-none"
-                    placeholder="اكتب وصفاً تفصيلياً للعقار، المميزات، حالة التشطيب، القرب من الخدمات..."
-                  />
-                  {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
-                </div>
-
-                {/* زر التالي */}
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    <span>التالي</span>
-                    <ArrowLeftIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 2: الصور */}
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white rounded-2xl shadow-lg p-6 lg:p-8"
-              >
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <PhotoIcon className="w-7 h-7 text-blue-600" />
-                  صور العقار
-                </h2>
-
-                <p className="text-gray-600 mb-6">
-                  أضف صوراً واضحة للعقار (يفضل 5-10 صور). الصور الجيدة تزيد من فرص البيع!
-                </p>
-
-                {/* منطقة رفع الصور */}
-                <div className="mb-6">
-                  <label className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-2xl cursor-pointer transition-colors ${
-                    uploadingImages ? 'bg-blue-50 border-blue-300' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
-                  }`}>
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      {uploadingImages ? (
-                        <>
-                          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                          <p className="text-blue-600">جاري رفع الصور...</p>
-                        </>
-                      ) : (
-                        <>
-                          <CloudArrowUpIcon className="w-12 h-12 text-gray-400 mb-3" />
-                          <p className="text-gray-600 mb-2">اضغط لرفع الصور أو اسحبها هنا</p>
-                          <p className="text-sm text-gray-400">PNG, JPG, WEBP (حد أقصى 10MB لكل صورة)</p>
-                        </>
-                      )}
-                    </div>
+                <div className="relative">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">رقم الهاتف</label>
+                  <div className="relative">
+                    <Phone className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]" size={20} />
                     <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      disabled={uploadingImages}
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none"
                     />
-                  </label>
-                  {errors.images && <p className="text-red-500 text-sm mt-2">{errors.images}</p>}
+                  </div>
                 </div>
+                <div className="relative md:col-span-2">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">البريد الإلكتروني</label>
+                  <div className="relative">
+                    <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-[#d4af37]" size={20} />
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full pr-12 pl-4 py-4 rounded-xl border-2 border-gray-200 focus:border-[#d4af37] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
 
-                {/* عرض الصور المرفوعة */}
-                {formData.images.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-                    {formData.images.map((img, index) => (
-                      <div key={index} className="relative group">
-                        <div className="aspect-square rounded-xl overflow-hidden">
-                          <Image
-                            src={img}
-                            alt={`صورة ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
+              <div className="mb-10">
+                <h3 className="text-xl font-bold text-[#1e3a5f] mb-6 flex items-center gap-2">
+                  <Clock className="text-[#d4af37]" size={24} /> الوقت المفضل للتواصل
+                </h3>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {timeSlots.map((slot) => (
+                    <button
+                      key={slot.id}
+                      onClick={() => setFormData({ ...formData, preferredTime: slot.id })}
+                      className={`
+                        p-6 rounded-2xl border-2 transition-all duration-300 text-center
+                        ${formData.preferredTime === slot.id
+                          ? 'border-[#d4af37] bg-gradient-to-br from-[#1e3a5f]/5 to-[#d4af37]/5 shadow-lg scale-105'
+                          : 'border-gray-200 hover:border-[#d4af37]/50'
+                        }
+                      `}
+                    >
+                      <div className="text-4xl mb-3">{slot.icon}</div>
+                      <div className="font-bold text-lg text-[#1e3a5f]">{slot.label}</div>
+                      <div className="text-sm text-gray-600">{slot.time}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-[#1e3a5f] mb-6">اختر الخدمات المطلوبة</h3>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {serviceTypes.map((service) => (
+                    <div
+                      key={service.id}
+                      onClick={() => {
+                        const newServices = formData.services.includes(service.id)
+                          ? formData.services.filter(s => s !== service.id)
+                          : [...formData.services, service.id]
+                        setFormData({ ...formData, services: newServices })
+                      }}
+                      className={`
+                        relative p-6 rounded-2xl border-2 transition-all duration-300 cursor-pointer
+                        ${formData.services.includes(service.id)
+                          ? 'border-[#d4af37] shadow-xl scale-105'
+                          : 'border-gray-200 hover:border-[#d4af37]/50'
+                        }
+                      `}
+                    >
+                      {service.recommended && (
+                        <div className="absolute -top-3 right-6 bg-gradient-to-r from-[#d4af37] to-[#f0c866] text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                          الأكثر طلباً ⭐
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <XMarkIcon className="w-5 h-5" />
-                        </button>
-                        {index === 0 && (
-                          <span className="absolute bottom-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                            الرئيسية
-                          </span>
-                        )}
+                      )}
+                      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} text-white mb-4 shadow-lg`}>
+                        {service.icon}
                       </div>
-                    ))}
-                  </div>
-                )}
-
-                <p className="text-sm text-gray-500 mb-6">
-                  تم رفع {formData.images.length} صورة
-                </p>
-
-                {/* أزرار التنقل */}
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-800 px-6 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    <ArrowRightIcon className="w-5 h-5" />
-                    <span>السابق</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    <span>التالي</span>
-                    <ArrowLeftIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 3: بيانات التواصل */}
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-white rounded-2xl shadow-lg p-6 lg:p-8"
-              >
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <UserIcon className="w-7 h-7 text-blue-600" />
-                  بيانات التواصل
-                </h2>
-
-                {/* بيانات المالك */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      الاسم الكامل <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <UserIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={formData.ownerName}
-                        onChange={(e) => setFormData(prev => ({ ...prev, ownerName: e.target.value }))}
-                        className="w-full pr-11 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="أحمد محمد"
-                      />
+                      <h4 className="font-bold text-xl text-[#1e3a5f] mb-2">{service.title}</h4>
+                      <p className="text-gray-600 text-sm mb-4">{service.description}</p>
+                      <div className="space-y-2">
+                        {service.features.map((f, i) => (
+                          <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                            <CheckCircle2 className="text-green-500 flex-shrink-0" size={16} />
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    {errors.ownerName && <p className="text-red-500 text-sm mt-1">{errors.ownerName}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      رقم الهاتف <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <PhoneIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="tel"
-                        value={formData.ownerPhone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, ownerPhone: e.target.value }))}
-                        className="w-full pr-11 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="+20 10 1234 5678"
-                      />
-                    </div>
-                    {errors.ownerPhone && <p className="text-red-500 text-sm mt-1">{errors.ownerPhone}</p>}
-                  </div>
+                  ))}
                 </div>
+              </div>
+            </motion.div>
+          )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      البريد الإلكتروني <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <EnvelopeIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="email"
-                        value={formData.ownerEmail}
-                        onChange={(e) => setFormData(prev => ({ ...prev, ownerEmail: e.target.value }))}
-                        className="w-full pr-11 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                        placeholder="example@email.com"
-                      />
-                    </div>
-                    {errors.ownerEmail && <p className="text-red-500 text-sm mt-1">{errors.ownerEmail}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      الوقت المفضل للتواصل
-                    </label>
-                    <div className="relative">
-                      <ClockIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <select
-                        value={formData.preferredTime}
-                        onChange={(e) => setFormData(prev => ({ ...prev, preferredTime: e.target.value }))}
-                        className="w-full pr-11 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-0"
-                      >
-                        <option value="">أي وقت</option>
-                        <option value="morning">صباحاً (9ص - 12م)</option>
-                        <option value="afternoon">ظهراً (12م - 5م)</option>
-                        <option value="evening">مساءً (5م - 9م)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* نوع الخدمة */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    الخدمة المطلوبة <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {serviceTypes.map(service => (
-                      <button
-                        key={service.value}
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, serviceType: service.value }))}
-                        className={`p-4 rounded-xl border-2 text-right transition-all ${
-                          formData.serviceType === service.value
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="text-2xl mb-2">{service.icon}</div>
-                        <div className="font-semibold mb-1">{service.label}</div>
-                        <div className="text-sm text-gray-500">{service.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                  {errors.serviceType && <p className="text-red-500 text-sm mt-1">{errors.serviceType}</p>}
-                </div>
-
-                {errors.submit && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
-                    {errors.submit}
-                  </div>
-                )}
-
-                {/* أزرار التنقل */}
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-800 px-6 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    <ArrowRightIcon className="w-5 h-5" />
-                    <span>السابق</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>جاري الإرسال...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircleIcon className="w-5 h-5" />
-                        <span>إرسال الطلب</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 4: التأكيد */}
-            {step === 4 && isSuccess && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-2xl shadow-lg p-8 lg:p-12 text-center"
-              >
+          {/* Step 4: Success */}
+          {currentStep === 4 && (
+            <motion.div
+              key="step4"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="max-w-4xl mx-auto"
+            >
+              <Confetti />
+              <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100 text-center">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: 'spring', delay: 0.2 }}
-                  className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+                  transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                  className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-2xl mb-6"
                 >
-                  <CheckCircleSolid className="w-14 h-14 text-green-600" />
+                  <CheckCircle2 className="text-white" size={64} />
                 </motion.div>
-
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  تم إرسال طلبك بنجاح! 🎉
-                </h2>
                 
-                <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-                  شكراً لك! سيقوم فريقنا بمراجعة طلبك والتواصل معك خلال 24 ساعة.
-                </p>
+                <h2 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">تم إرسال طلبك بنجاح! 🎉</h2>
+                <p className="text-xl text-gray-600 mb-8">شكراً لثقتك في AMG Real Estate. سنتواصل معك قريباً</p>
 
-                <div className="bg-gray-50 rounded-xl p-4 mb-8 inline-block">
-                  <p className="text-sm text-gray-500 mb-1">رقم الطلب</p>
-                  <p className="text-xl font-mono font-bold text-blue-600">{requestId}</p>
+                <div className="inline-block bg-gradient-to-r from-[#1e3a5f]/5 to-[#d4af37]/5 border-2 border-[#d4af37] rounded-2xl px-8 py-4 mb-8">
+                  <div className="text-sm text-gray-600 mb-1">رقم الطلب</div>
+                  <div className="text-2xl font-bold text-[#1e3a5f]">{formData.requestId || `AMG-${Math.floor(Math.random() * 100000)}`}</div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    href="/"
-                    className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    <HomeIcon className="w-5 h-5" />
-                    العودة للرئيسية
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border border-gray-200 mb-8 text-right">
+                  <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6 flex items-center gap-2">
+                    <Home className="text-[#d4af37]" /> ملخص العقار
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div><span className="text-gray-500 block text-sm">نوع العقار</span><span className="font-bold text-[#1e3a5f]">{propertyTypes.find(t => t.id === formData.propertyType)?.label}</span></div>
+                    <div><span className="text-gray-500 block text-sm">الغرض</span><span className="font-bold text-[#1e3a5f]">{formData.purpose === 'sale' ? 'للبيع' : 'للإيجار'}</span></div>
+                    <div><span className="text-gray-500 block text-sm">الموقع</span><span className="font-bold text-[#1e3a5f]">{formData.city}, {formData.governorate}</span></div>
+                    <div><span className="text-gray-500 block text-sm">السعر</span><span className="font-bold text-[#1e3a5f]">{formData.price} ج.م</span></div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-4">
+                  <Link href="/" className="flex-1 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:shadow-xl transition-all">
+                    <Home size={20} /> العودة للرئيسية
                   </Link>
-                  <Link
-                    href="/projects"
-                    className="inline-flex items-center justify-center gap-2 border-2 border-gray-200 hover:border-gray-300 text-gray-700 px-8 py-3 rounded-xl font-semibold transition-colors"
-                  >
-                    تصفح المشاريع
+                  <Link href="/projects" className="flex-1 bg-white border-2 border-[#1e3a5f] text-[#1e3a5f] font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-all">
+                    <Building size={20} /> تصفح المشاريع
                   </Link>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Navigation Buttons */}
+        {currentStep < 4 && (
+          <div className="max-w-5xl mx-auto mt-8 flex gap-4">
+            <button
+              onClick={handlePrev}
+              disabled={currentStep === 1}
+              className={`
+                flex-1 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300
+                ${currentStep === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm'
+                }
+              `}
+            >
+              <ChevronRight size={20} /> السابق
+            </button>
+            
+            <button
+              onClick={currentStep === 3 ? handleSubmit : handleNext}
+              disabled={isSubmitting}
+              className="flex-1 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all duration-300"
+            >
+              {isSubmitting ? (
+                'جاري الإرسال...'
+              ) : currentStep === 3 ? (
+                <>إرسال الطلب <Send size={20} /></>
+              ) : (
+                <>التالي <ChevronLeft size={20} /></>
+              )}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Floating WhatsApp */}
+      <motion.a
+        href="https://wa.me/201000000000"
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        className="fixed bottom-6 left-6 z-50 w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-2xl hover:shadow-green-500/50 transition-all duration-300"
+      >
+        <MessageCircle className="text-white w-8 h-8" />
+        <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-75"></span>
+      </motion.a>
+
     </div>
   )
 }

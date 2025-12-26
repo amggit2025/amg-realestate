@@ -125,8 +125,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data.success) {
         setUser(data.user)
-        // جلب الإحصائيات
-        await fetchUser()
+        // بيانات المستخدم موجودة بالفعل في الـ response، لا داعي لـ fetchUser
+        if (data.stats) {
+          setStats(data.stats)
+        }
       }
 
       return { success: data.success, message: data.message }
@@ -157,8 +159,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (result.success) {
         setUser(result.user)
-        // جلب الإحصائيات
-        await fetchUser()
+        // بيانات المستخدم موجودة بالفعل في الـ response، لا داعي لـ fetchUser
+        if (result.stats) {
+          setStats(result.stats)
+        }
       }
 
       return { success: result.success, message: result.message }

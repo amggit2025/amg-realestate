@@ -27,7 +27,14 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(listingRequest)
+    // Parse JSON fields (images and features)
+    const parsedRequest = {
+      ...listingRequest,
+      images: typeof listingRequest.images === 'string' ? JSON.parse(listingRequest.images) : (listingRequest.images || []),
+      features: typeof listingRequest.features === 'string' ? JSON.parse(listingRequest.features as string) : (listingRequest.features || [])
+    }
+
+    return NextResponse.json(parsedRequest)
 
   } catch (error) {
     console.error('Error fetching listing request:', error)

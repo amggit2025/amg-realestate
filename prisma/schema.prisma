@@ -1042,6 +1042,9 @@ model PropertyListingRequest {
   // الخدمة المطلوبة
   serviceType     ListingServiceType
   
+  // المستخدم المقدم للطلب
+  submittedBy     String?                     // User ID who submitted
+  
   // الحالة والمتابعة
   status          ListingRequestStatus        @default(PENDING)
   adminNotes      String?                     @db.Text
@@ -1059,6 +1062,7 @@ model PropertyListingRequest {
   @@index([propertyType])
   @@index([createdAt])
   @@index([ownerEmail])
+  @@index([submittedBy])
   @@map("property_listing_requests")
 }
 

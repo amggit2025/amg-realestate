@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { 
   HomeIcon,
@@ -18,7 +18,9 @@ import {
   MapPinIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  XMarkIcon
+  XMarkIcon,
+  ArrowPathIcon,
+  BellAlertIcon
 } from '@heroicons/react/24/outline'
 
 // ترجمة الحالات
@@ -109,6 +111,12 @@ export default function ListingRequestsPage() {
   const [selectedRequest, setSelectedRequest] = useState<ListingRequest | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   
+  // Real-time notifications
+  const [showNewRequestToast, setShowNewRequestToast] = useState(false)
+  const [newRequestCount, setNewRequestCount] = useState(0)
+  const lastFetchedCount = useRef<number>(0)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  
   // Filters
   const [statusFilter, setStatusFilter] = useState('')
   const [propertyTypeFilter, setPropertyTypeFilter] = useState('')
@@ -126,9 +134,15 @@ export default function ListingRequestsPage() {
     return ''
   }
 
+  // Show message
+  const showMessage = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage(null), 5000)
+  }
+
   // Fetch requests
-  const fetchRequests = useCallback(async () => {
-    setLoading(true)
+  const fetchRequests = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const params = new URLSearchParams()
       if (statusFilter) params.append('status', statusFilter)
@@ -144,13 +158,36 @@ export default function ListingRequestsPage() {
 
       if (res.ok) {
         const data = await res.json()
-        setRequests(data.requests)
+        const newRequests = data.requests
+        const totalCount = data.pagination.total
+        
+        // التحقق من وجود طلبات جديدة
+        if (lastFetchedCount.current > 0 && totalCount > lastFetchedCount.current) {
+          const newCount = totalCount - lastFetchedCount.current
+          setNewRequestCount(newCount)
+          setShowNewRequestToast(true)
+          showMessage('success', `🏠 تم استلام ${newCount} طلب${newCount > 1 ? ' جديد' : ' جديد'} لعرض عقار!`)
+          
+          // تشغيل صوت إشعار
+          try {
+            const audio = new Audio('/sounds/notification.mp3')
+            audio.volume = 0.3
+            audio.play().catch(() => {})
+          } catch {}
+          
+          // إخفاء Toast بعد 5 ثواني
+          setTimeout(() => setShowNewRequestToast(false), 5000)
+        }
+        
+        lastFetchedCount.current = totalCount
+        setRequests(newRequests)
         setTotalPages(data.pagination.pages)
       }
     } catch (error) {
       console.error('Error fetching requests:', error)
+      if (!silent) showMessage('error', 'حدث خطأ أثناء جلب الطلبات')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [statusFilter, propertyTypeFilter, page])
 
@@ -175,6 +212,14 @@ export default function ListingRequestsPage() {
   useEffect(() => {
     fetchRequests()
     fetchStats()
+    
+    // تحديث تلقائي كل 30 ثانية
+    const interval = setInterval(() => {
+      fetchRequests(true) // silent fetch
+      fetchStats()
+    }, 30000)
+    
+    return () => clearInterval(interval)
   }, [fetchRequests, fetchStats])
 
   // Update status
@@ -254,10 +299,84 @@ export default function ListingRequestsPage() {
 
   return (
     <div className="p-6">
+      {/* Floating New Request Toast */}
+      <AnimatePresence>
+        {showNewRequestToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -100, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -100, x: '-50%' }}
+            className="fixed top-4 left-1/2 z-50 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3"
+          >
+            <span className="text-2xl animate-bounce">🏠</span>
+            <span className="font-semibold">
+              {newRequestCount > 1 
+                ? `${newRequestCount} طلبات جديدة لعرض عقارات!` 
+                : 'طلب جديد لعرض عقار وصل الآن!'}
+            </span>
+            <button 
+              onClick={() => setShowNewRequestToast(false)}
+              className="ml-2 text-white/80 hover:text-white"
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Message Toast */}
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 ${
+              message.type === 'success' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-red-500 text-white'
+            }`}
+          >
+            {message.type === 'success' ? (
+              <CheckCircleIcon className="w-5 h-5" />
+            ) : (
+              <XCircleIcon className="w-5 h-5" />
+            )}
+            <span>{message.text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">طلبات عرض العقارات</h1>
-        <p className="text-gray-600">إدارة طلبات أصحاب العقارات للتسويق</p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">🏠 طلبات عرض العقارات</h1>
+          <p className="text-gray-600">إدارة طلبات أصحاب العقارات للتسويق</p>
+        </div>
+        
+        {/* Refresh Button */}
+        <button
+          onClick={() => fetchRequests()}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          <motion.div
+            animate={loading ? { rotate: 360 } : {}}
+            transition={{ duration: 1, repeat: loading ? Infinity : 0, ease: 'linear' }}
+          >
+            <ArrowPathIcon className="w-5 h-5 text-gray-600" />
+          </motion.div>
+          <span>{loading ? 'جاري التحديث...' : 'تحديث'}</span>
+        </button>
+      </div>
+
+      {/* Real-time indicator */}
+      <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
+        <span className="relative flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        <span>تحديث تلقائي كل 30 ثانية</span>
       </div>
 
       {/* Stats Cards */}
@@ -365,7 +484,7 @@ export default function ListingRequestsPage() {
                   <tr key={request.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        {request.images && request.images.length > 0 && (
+                        {request.images && Array.isArray(request.images) && request.images.length > 0 && typeof request.images[0] === 'string' && request.images[0].startsWith('http') && (
                           <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                             <Image
                               src={request.images[0]}
@@ -486,11 +605,11 @@ export default function ListingRequestsPage() {
 
               <div className="p-6">
                 {/* Images */}
-                {selectedRequest.images && selectedRequest.images.length > 0 && (
+                {selectedRequest.images && Array.isArray(selectedRequest.images) && selectedRequest.images.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">صور العقار</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {selectedRequest.images.map((img, i) => (
+                      {selectedRequest.images.filter((img): img is string => typeof img === 'string' && img.startsWith('http')).map((img, i) => (
                         <div key={i} className="aspect-square rounded-xl overflow-hidden">
                           <Image
                             src={img}

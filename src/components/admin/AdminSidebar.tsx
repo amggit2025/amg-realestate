@@ -251,6 +251,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
       'appointments': '/admin/appointments',
       'subscriptions': '/admin/subscriptions',
       'service-requests': '/admin/service-requests',
+      'listing-requests': '/admin/listing-requests',
       'testimonials': '/admin/testimonials',
       'general-info': '/admin/general-info',
       'about-page': '/admin/about-page',

@@ -13,7 +13,8 @@ import {
   BuildingOfficeIcon,
   HomeIcon,
   ChevronRightIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline'
 import { useAuth, withAuth } from '@/lib/AuthContext'
 import Link from 'next/link'
@@ -390,6 +391,14 @@ function DashboardPage() {
                   <div className="flex items-center">
                     <BuildingOfficeIcon className="w-5 h-5 text-green-600 ml-3" />
                     <span className="font-medium">عرض عقاراتي</span>
+                  </div>
+                </button>
+              </Link>
+              <Link href="/dashboard/my-requests">
+                <button className="w-full text-right p-3 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors duration-300">
+                  <div className="flex items-center">
+                    <ClipboardDocumentListIcon className="w-5 h-5 text-amber-600 ml-3" />
+                    <span className="font-medium">طلبات التسويق</span>
                   </div>
                 </button>
               </Link>

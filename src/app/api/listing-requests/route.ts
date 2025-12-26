@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
     if (propertyType) where.propertyType = propertyType
 
     // جلب الطلبات مع العدد الكلي
-    const [requests, total] = await Promise.all([
+    const [rawRequests, total] = await Promise.all([
       prisma.propertyListingRequest.findMany({
         where,
         orderBy: { createdAt: 'desc' },
@@ -169,6 +169,13 @@ export async function GET(request: NextRequest) {
       }),
       prisma.propertyListingRequest.count({ where })
     ])
+
+    // Parse JSON fields (images and features)
+    const requests = rawRequests.map(req => ({
+      ...req,
+      images: typeof req.images === 'string' ? JSON.parse(req.images) : (req.images || []),
+      features: typeof req.features === 'string' ? JSON.parse(req.features as string) : (req.features || [])
+    }))
 
     return NextResponse.json({
       requests,
