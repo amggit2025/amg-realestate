@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Upload to Cloudinary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            direction: rtl;
+        }
+        .container {
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+        h1 {
+            color: #1e40af;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #3b82f6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            background: white;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .upload-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .upload-btn:hover {
+            background: #2563eb;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .success {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+        .loading {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .log {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 اختبار رفع الصور إلى Cloudinary</h1>
+        
+        <div class="upload-area">
+            <h2>📤 اختر صورة للرفع</h2>
+            <p>اضغط على الزر لاختيار صورة من جهازك</p>
+            <label for="fileInput">
+                <span class="upload-btn">اختر صورة</span>
+            </label>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div id="result"></div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const resultDiv = document.getElementById('result');
+        const logDiv = document.getElementById('log');
+        
+        let logs = [];
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('ar-EG');
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : '📝';
+            const logMessage = `[${timestamp}] ${emoji} ${message}`;
+            logs.push(logMessage);
+            logDiv.innerHTML = logs.join('<br>');
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            logs = [];
+            addLog(`تم اختيار الملف: ${file.name}`);
+            addLog(`نوع الملف: ${file.type}`);
+            addLog(`حجم الملف: ${(file.size / 1024).toFixed(2)} KB`);
+
+            resultDiv.innerHTML = '<div class="result loading">⏳ جاري رفع الصورة...</div>';
+
+            try {
+                addLog('إنشاء FormData...');
+                const formData = new FormData();
+                formData.append('file', file);
+
+                addLog('إرسال طلب إلى /api/upload/image...');
+                const response = await fetch('/api/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                addLog(`حالة الاستجابة: ${response.status} ${response.statusText}`);
+
+                const data = await response.json();
+                addLog('تم استقبال البيانات من الخادم');
+                addLog(JSON.stringify(data, null, 2));
+
+                if (data.success) {
+                    addLog('✅ تم رفع الصورة بنجاح!', 'success');
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ تم رفع الصورة بنجاح!</h3>
+                            <p><strong>URL:</strong> ${data.data.url}</p>
+                            <p><strong>Public ID:</strong> ${data.data.public_id}</p>
+                            <p><strong>الأبعاد:</strong> ${data.data.width} x ${data.data.height}</p>
+                            <p><strong>الصيغة:</strong> ${data.data.format}</p>
+                            <img src="${data.data.url}" alt="Uploaded Image">
+                        </div>
+                    `;
+                } else {
+                    addLog(`❌ فشل الرفع: ${data.message}`, 'error');
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ فشل رفع الصورة</h3>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                addLog(`❌ خطأ في الاتصال: ${error.message}`, 'error');
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ خطأ في رفع الصورة</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+
+        addLog('جاهز للاختبار! اختر صورة للبدء.');
+    </script>
+</body>
+</html>
