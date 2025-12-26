@@ -46,11 +46,10 @@ export default function RootLayout({
         {/* PWA & Favicon */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2563eb" />
-        <link rel="icon" href="/images/logo/favicon.ico" />
-        <link rel="apple-touch-icon" href="/images/logo/apple-touch-icon.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/images/logo/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/images/logo/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/images/logo/favicon-16x16.png" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
         
         {/* SEO Meta Tags */}
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />

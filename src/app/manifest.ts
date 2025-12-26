@@ -8,42 +8,22 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#667eea',
+    theme_color: '#2563eb',
     orientation: 'portrait',
     lang: 'ar',
     dir: 'rtl',
     icons: [
       {
-        src: '/images/logo/icon-192x192.png',
+        src: '/icon-192x192.png',
         sizes: '192x192',
         type: 'image/png',
-        purpose: 'any',
+        purpose: 'any maskable',
       },
       {
-        src: '/images/logo/icon-192x192.png',
-        sizes: '192x192',
-        type: 'image/png',
-        purpose: 'maskable',
-      },
-      {
-        src: '/images/logo/icon-512x512.png',
+        src: '/icon-512x512.png',
         sizes: '512x512',
         type: 'image/png',
-        purpose: 'any',
-      },
-      {
-        src: '/images/logo/icon-512x512.png',
-        sizes: '512x512',
-        type: 'image/png',
-        purpose: 'maskable',
-      },
-    ],
-    categories: ['business', 'real estate', 'property'],
-    screenshots: [
-      {
-        src: '/images/screenshots/home.jpg',
-        sizes: '1280x720',
-        type: 'image/jpeg',
+        purpose: 'any maskable',
       },
     ],
   }
