@@ -17,7 +17,6 @@ import {
 } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ImageLoader } from '@/components/ui'
 
 // TypeScript interfaces
 interface Project {
@@ -255,7 +254,7 @@ export default function ProjectsPage() {
                     <div className={`group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 ${viewMode === 'list' ? 'flex flex-col md:flex-row h-auto md:h-64' : 'h-full flex flex-col'}`}>
                       {/* Image */}
                       <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-full md:w-2/5 h-64 md:h-full' : 'aspect-[4/3]'}`}>
-                        <ImageLoader
+                        <Image
                           src={project.image}
                           alt={project.title}
                           fill
