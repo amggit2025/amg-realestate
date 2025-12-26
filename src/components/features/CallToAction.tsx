@@ -2,7 +2,14 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { PhoneIcon, EnvelopeIcon, MapPinIcon } from '@heroicons/react/24/outline'
+import { 
+  Phone, 
+  Mail, 
+  MapPin, 
+  ArrowRight, 
+  MessageCircle,
+  Calendar
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface FooterInfo {
@@ -44,112 +51,133 @@ export default function CallToAction() {
 
     fetchFooterInfo()
   }, [])
+
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-      
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-blue-500/20 rounded-full blur-xl" />
-      <div className="absolute bottom-20 right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-xl" />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-teal-500/10 rounded-full blur-3xl" />
+    <section className="py-32 relative overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/95 to-purple-900/95 z-10" />
+        <div 
+          className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80')] bg-cover bg-center bg-no-repeat bg-fixed opacity-30 grayscale mix-blend-overlay"
+        />
+      </div>
+
+      {/* Animated Shapes */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-500/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-500/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
+      </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center text-white">
-          {/* Main CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="mb-12"
-          >
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              {footerInfo.subtitle.split(' ').slice(0, 2).join(' ')}
-              <span className="block text-blue-400">{footerInfo.subtitle.split(' ').slice(2).join(' ')}</span>
-            </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              تواصل معنا الآن واحصل على استشارة مجانية من خبرائنا لتحقيق أهدافك العقارية
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link
-                href="/contact"
-                className="group bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-              >
-                <span className="flex items-center gap-2">
-                  تواصل معنا الآن
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
-              </Link>
+        <div className="max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left Column: Text Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-right"
+            >
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-blue-300 text-sm font-medium mb-6">
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                مستعدون لخدمتك
+              </div>
               
-              <Link
-                href="/projects"
-                className="group bg-white/15 backdrop-blur-sm border border-white/30 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:bg-white/25"
-              >
-                استكشف مشاريعنا
-              </Link>
-            </div>
-          </motion.div>
+              <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                هل أنت جاهز <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  لتحقيق حلمك؟
+                </span>
+              </h2>
+              
+              <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                سواء كنت تبحث عن منزل أحلامك أو فرصة استثمارية مميزة، فريقنا من الخبراء مستعد لمساعدتك في كل خطوة.
+              </p>
 
-          {/* Contact Methods */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {/* Phone */}
-            <div className="flex items-center justify-center gap-4 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                <PhoneIcon className="w-6 h-6 text-blue-300" />
+              <div className="flex flex-wrap gap-4">
+                <Link href="/contact">
+                  <button className="group relative inline-flex items-center gap-3 bg-white text-gray-900 px-8 py-4 rounded-xl font-bold overflow-hidden transition-all hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:-translate-y-1">
+                    <span className="relative z-10">تواصل معنا الآن</span>
+                    <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </Link>
+                
+                <Link href="/book-appointment">
+                  <button className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/10 transition-all hover:-translate-y-1">
+                    <Calendar className="w-5 h-5" />
+                    <span>حجز موعد</span>
+                  </button>
+                </Link>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-blue-200 mb-1">اتصل بنا</div>
-                <div className="font-bold text-white">{footerInfo.contactPhone}</div>
-              </div>
-            </div>
+            </motion.div>
 
-            {/* Email */}
-            <div className="flex items-center justify-center gap-4 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <div className="w-12 h-12 bg-teal-500/20 rounded-lg flex items-center justify-center">
-                <EnvelopeIcon className="w-6 h-6 text-teal-300" />
+            {/* Right Column: Contact Cards */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="grid gap-6"
+            >
+              {/* Phone Card */}
+              <div className="group bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/30">
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Phone className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <div className="text-gray-400 text-sm mb-1">اتصل بنا مباشرة</div>
+                    <div className="text-xl font-bold text-white font-mono" dir="ltr">{footerInfo.contactPhone}</div>
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-blue-200 mb-1">راسلنا</div>
-                <div className="font-bold text-white">{footerInfo.contactEmail}</div>
-              </div>
-            </div>
 
-            {/* Location */}
-            <div className="flex items-center justify-center gap-4 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                <MapPinIcon className="w-6 h-6 text-purple-300" />
+              {/* Email Card */}
+              <div className="group bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:border-purple-500/30">
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Mail className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <div className="text-gray-400 text-sm mb-1">راسلنا عبر البريد</div>
+                    <div className="text-xl font-bold text-white">{footerInfo.contactEmail}</div>
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-blue-200 mb-1">زورنا</div>
-                <div className="font-bold text-white">{footerInfo.address}</div>
-              </div>
-            </div>
-          </motion.div>
 
-          {/* Bottom Message */}
+              {/* Location Card */}
+              <div className="group bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:border-pink-500/30">
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-full bg-pink-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <MapPin className="w-6 h-6 text-pink-400" />
+                  </div>
+                  <div>
+                    <div className="text-gray-400 text-sm mb-1">تفضل بزيارتنا</div>
+                    <div className="text-xl font-bold text-white">{footerInfo.address}</div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Bottom Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
-            className="mt-12 p-6 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10"
+            transition={{ delay: 0.2 }}
+            className="mt-20 pt-10 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
           >
-            <p className="text-blue-100 mb-4">
-              {footerInfo.title}
-            </p>
-            <p className="text-sm text-blue-200">
-              خبرة {footerInfo.yearsExperience}+ سنة | {footerInfo.happyClients.toLocaleString()}+ عميل راضي | {footerInfo.completedProjects}+ مشروع منجز
-            </p>
+            {[
+              { label: 'سنة خبرة', value: `+${footerInfo.yearsExperience}` },
+              { label: 'عميل راضي', value: `+${footerInfo.happyClients}` },
+              { label: 'مشروع منجز', value: `+${footerInfo.completedProjects}` },
+              { label: 'جائزة تميز', value: '+12' },
+            ].map((stat, index) => (
+              <div key={index}>
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.value}</div>
+                <div className="text-blue-200 text-sm">{stat.label}</div>
+              </div>
+            ))}
           </motion.div>
         </div>
       </div>
