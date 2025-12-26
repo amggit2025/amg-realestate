@@ -219,7 +219,10 @@ function DashboardPage() {
               <EmailVerificationBanner 
                 email={user.email}
                 isVerified={user.emailVerified}
-                onVerificationSuccess={() => window.location.reload()}
+                onVerificationSuccess={() => {
+                  // Hard reload to clear cache and refetch user data
+                  window.location.href = window.location.href
+                }}
               />
             </div>
           )}

@@ -8,6 +8,7 @@ import { baseMetadata, generateStructuredData } from '@/lib/metadata'
 import { AuthProvider } from '@/lib/AuthContext'
 import LayoutWrapper from '@/components/layout/LayoutWrapper'
 import GlobalWidgets from '@/components/layout/GlobalWidgets'
+import FirstVisitLoader from '@/components/layout/FirstVisitLoader'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import AnalyticsProvider from '@/components/AnalyticsProvider'
 import { PWAProvider } from '@/components/PWAProvider'
@@ -86,6 +87,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <PWAProvider>
             <AuthProvider>
+              <FirstVisitLoader />
               <AnalyticsProvider />
               <OnlineStatusIndicator />
               <PWAInstallPrompt />
