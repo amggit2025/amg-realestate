@@ -154,6 +154,10 @@ export default function AddProjectPage() {
   const uploadImage = async (file: File) => {
     try {
       setUploading(true)
+      setError(null)
+      
+      console.log('📤 Starting upload for:', file.name, file.type, file.size)
+      
       const formData = new FormData()
       formData.append('file', file)
 
@@ -162,26 +166,33 @@ export default function AddProjectPage() {
         body: formData,
       })
 
+      console.log('📥 Response status:', response.status)
+      
       const data = await response.json()
+      
+      console.log('📥 Response data:', data)
 
       if (data.success) {
         const newImage: ProjectImage = {
           url: data.data.url,
-          publicId: data.data.public_id, // 🗑️ حفظ publicId لحذف الصورة من Cloudinary لاحقاً
+          publicId: data.data.public_id,
           alt: `صورة المشروع ${images.length + 1}`,
           order: images.length + 1,
           isMain: images.length === 0
         }
+        console.log('✅ Image added:', newImage.url)
         setImages(prev => [...prev, newImage])
         setSuccess('تم رفع الصورة بنجاح!')
         setTimeout(() => setSuccess(null), 3000)
       } else {
+        console.error('❌ Upload failed:', data.message)
         setError(data.message || 'خطأ في رفع الصورة')
         setTimeout(() => setError(null), 5000)
       }
     } catch (error) {
+      console.error('❌ Upload error:', error)
       logger.error('Error uploading image:', error)
-      setError('خطأ في رفع الصورة')
+      setError('خطأ في رفع الصورة - تحقق من اتصال الإنترنت')
       setTimeout(() => setError(null), 5000)
     } finally {
       setUploading(false)

@@ -52,6 +52,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
+    
+    console.log('📝 Creating project with data:', JSON.stringify(data, null, 2))
+
+    // Find main image URL from images array
+    let mainImageUrl = null
+    if (data.images && data.images.length > 0) {
+      const mainImg = data.images.find((img: any) => img.isMain)
+      mainImageUrl = mainImg ? mainImg.url : data.images[0].url
+    }
 
     // Create project with admin data
     const createData = {
@@ -64,6 +73,7 @@ export async function POST(request: NextRequest) {
       contactName: data.contactName,
       contactPhone: data.contactPhone,
       contactEmail: data.contactEmail,
+      mainImage: mainImageUrl, // ⭐ حفظ الصورة الرئيسية
     } as any
 
     // Add optional fields
@@ -93,25 +103,36 @@ export async function POST(request: NextRequest) {
     if (data.paymentPlan) createData.paymentPlan = JSON.stringify(data.paymentPlan)
     if (data.locationDetails) createData.locationDetails = JSON.stringify(data.locationDetails)
 
+    console.log('📦 Final create data:', JSON.stringify(createData, null, 2))
+
     const project = await prisma.project.create({
       data: createData
     })
 
+    console.log('✅ Project created:', project.id)
+
     // Add images if provided
     if (data.images && data.images.length > 0) {
-      const imageData = data.images.map((image: any) => ({
+      console.log('📸 Adding', data.images.length, 'images...')
+      
+      const imageData = data.images.map((image: any, index: number) => ({
         url: image.url,
         publicId: image.publicId || null,
-        alt: image.alt || `${data.title} - صورة`,
-        isMain: image.isMain || false,
-        order: image.order || 1,
+        alt: image.alt || `${data.title} - صورة ${index + 1}`,
+        isMain: image.isMain || index === 0,
+        order: image.order || index + 1,
         projectId: project.id
       }))
+      
+      console.log('📸 Image data:', JSON.stringify(imageData, null, 2))
       
       // @ts-ignore - publicId موجود في Schema
       await prisma.projectImage.createMany({
         data: imageData
       })
+      
+      console.log('✅ Images added successfully')
+    }
     }
 
     return NextResponse.json({
