@@ -56,7 +56,19 @@ export default function AuthLayout({ children, type }: AuthLayoutProps) {
   const currentImage = backgroundImages[currentImageIndex]
 
   return (
-    <div className="min-h-screen flex" suppressHydrationWarning>
+    <div className="min-h-screen flex relative" suppressHydrationWarning>
+      {/* Mobile Background Image (Visible only on mobile/tablet) */}
+      <div className="absolute inset-0 lg:hidden z-0">
+        <Image
+          src={currentImage.url}
+          alt={currentImage.title}
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm" />
+      </div>
+
       {/* الجانب الأيسر - الصورة (مخفي في الموبايل) */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 relative overflow-hidden">
         {/* صور الخلفية المتحركة */}
@@ -185,33 +197,42 @@ export default function AuthLayout({ children, type }: AuthLayoutProps) {
       </div>
 
       {/* الجانب الأيمن - الفورم */}
-      <div className="w-full lg:w-1/2 xl:w-2/5 flex flex-col">
+      <div className="w-full lg:w-1/2 xl:w-2/5 flex flex-col relative z-10">
         {/* Header للموبايل */}
-        <div className="lg:hidden bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 p-6">
+        <div className="lg:hidden p-6 pt-12 text-white">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <span className="text-xl font-bold text-white">A</span>
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 shadow-lg">
+                <Image 
+                  src="/images/logo.png" 
+                  alt="AMG Logo" 
+                  width={35} 
+                  height={35} 
+                  className="object-contain drop-shadow-md"
+                />
               </div>
-              <span className="text-white font-bold">AMG Real Estate</span>
+              <div className="flex flex-col">
+                <span className="text-white font-bold text-lg leading-none drop-shadow-md">AMG</span>
+                <span className="text-white/80 text-xs font-medium tracking-wider drop-shadow-sm">Real Estate</span>
+              </div>
             </Link>
-            <Link href="/" className="text-white/80 text-sm">
+            <Link href="/" className="text-white/90 text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-md hover:bg-white/20 transition-colors border border-white/10">
               العودة ←
             </Link>
           </div>
-          <div className="mt-4">
-            <h2 className="text-2xl font-bold text-white">
+          <div className="mt-8">
+            <h2 className="text-3xl font-bold text-white drop-shadow-lg">
               {type === 'login' ? 'مرحباً بعودتك' : 'إنشاء حساب جديد'}
             </h2>
-            <p className="text-white/80 text-sm mt-1">
+            <p className="text-white/80 text-sm mt-2 font-medium drop-shadow-md">
               {type === 'login' ? 'سجل دخولك للمتابعة' : 'انضم إلى مجتمع AMG'}
             </p>
           </div>
         </div>
 
         {/* الفورم */}
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-8 xl:p-12 bg-gray-50 lg:bg-white">
-          <div className="w-full max-w-md">
+        <div className="flex-1 flex items-center justify-center p-6 lg:p-8 xl:p-12 bg-transparent lg:bg-white">
+          <div className="w-full max-w-md bg-white/95 backdrop-blur-xl lg:bg-transparent p-6 rounded-3xl shadow-2xl lg:shadow-none lg:p-0">
             {/* Header للديسكتوب */}
             <div className="hidden lg:block mb-8">
               <motion.h2
