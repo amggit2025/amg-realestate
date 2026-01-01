@@ -62,6 +62,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // المستخدمين اللي سجلوا بـ Google مش عندهم كلمة مرور
+    if (!user.password) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'هذا الحساب مسجل عبر Google. استخدم زر "المتابعة مع Google" لتسجيل الدخول.'
+        },
+        { status: 401 }
+      )
+    }
+
     // التحقق من كلمة المرور
     const isPasswordValid = await bcrypt.compare(validatedData.password, user.password)
 
