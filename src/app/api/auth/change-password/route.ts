@@ -52,6 +52,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // المستخدمين اللي سجلوا بـ Google مش عندهم كلمة مرور
+    if (!user.password) {
+      return NextResponse.json(
+        { message: 'لا يمكن تغيير كلمة المرور لحسابات Google. قم بتعيين كلمة مرور أولاً.' },
+        { status: 400 }
+      )
+    }
+
     // التحقق من كلمة المرور الحالية
     const isValidPassword = await bcrypt.compare(currentPassword, user.password)
 
