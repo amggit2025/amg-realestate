@@ -6,6 +6,8 @@ import cloudinary from '@/lib/cloudinary'
 import { logUserActivity } from '@/lib/activity-logger'
 import { deleteMultipleImagesFromCloudinary } from '@/lib/cloudinary-helper'
 import { notifyPropertyPendingReview } from '@/lib/notifications'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 const prisma = new PrismaClient()
 
@@ -35,14 +37,28 @@ const propertySchema = z.object({
   contactEmail: z.string().email('البريد الإلكتروني غير صحيح'),
 })
 
-// Get user from JWT token
-async function getUserFromToken(token: string) {
+// Get user from JWT token or NextAuth session
+async function getUserFromToken(token: string | null) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
-    })
-    return user
+    // أولاً: فحص NextAuth session
+    const session = await getServerSession(authOptions)
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id as string }
+      })
+      return user
+    }
+
+    // ثانياً: فحص JWT token العادي
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId }
+      })
+      return user
+    }
+
+    return null
   } catch (error) {
     return null
   }
@@ -85,26 +101,18 @@ export async function POST(request: NextRequest) {
   try {
     console.log('POST /api/properties - Request received')
     
-    // Get token from cookie
+    // Get token from cookie (optional - NextAuth session is also checked)
     const token = request.cookies.get('auth-token')?.value
     console.log('Auth token present:', !!token)
     
-    if (!token) {
-      console.log('No auth token found in request')
-      return NextResponse.json(
-        { message: 'غير مصرح بالوصول' },
-        { status: 401 }
-      )
-    }
-
-    // Get user
-    const user = await getUserFromToken(token)
+    // Get user (supports both JWT and NextAuth)
+    const user = await getUserFromToken(token || null)
     console.log('User from token:', user ? `${user.firstName} ${user.lastName}` : 'null')
     
     if (!user) {
-      console.log('Invalid user from token')
+      console.log('No valid user found')
       return NextResponse.json(
-        { message: 'مستخدم غير صالح' },
+        { message: 'غير مصرح بالوصول' },
         { status: 401 }
       )
     }
@@ -263,21 +271,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Get token from cookie
+    // Get token from cookie (optional - NextAuth session is also checked)
     const token = request.cookies.get('auth-token')?.value
     
-    if (!token) {
-      return NextResponse.json(
-        { message: 'غير مصرح بالوصول' },
-        { status: 401 }
-      )
-    }
-
-    // Get user
-    const user = await getUserFromToken(token)
+    // Get user (supports both JWT and NextAuth)
+    const user = await getUserFromToken(token || null)
     if (!user) {
       return NextResponse.json(
-        { message: 'مستخدم غير صالح' },
+        { message: 'غير مصرح بالوصول' },
         { status: 401 }
       )
     }

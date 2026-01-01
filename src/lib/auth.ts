@@ -3,6 +3,8 @@
 // ======================================================
 import jwt from 'jsonwebtoken'
 import prisma from '@/lib/db'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 // تعريف نوع بيانات Token
 export interface TokenPayload {
@@ -70,7 +72,34 @@ export async function getUserFromToken(token: string) {
 // دالة للتحقق من صحة المصادقة في الطلبات
 export async function requireAuth(request: Request) {
   try {
-    // محاولة الحصول على التوكن من الـ cookie أو الـ header
+    // أولاً: فحص NextAuth session
+    const session = await getServerSession(authOptions)
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id as string },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          avatar: true,
+          userType: true,
+          verified: true,
+          active: true,
+          createdAt: true
+        }
+      })
+
+      if (user && user.active) {
+        return {
+          success: true,
+          user
+        }
+      }
+    }
+
+    // ثانياً: محاولة الحصول على التوكن من الـ cookie أو الـ header
     const cookieStore = request.headers.get('cookie')
     let token: string | null = null
 
