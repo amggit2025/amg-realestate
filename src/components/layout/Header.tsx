@@ -165,9 +165,9 @@ export default function Header() {
                       onClick={toggleUserMenu}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
                     >
-                      <UserIcon className="w-5 h-5" />
-                      <span className="font-medium">{user.firstName} {user.lastName}</span>
-                      <ChevronDownIcon className="w-4 h-4" />
+                      <UserIcon className="w-5 h-5 flex-shrink-0" />
+                      <span className="font-medium truncate max-w-[120px]">{user.firstName}</span>
+                      <ChevronDownIcon className="w-4 h-4 flex-shrink-0" />
                     </button>
                 
                 {/* User Dropdown */}
@@ -321,12 +321,12 @@ export default function Header() {
                     ) : isAuthenticated && user ? (
                       <div>
                         <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 rounded-lg">
-                          <UserIcon className="w-8 h-8 text-blue-600" />
-                          <div>
-                            <div className="font-medium text-gray-900">
+                          <UserIcon className="w-8 h-8 text-blue-600 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium text-gray-900 truncate">
                               {user.firstName} {user.lastName}
                             </div>
-                            <div className="text-sm text-gray-600">{user.email}</div>
+                            <div className="text-sm text-gray-600 truncate">{user.email}</div>
                           </div>
                         </div>
                         
