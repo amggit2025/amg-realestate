@@ -4,6 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import jwt from 'jsonwebtoken'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../[...nextauth]/route'
 
 // دالة للتحقق من صحة Token
 function verifyToken(token: string) {
@@ -16,17 +18,35 @@ function verifyToken(token: string) {
 
 export async function GET(request: NextRequest) {
   try {
-    // الحصول على التوكن من الـ cookie أو الـ header
-    let token = request.cookies.get('auth-token')?.value
-    
-    if (!token) {
-      const authHeader = request.headers.get('authorization')
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7)
+    let userId: string | null = null
+
+    // أولاً: فحص NextAuth session
+    const session = await getServerSession(authOptions)
+    if (session?.user?.id) {
+      userId = session.user.id as string
+    }
+
+    // ثانياً: فحص JWT token العادي إذا لم يوجد NextAuth session
+    if (!userId) {
+      let token = request.cookies.get('auth-token')?.value
+      
+      if (!token) {
+        const authHeader = request.headers.get('authorization')
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7)
+        }
+      }
+
+      if (token) {
+        const decoded = verifyToken(token)
+        if (decoded?.userId) {
+          userId = decoded.userId
+        }
       }
     }
 
-    if (!token) {
+    // إذا لم يوجد أي مصادقة
+    if (!userId) {
       return NextResponse.json(
         { 
           success: false, 
@@ -37,23 +57,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // التحقق من صحة التوكن
-    const decoded = verifyToken(token)
-    
-    if (!decoded || !decoded.userId) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: 'جلسة غير صالحة. قم بتسجيل الدخول مرة أخرى.',
-          requireAuth: true
-        },
-        { status: 401 }
-      )
-    }
-
     // البحث عن المستخدم
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: userId },
       select: {
         id: true,
         firstName: true,

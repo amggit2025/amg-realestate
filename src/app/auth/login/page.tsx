@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import { useAuth } from '@/lib/AuthContext'
 import { logger } from '@/lib/logger'
 import AuthLayout from '@/components/layout/AuthLayout'
@@ -16,19 +17,32 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const { login } = useAuth()
 
+  // Check for NextAuth errors
+  useEffect(() => {
+    const errorParam = searchParams.get('error')
+    if (errorParam) {
+      setError('حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.')
+    }
+  }, [searchParams])
+
   const handleLogin = async (formData: { email: string; password: string; rememberMe: boolean }) => {
     setIsLoading(true)
     setError('')
     
     try {
-      const result = await login(formData.email, formData.password, formData.rememberMe)
-      
-      if (result.success) {
-        // Check if there's a redirect parameter
+      // Use NextAuth signIn for credentials
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+      } else if (result?.ok) {
         const redirectUrl = searchParams.get('redirect')
         router.push(redirectUrl || '/dashboard')
-      } else {
-        setError(result.message)
+        router.refresh()
       }
     } catch (error) {
       logger.error('Login error:', error)
