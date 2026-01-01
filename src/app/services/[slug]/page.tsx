@@ -6,8 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { logger } from '@/lib/logger'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   HomeIcon,
   BuildingOfficeIcon,
@@ -20,16 +19,21 @@ import {
   StarIcon,
   XMarkIcon,
   BuildingOffice2Icon,
-  CubeTransparentIcon
+  CubeTransparentIcon,
+  MegaphoneIcon,
+  SparklesIcon,
+  ArrowDownIcon,
+  CalendarDaysIcon,
+  CurrencyDollarIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline'
-import SEOHead from '@/components/SEOHead'
 
 // Icon mapping
 const iconMap: any = {
   BuildingOfficeIcon,
   PaintBrushIcon,
   HomeIcon,
-  MegaphoneIcon: PhoneIcon,
+  MegaphoneIcon,
   BuildingOffice2Icon,
   WrenchScrewdriverIcon,
   CubeTransparentIcon,
@@ -38,93 +42,62 @@ const iconMap: any = {
   StarIcon,
 }
 
-// Color classes mapping
-const colorClasses: any = {
+// Enhanced Color Mapping (Genius Theme)
+const colorMap: { [key: string]: { gradient: string, bg: string, text: string, border: string, shadow: string, glow: string, lightBg: string } } = {
   blue: {
+    gradient: 'from-blue-600 to-cyan-500',
     bg: 'bg-blue-600',
-    hover: 'hover:bg-blue-700',
+    lightBg: 'bg-blue-50',
     text: 'text-blue-600',
-    border: 'border-blue-600',
-    gradient: 'from-blue-600'
-  },
-  green: {
-    bg: 'bg-green-600',
-    hover: 'hover:bg-green-700',
-    text: 'text-green-600',
-    border: 'border-green-600',
-    gradient: 'from-green-600'
+    border: 'border-blue-200',
+    shadow: 'shadow-blue-500/20',
+    glow: 'shadow-blue-500/40'
   },
   orange: {
+    gradient: 'from-orange-500 to-red-500',
     bg: 'bg-orange-600',
-    hover: 'hover:bg-orange-700',
+    lightBg: 'bg-orange-50',
     text: 'text-orange-600',
-    border: 'border-orange-600',
-    gradient: 'from-orange-600'
+    border: 'border-orange-200',
+    shadow: 'shadow-orange-500/20',
+    glow: 'shadow-orange-500/40'
   },
   purple: {
+    gradient: 'from-purple-600 to-indigo-500',
     bg: 'bg-purple-600',
-    hover: 'hover:bg-purple-700',
+    lightBg: 'bg-purple-50',
     text: 'text-purple-600',
-    border: 'border-purple-600',
-    gradient: 'from-purple-600'
+    border: 'border-purple-200',
+    shadow: 'shadow-purple-500/20',
+    glow: 'shadow-purple-500/40'
   },
-  amber: {
-    bg: 'bg-amber-600',
-    hover: 'hover:bg-amber-700',
-    text: 'text-amber-600',
-    border: 'border-amber-600',
-    gradient: 'from-amber-600'
+  green: {
+    gradient: 'from-emerald-500 to-teal-500',
+    bg: 'bg-emerald-600',
+    lightBg: 'bg-emerald-50',
+    text: 'text-emerald-600',
+    border: 'border-emerald-200',
+    shadow: 'shadow-emerald-500/20',
+    glow: 'shadow-emerald-500/40'
   },
   red: {
-    bg: 'bg-red-600',
-    hover: 'hover:bg-red-700',
-    text: 'text-red-600',
-    border: 'border-red-600',
-    gradient: 'from-red-600'
+    gradient: 'from-rose-500 to-pink-600',
+    bg: 'bg-rose-600',
+    lightBg: 'bg-rose-50',
+    text: 'text-rose-600',
+    border: 'border-rose-200',
+    shadow: 'shadow-rose-500/20',
+    glow: 'shadow-rose-500/40'
   },
   gray: {
-    bg: 'bg-gray-600',
-    hover: 'hover:bg-gray-700',
-    text: 'text-gray-600',
-    border: 'border-gray-600',
-    gradient: 'from-gray-600'
+    gradient: 'from-slate-600 to-gray-500',
+    bg: 'bg-slate-600',
+    lightBg: 'bg-slate-50',
+    text: 'text-slate-600',
+    border: 'border-slate-200',
+    shadow: 'shadow-slate-500/20',
+    glow: 'shadow-slate-500/40'
   }
-}
-
-interface Service {
-  id: string
-  slug: string
-  title: string
-  description: string
-  heroImage: string
-  features: Array<{
-    title: string
-    description: string
-    iconName: string
-  }>
-  stats: Array<{
-    number: string
-    label: string
-    iconName: string
-  }>
-  gallery: string[]
-  formOptions: {
-    projectTypes: string[]
-    budgetRanges: string[]
-    timelines: string[]
-  }
-  color: string
-  iconName: string
-  published: boolean
-  featured: boolean
-  portfolioItems?: Array<{
-    id: string
-    title: string
-    description: string
-    location: string
-    category: string
-    images: Array<{ url: string }>
-  }>
 }
 
 export default function ServicePage() {
@@ -132,108 +105,72 @@ export default function ServicePage() {
   const router = useRouter()
   const slug = params.slug as string
 
-  const [service, setService] = useState<Service | null>(null)
-  const [otherServices, setOtherServices] = useState<Service[]>([])
+  const [service, setService] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedOption, setSelectedOption] = useState('')
+  const [activeTab, setActiveTab] = useState('overview')
+  
+  // Form states
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    serviceType: '',
-    projectType: '',
-    budget: '',
-    timeline: ''
-  })
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
+    const fetchService = async () => {
+      try {
+        const response = await fetch(`/api/services/${slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          setService(data.service)
+        } else {
+          // Handle not found or error
+          console.error('Service not found')
+        }
+      } catch (error) {
+        console.error('Error fetching service:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchService()
-    fetchOtherServices()
   }, [slug])
-
-  const fetchService = async () => {
-    try {
-      const response = await fetch(`/api/services/${slug}`)
-      if (response.ok) {
-        const data = await response.json()
-        setService(data.service)
-        setFormData(prev => ({
-          ...prev,
-          serviceType: data.service.title
-        }))
-      } else {
-        // Service not found
-        setService(null)
-      }
-    } catch (error) {
-      logger.error('Error fetching service:', error)
-      setService(null)
-    } finally {
-      setLoading(false)
-    }
+  
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+    setSubmitError('')
   }
-
-  const fetchOtherServices = async () => {
-    try {
-      const response = await fetch('/api/services')
-      if (response.ok) {
-        const data = await response.json()
-        setOtherServices(data.services.filter((s: Service) => s.slug !== slug))
-      }
-    } catch (error) {
-      logger.error('Error fetching other services:', error)
-    }
-  }
-
-  const handleOpenModal = (option: string = '') => {
-    setSelectedOption(option)
-    if (option) {
-      setFormData(prev => ({
-        ...prev,
-        projectType: option
-      }))
-    }
-    setIsModalOpen(true)
-  }
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-
+    setSubmitError('')
+    
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('/api/service-requests', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          subject: `طلب خدمة: ${formData.serviceType}${selectedOption ? ` - ${selectedOption}` : ''}`,
-          type: 'service_request'
-        }),
-      })
-
-      if (response.ok) {
-        alert('تم إرسال طلبك بنجاح! سنتواصل معك قريباً.')
-        setIsModalOpen(false)
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          message: '',
-          serviceType: service?.title || '',
-          projectType: '',
-          budget: '',
-          timeline: ''
+          serviceSlug: slug,
+          serviceTitle: service?.title
         })
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        setSubmitSuccess(true)
+        setFormData({ name: '', email: '', phone: '', message: '' })
+        setTimeout(() => {
+          setIsModalOpen(false)
+          setSubmitSuccess(false)
+        }, 3000)
       } else {
-        alert('حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.')
+        setSubmitError(data.error || 'حدث خطأ أثناء إرسال الطلب')
       }
     } catch (error) {
-      alert('حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.')
+      setSubmitError('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.')
     } finally {
       setIsSubmitting(false)
     }
@@ -242,524 +179,420 @@ export default function ServicePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">جاري التحميل...</p>
-        </div>
+        <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
       </div>
     )
   }
 
   if (!service) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">الخدمة غير موجودة</h1>
-          <p className="text-gray-600 mb-8">عذراً، الخدمة التي تبحث عنها غير متوفرة</p>
-          <Link 
-            href="/services" 
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <ArrowRightIcon className="w-5 h-5" />
-            العودة للخدمات
-          </Link>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">الخدمة غير موجودة</h1>
+        <Link href="/services" className="text-primary-600 hover:underline">
+          العودة للخدمات
+        </Link>
       </div>
     )
   }
 
+  const colors = colorMap[service.color] || colorMap.blue
   const Icon = iconMap[service.iconName] || BuildingOfficeIcon
-  const colors = colorClasses[service.color] || colorClasses.blue
 
   return (
-    <>
-      <SEOHead
-        title={`${service.title} | AMG Real Estate`}
-        description={service.description}
-        ogImage={service.heroImage}
-      />
+    <div className="min-h-screen bg-gray-50 selection:bg-primary-500 selection:text-white overflow-x-hidden">
+      
+      {/* Hero Section - Parallax & Immersive */}
+      <div className="relative h-[70vh] min-h-[600px] bg-gray-900 overflow-hidden">
+        <motion.div 
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute inset-0 z-0"
+        >
+          <Image
+            src={service.heroImage || '/images/placeholder.jpg'}
+            alt={service.title}
+            fill
+            className="object-cover opacity-50"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/60 via-gray-900/40 to-gray-50" />
+        </motion.div>
 
-      <main className="min-h-screen">
-        {/* Hero Section */}
-        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0">
-            {service.heroImage && (
-              <Image
-                src={service.heroImage}
-                alt={service.title}
-                fill
-                sizes="100vw"
-                className="object-cover"
-                priority
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/90 via-gray-900/70 to-gray-900/90"></div>
-          </div>
-          
-          <div className="relative z-10 container mx-auto px-4 text-center text-white">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className={`inline-flex items-center justify-center w-24 h-24 ${colors.bg} rounded-full mb-8 shadow-2xl`}
-            >
-              <Icon className="w-12 h-12" />
-            </motion.div>
+        <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 shadow-lg ${colors.glow}`}>
+              <Icon className={`w-5 h-5 text-white`} />
+              <span className="text-white font-medium tracking-wide">{service.title}</span>
+            </div>
             
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
-            >
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-heading leading-tight drop-shadow-lg">
               {service.title}
-            </motion.h1>
+            </h1>
             
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed"
-            >
+            <p className="text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed font-light mb-10 drop-shadow-md">
               {service.description}
-            </motion.p>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center"
-            >
-              <button
-                onClick={() => handleOpenModal()}
-                className={`${colors.bg} ${colors.hover} text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105`}
-              >
-                اطلب الخدمة الآن
-              </button>
-              <Link
-                href="/contact"
-                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105"
-              >
-                تواصل معنا
-              </Link>
-            </motion.div>
-          </div>
-        </section>
+            </p>
 
-        {/* Stats Section */}
-        {service.stats && service.stats.length > 0 && (
-          <section className="py-20 bg-white">
-            <div className="container mx-auto px-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {service.stats.map((stat, index) => {
-                  const StatIcon = iconMap[stat.iconName] || CheckCircleIcon
-                  return (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsModalOpen(true)}
+              className={`px-10 py-4 bg-gradient-to-r ${colors.gradient} text-white rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all flex items-center gap-3 mx-auto`}
+            >
+              <span>اطلب الخدمة الآن</span>
+              <ArrowRightIcon className="w-5 h-5" />
+            </motion.button>
+          </motion.div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50"
+        >
+          <ArrowDownIcon className="w-8 h-8" />
+        </motion.div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-16 -mt-20 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column (Content) */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Stats Grid */}
+            {service.stats && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Array.isArray(service.stats) ? (
+                  // Handle Array format (from Database)
+                  service.stats.map((stat: any, index: number) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="text-center"
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 text-center group hover:border-primary-200 transition-colors"
                     >
-                      <div className={`inline-flex items-center justify-center w-16 h-16 ${colors.bg} rounded-xl mb-4`}>
-                        <StatIcon className="w-8 h-8 text-white" />
+                      <div className={`text-3xl font-bold bg-gradient-to-r ${colors.gradient} bg-clip-text text-transparent mb-2`}>
+                        {stat.number}
                       </div>
-                      <div className={`text-4xl font-bold ${colors.text} mb-2`}>{stat.number}</div>
-                      <div className="text-gray-600 font-medium">{stat.label}</div>
+                      <div className="text-gray-500 text-sm font-medium uppercase tracking-wider">
+                        {stat.label}
+                      </div>
                     </motion.div>
-                  )
-                })}
+                  ))
+                ) : (
+                  // Handle Object format (Legacy/Mock)
+                  Object.entries(service.stats).map(([key, value]: [string, any], index) => (
+                    <motion.div
+                      key={key}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 text-center group hover:border-primary-200 transition-colors"
+                    >
+                      <div className={`text-3xl font-bold bg-gradient-to-r ${colors.gradient} bg-clip-text text-transparent mb-2`}>
+                        {typeof value === 'object' ? value.number : value}
+                      </div>
+                      <div className="text-gray-500 text-sm font-medium uppercase tracking-wider">
+                        {key === 'clients' ? 'عميل سعيد' : key === 'projects' ? 'مشروع مكتمل' : key === 'satisfaction' ? 'نسبة رضا' : key}
+                      </div>
+                    </motion.div>
+                  ))
+                )}
               </div>
-            </div>
-          </section>
-        )}
+            )}
 
-        {/* Features Section */}
-        {service.features && service.features.length > 0 && (
-          <section className="py-24 bg-gray-50">
-            <div className="container mx-auto px-4">
-              <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
+            {/* Features Section */}
+            <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-gray-100">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                <SparklesIcon className={`w-8 h-8 ${colors.text}`} />
                 مميزات الخدمة
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {service.features.map((feature, index) => {
-                  const FeatureIcon = iconMap[feature.iconName] || CheckCircleIcon
-                  return (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group"
-                    >
-                      <div className={`w-14 h-14 ${colors.bg} rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110`}>
-                        <FeatureIcon className="w-7 h-7 text-white" />
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-3">
-                        {feature.title}
-                      </h3>
-                      <p className="text-gray-600 leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </motion.div>
-                  )
-                })}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Portfolio Gallery Section */}
-        {service.portfolioItems && service.portfolioItems.length > 0 && (
-          <section className="py-24 bg-white">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  معرض أعمالنا
-                </h2>
-                <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                  اكتشف مشاريعنا السابقة في مجال {service.title}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {service.portfolioItems.map((project, index) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {service.features?.map((feature: any, index: number) => (
                   <motion.div
-                    key={project.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group"
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-start gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors"
                   >
-                    <div className="relative h-64 overflow-hidden bg-gray-200">
-                      {project.images && project.images.length > 0 && (
-                        <Image
-                          src={project.images[0].url}
-                          alt={project.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
-                          loading="lazy"
-                          placeholder="blur"
-                          blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VlZSIvPjwvc3ZnPg=="
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className={`w-12 h-12 rounded-xl ${colors.lightBg} flex items-center justify-center shrink-0`}>
+                      <CheckCircleIcon className={`w-6 h-6 ${colors.text}`} />
                     </div>
-                    
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                        {project.title}
-                      </h3>
-                      <p className="text-gray-600 mb-3 line-clamp-2">
-                        {project.description}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <CheckCircleIcon className="w-4 h-4" />
-                          {project.category}
-                        </span>
-                        {project.location && (
-                          <span className="flex items-center gap-1">
-                            <PhoneIcon className="w-4 h-4" />
-                            {project.location}
-                          </span>
-                        )}
-                      </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 mb-2">{feature.title}</h3>
+                      <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
                     </div>
                   </motion.div>
                 ))}
-              </div>
-
-              <div className="text-center mt-12">
-                <Link
-                  href="/portfolio"
-                  className={`inline-flex items-center gap-2 ${colors.bg} ${colors.hover} text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105`}
-                >
-                  عرض جميع الأعمال
-                  <ArrowRightIcon className="w-5 h-5 rotate-180" />
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Request Form Options */}
-        {service.formOptions && (
-          <section className="py-24 bg-white">
-            <div className="container mx-auto px-4">
-              <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-16">
-                  <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                    احصل على استشارة مجانية
-                  </h2>
-                  <p className="text-gray-600 text-lg">
-                    اختر نوع المشروع المناسب لك وسنتواصل معك في أقرب وقت
-                  </p>
-                </div>
-
-                {service.formOptions.projectTypes && service.formOptions.projectTypes.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    {service.formOptions.projectTypes.map((projectType, index) => (
-                      <motion.button
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        viewport={{ once: true }}
-                        onClick={() => handleOpenModal(projectType)}
-                        className={`p-6 border-2 ${colors.border} rounded-2xl hover:bg-gray-50 transition-all duration-300 group text-right`}
-                      >
-                        <div className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110`}>
-                          <Icon className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">
-                          {projectType}
-                        </h3>
-                        <p className={`text-sm ${colors.text} font-semibold`}>
-                          اطلب الخدمة ←
-                        </p>
-                      </motion.button>
-                    ))}
+                {/* Fallback features if none exist */}
+                {!service.features && [1, 2, 3, 4].map((_, i) => (
+                  <div key={i} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors">
+                    <div className={`w-12 h-12 rounded-xl ${colors.lightBg} flex items-center justify-center shrink-0`}>
+                      <CheckCircleIcon className={`w-6 h-6 ${colors.text}`} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 mb-2">ميزة تنافسية {i + 1}</h3>
+                      <p className="text-gray-600 text-sm leading-relaxed">نقدم أفضل الحلول المبتكرة لضمان نجاح مشروعك بأعلى معايير الجودة.</p>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
             </div>
-          </section>
-        )}
 
-        {/* Other Services Section */}
-        {otherServices.length > 0 && (
-          <section className="py-24 bg-gray-50">
-            <div className="container mx-auto px-4">
-              <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
-                خدماتنا الأخرى
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {otherServices.slice(0, 4).map((otherService) => {
-                  const OtherIcon = iconMap[otherService.iconName] || BuildingOfficeIcon
-                  const otherColors = colorClasses[otherService.color] || colorClasses.blue
-                  
-                  return (
+            {/* Gallery Section - Only show if there are portfolio items */}
+            {service.portfolioItems && service.portfolioItems.length > 0 && (
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-gray-100 overflow-hidden">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900">معرض الأعمال</h2>
+                  <span className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+                    {service.portfolioItems.length} مشاريع
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {service.portfolioItems.slice(0, 8).map((item: any) => (
                     <Link
-                      key={otherService.id}
-                      href={`/services/${otherService.slug}`}
-                      className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                      key={item.id}
+                      href={`/portfolio/${item.slug}`}
                     >
-                      <div className={`w-16 h-16 ${otherColors.bg} rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110`}>
-                        <OtherIcon className="w-8 h-8 text-white" />
-                      </div>
-                      
-                      <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-gray-700 transition-colors">
-                        {otherService.title}
-                      </h3>
-                      
-                      <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
-                        {otherService.description}
-                      </p>
-                      
-                      <div className="flex items-center gap-2 text-blue-600 font-semibold text-sm group-hover:gap-3 transition-all duration-300">
-                        <span>اكتشف المزيد</span>
-                        <ArrowRightIcon className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform duration-300" />
-                      </div>
+                      <motion.div
+                        whileHover={{ y: -5 }}
+                        className="group relative aspect-square rounded-2xl overflow-hidden cursor-pointer bg-gray-100"
+                      >
+                        <Image
+                          src={item.images?.[0]?.url || '/images/placeholder.jpg'}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                        />
+                        
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
+                          <h3 className="text-white font-bold text-sm line-clamp-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            {item.title}
+                          </h3>
+                          <p className="text-gray-300 text-xs mt-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                            {item.location}
+                          </p>
+                        </div>
+                        
+                        {/* Zoom Icon */}
+                        <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-2 group-hover:translate-y-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </div>
+                      </motion.div>
                     </Link>
-                  )
-                })}
-              </div>
-              
-              <div className="text-center mt-12">
-                <Link
-                  href="/services"
-                  className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-                >
-                  جميع خدماتنا
-                  <ArrowRightIcon className="w-5 h-5 rotate-180" />
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* CTA Section */}
-        <section className={`py-24 bg-gradient-to-r ${colors.gradient} to-gray-900`}>
-          <div className="container mx-auto px-4 text-center text-white">
-            <h2 className="text-4xl font-bold mb-6">
-              هل أنت مستعد للبدء؟
-            </h2>
-            
-            <p className="text-xl text-gray-200 mb-12 max-w-2xl mx-auto">
-              تواصل معنا الآن للحصول على استشارة مجانية وعرض سعر مخصص لاحتياجاتك
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <button
-                onClick={() => handleOpenModal()}
-                className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-3 justify-center"
-              >
-                <PhoneIcon className="w-6 h-6" />
-                اطلب الخدمة الآن
-              </button>
-              
-              <Link
-                href="/contact"
-                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 inline-flex items-center gap-3 justify-center"
-              >
-                تواصل معنا
-                <ArrowRightIcon className="w-5 h-5 rotate-180" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Service Request Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900">طلب خدمة {service.title}</h3>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <XMarkIcon className="w-6 h-6" />
-                  </button>
+                  ))}
                 </div>
+              </div>
+            )}
 
-                {selectedOption && (
-                  <div className={`mb-6 p-4 ${colors.bg} bg-opacity-10 rounded-xl border-2 ${colors.border}`}>
-                    <p className="font-semibold text-gray-900">
-                      نوع المشروع: <span className={colors.text}>{selectedOption}</span>
-                    </p>
+          </div>
+
+          {/* Right Column (Sidebar) */}
+          <div className="lg:col-span-1 space-y-6">
+            
+            {/* Contact Card */}
+            <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100 sticky top-24">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">مهتم بهذه الخدمة؟</h3>
+              <p className="text-gray-600 mb-8">املأ النموذج أدناه وسيقوم فريقنا بالتواصل معك في أقرب وقت.</p>
+              
+              <form className="space-y-4" onSubmit={handleSubmit}>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">الاسم الكامل</label>
+                  <input 
+                    type="text" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleFormChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all" 
+                    placeholder="الاسم" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
+                  <input 
+                    type="tel" 
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleFormChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all" 
+                    placeholder="01xxxxxxxxx" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">تفاصيل الطلب</label>
+                  <textarea 
+                    rows={4} 
+                    name="message"
+                    value={formData.message}
+                    onChange={handleFormChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all" 
+                    placeholder="اكتب تفاصيل مشروعك..." 
+                  />
+                </div>
+                
+                {submitError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                    {submitError}
                   </div>
                 )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        الاسم الكامل *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        placeholder="أدخل اسمك الكامل"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        رقم الهاتف *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        placeholder="01XXXXXXXXX"
-                      />
-                    </div>
+                
+                {submitSuccess && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-600 text-sm">
+                    ✅ تم إرسال طلبك بنجاح! سنتواصل معك قريباً.
                   </div>
+                )}
+                
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className={`w-full py-4 bg-gradient-to-r ${colors.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isSubmitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
+                </button>
+              </form>
 
+              <div className="mt-8 pt-8 border-t border-gray-100">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`w-10 h-10 rounded-full ${colors.lightBg} flex items-center justify-center`}>
+                    <PhoneIcon className={`w-5 h-5 ${colors.text}`} />
+                  </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      البريد الإلكتروني *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="example@email.com"
-                    />
+                    <p className="text-sm text-gray-500">اتصل بنا مباشرة</p>
+                    <p className="font-bold text-gray-900" dir="ltr">+20 100 000 0000</p>
                   </div>
-
-                  {service.formOptions?.budgetRanges && service.formOptions.budgetRanges.length > 0 && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        الميزانية المتوقعة
-                      </label>
-                      <select
-                        value={formData.budget}
-                        onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      >
-                        <option value="">اختر نطاق الميزانية</option>
-                        {service.formOptions.budgetRanges.map((range, index) => (
-                          <option key={index} value={range}>{range}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  {service.formOptions?.timelines && service.formOptions.timelines.length > 0 && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        الإطار الزمني المتوقع
-                      </label>
-                      <select
-                        value={formData.timeline}
-                        onChange={(e) => setFormData(prev => ({ ...prev, timeline: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      >
-                        <option value="">اختر الإطار الزمني</option>
-                        {service.formOptions.timelines.map((timeline, index) => (
-                          <option key={index} value={timeline}>{timeline}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      تفاصيل إضافية
-                    </label>
-                    <textarea
-                      rows={4}
-                      value={formData.message}
-                      onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                      placeholder="أخبرنا المزيد عن مشروعك..."
-                    />
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setIsModalOpen(false)}
-                      className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
-                    >
-                      إلغاء
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className={`flex-1 px-6 py-3 ${colors.bg} ${colors.hover} text-white rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {isSubmitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
-                    </button>
-                  </div>
-                </form>
+                </div>
               </div>
-            </motion.div>
+            </div>
+
           </div>
+        </div>
+      </div>
+
+      {/* Modal (Placeholder) */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">طلب خدمة: {service.title}</h3>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <XMarkIcon className="w-6 h-6 text-gray-500" />
+                </button>
+              </div>
+              
+              {submitSuccess ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircleIcon className="w-10 h-10 text-green-600" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">تم إرسال طلبك بنجاح!</h4>
+                  <p className="text-gray-600">سيتواصل معك فريقنا في أقرب وقت ممكن.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">الاسم الكامل *</label>
+                    <input 
+                      type="text" 
+                      name="name"
+                      value={formData.name}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all" 
+                      placeholder="أدخل اسمك الكامل" 
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني (اختياري)</label>
+                    <input 
+                      type="email" 
+                      name="email"
+                      value={formData.email}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all" 
+                      placeholder="example@email.com" 
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف *</label>
+                    <input 
+                      type="tel" 
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all" 
+                      placeholder="01xxxxxxxxx" 
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">تفاصيل الطلب *</label>
+                    <textarea 
+                      rows={5} 
+                      name="message"
+                      value={formData.message}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all" 
+                      placeholder="اكتب تفاصيل مشروعك أو استفسارك هنا..." 
+                    />
+                  </div>
+                  
+                  {submitError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                      {submitError}
+                    </div>
+                  )}
+                  
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? 'جاري الإرسال...' : 'إرسال الطلب'}
+                  </button>
+                </form>
+              )}
+            </motion.div>
+          </motion.div>
         )}
-      </main>
-    </>
+      </AnimatePresence>
+
+    </div>
   )
 }

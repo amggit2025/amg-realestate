@@ -82,3 +82,40 @@ export async function GET(request: NextRequest) {
     })
   }
 }
+
+// حذف صور من المعرض
+export async function DELETE(request: NextRequest) {
+  try {
+    const { imageIds } = await request.json()
+
+    if (!imageIds || !Array.isArray(imageIds) || imageIds.length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'معرفات الصور مطلوبة' 
+      })
+    }
+
+    // حذف الصور من قاعدة البيانات
+    // @ts-ignore
+    const deletedImages = await prisma.portfolioImage.deleteMany({
+      where: {
+        id: {
+          in: imageIds
+        }
+      }
+    })
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `تم حذف ${deletedImages.count} صورة بنجاح`,
+      deletedCount: deletedImages.count
+    })
+
+  } catch (error) {
+    console.error('خطأ في حذف صور المعرض:', error)
+    return NextResponse.json({ 
+      success: false, 
+      message: 'حدث خطأ في الخادم' 
+    }, { status: 500 })
+  }
+}

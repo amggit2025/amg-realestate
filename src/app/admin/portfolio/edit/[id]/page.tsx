@@ -109,6 +109,7 @@ export default function EditPortfolioPage() {
   const [newMainImage, setNewMainImage] = useState<File | null>(null)
   const [newGalleryImages, setNewGalleryImages] = useState<File[]>([])
   const [deletedImages, setDeletedImages] = useState<string[]>([])
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
 
   // Fetch services and projects on mount
   useEffect(() => {
@@ -490,8 +491,13 @@ export default function EditPortfolioPage() {
           }
         }
         
-        alert('تم تحديث العمل بنجاح!')
-        router.push('/admin/portfolio')
+        // عرض popup النجاح
+        setShowSuccessPopup(true)
+        
+        // الانتقال لصفحة إدارة الأعمال بعد 2 ثانية
+        setTimeout(() => {
+          router.push('/admin/portfolio')
+        }, 2000)
       } else {
         alert('حدث خطأ في تحديث العمل: ' + data.message)
       }
@@ -1094,6 +1100,76 @@ export default function EditPortfolioPage() {
           </form>
         </div>
       </div>
+
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
+              <svg
+                className="w-10 h-10 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <motion.path
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </motion.div>
+            
+            <motion.h3
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-2xl font-bold text-gray-900 mb-2"
+            >
+              تم التحديث بنجاح! ✨
+            </motion.h3>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-gray-600 mb-6"
+            >
+              تم حفظ جميع التعديلات على العمل
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex items-center justify-center gap-2 text-sm text-gray-500"
+            >
+              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              جاري الانتقال لصفحة إدارة الأعمال...
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   )
 }

@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
     // إضافة شرط البحث النصي
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { city: { contains: search, mode: 'insensitive' } },
-        { district: { contains: search, mode: 'insensitive' } },
-        { address: { contains: search, mode: 'insensitive' } }
+        { title: { contains: search } },
+        { description: { contains: search } },
+        { city: { contains: search } },
+        { district: { contains: search } },
+        { address: { contains: search } }
       ]
     }
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
     // إضافة فلتر المدينة
     if (city) {
-      where.city = { contains: city, mode: 'insensitive' }
+      where.city = { contains: city }
     }
 
     // إضافة فلتر السعر

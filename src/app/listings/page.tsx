@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -12,15 +12,15 @@ import {
   MagnifyingGlassIcon,
   MapPinIcon,
   HomeIcon,
-  UserIcon,
   CurrencyDollarIcon,
   EyeIcon,
-  HeartIcon,
   PhoneIcon,
-  EnvelopeIcon,
-  TagIcon
+  TagIcon,
+  FunnelIcon,
+  XMarkIcon,
+  AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline'
-import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid'
+import { ChatBubbleLeftRightIcon, StarIcon } from '@heroicons/react/24/solid'
 
 // واجهة بيانات العقارات
 interface Property {
@@ -47,6 +47,18 @@ interface Property {
     phone?: string
     email?: string
   }
+  createdAt: string
+}
+
+const colors = {
+  primary: 'from-violet-600 to-indigo-600',
+  secondary: 'from-pink-500 to-rose-500',
+  accent: 'from-amber-400 to-orange-500',
+  dark: 'bg-slate-900',
+  light: 'bg-slate-50',
+  card: 'bg-white',
+  text: 'text-slate-800',
+  textLight: 'text-slate-500'
 }
 
 export default function ListingsPage() {
@@ -58,18 +70,17 @@ export default function ListingsPage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [initialLoad, setInitialLoad] = useState(true)
-  const [searchTerm, setSearchTerm] = useState(urlLocation) // Initialize with URL param
+  const [searchTerm, setSearchTerm] = useState(urlLocation)
+  const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
-    propertyType: urlType, // Initialize with URL param
+    propertyType: urlType,
     purpose: '',
     minPrice: '',
     maxPrice: '',
-    city: urlLocation // Initialize with URL param
+    city: urlLocation
   })
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [likedProperties, setLikedProperties] = useState<Set<string>>(new Set())
-  const [viewedProperties, setViewedProperties] = useState<Set<string>>(new Set())
   const [totalProperties, setTotalProperties] = useState(0)
   const [contactingProperty, setContactingProperty] = useState<string | null>(null)
   const itemsPerPage = 12
@@ -88,17 +99,28 @@ export default function ListingsPage() {
         ...(filters.city && { city: filters.city })
       })
 
+      console.log('🔍 Fetching properties with params:', params.toString())
+
       const response = await fetch(`/api/properties/public?${params}`)
+      
+      console.log('📡 Response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
-        setProperties(data.properties)
-        setTotalPages(data.totalPages)
-        setTotalProperties(data.total || data.properties.length)
+        console.log('✅ Properties loaded:', data.properties?.length || 0)
+        setProperties(data.properties || [])
+        setTotalPages(data.totalPages || 1)
+        setTotalProperties(data.total || 0)
       } else {
-        logger.error('فشل في تحميل العقارات')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('❌ Server error:', response.status, errorData)
+        logger.error('فشل في تحميل العقارات - الخطأ:', errorData.error || response.statusText)
+        setProperties([])
       }
     } catch (error) {
-      logger.error('خطأ في تحميل العقارات:', error)
+      console.error('❌ Network error:', error)
+      logger.error('خطأ في الاتصال بالسيرفر:', error)
+      setProperties([])
     } finally {
       setLoading(false)
       setInitialLoad(false)
@@ -106,11 +128,14 @@ export default function ListingsPage() {
   }
 
   useEffect(() => {
-    fetchProperties()
-  }, [currentPage, searchTerm, filters])
+    const timer = setTimeout(() => {
+      fetchProperties()
+    }, searchTerm ? 500 : 0)
+
+    return () => clearTimeout(timer)
+  }, [currentPage, filters, searchTerm])
 
   useEffect(() => {
-    // Scroll to top when page changes
     if (currentPage > 1) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
@@ -121,31 +146,21 @@ export default function ListingsPage() {
       ...prev,
       [filterName]: value
     }))
-    setCurrentPage(1) // إعادة تعيين الصفحة للأولى عند تغيير الفلتر
+    setCurrentPage(1)
   }
 
   const handleSearch = () => {
     setCurrentPage(1)
+    setLoading(false)
     fetchProperties()
   }
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
-        if (event.key === 'k') {
-          event.preventDefault();
-          (document.querySelector('input[type="text"]') as HTMLInputElement)?.focus()
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyPress)
-    return () => document.removeEventListener('keydown', handleKeyPress)
-  }, [])
-
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-EG').format(price) + ' جنيه'
+    return new Intl.NumberFormat('ar-EG', {
+      style: 'currency',
+      currency: 'EGP',
+      maximumFractionDigits: 0
+    }).format(price)
   }
 
   const getPropertyTypeLabel = (type: string) => {
@@ -164,467 +179,403 @@ export default function ListingsPage() {
     return purpose === 'SALE' ? 'للبيع' : 'للإيجار'
   }
 
-  const handleLike = (propertyId: string) => {
-    setLikedProperties(prev => {
-      const newLikes = new Set(prev)
-      if (newLikes.has(propertyId)) {
-        newLikes.delete(propertyId)
-      } else {
-        newLikes.add(propertyId)
-      }
-      return newLikes
-    })
-  }
-
-  const handleView = (propertyId: string) => {
-    setViewedProperties(prev => new Set([...prev, propertyId]))
-    // يمكنك إضافة منطق هنا لفتح modal أو تفاصيل العقار
-    logger.log(`عرض تفاصيل العقار: ${propertyId}`)
-  }
-
   const handleContact = async (contactType: 'phone' | 'message', property: Property) => {
     setContactingProperty(property.id)
     
     try {
+      const phoneNumber = property.user.phone || '01000000000'
+      
       if (contactType === 'phone') {
-        // فتح تطبيق الهاتف للاتصال  
-        const phoneNumber = property.user.phone || '01012345678'
-        
-        // محاولة فتح تطبيق الهاتف
-        const telLink = `tel:${phoneNumber}`
-        window.location.href = telLink
-        
-        // إشعار للمستخدم
-        setTimeout(() => {
-          alert(`سيتم الاتصال بـ ${property.user.firstName} ${property.user.lastName}\nرقم الهاتف: ${phoneNumber}`)
-        }, 500)
-        
+        window.location.href = `tel:${phoneNumber}`
       } else {
-        // فتح WhatsApp للمراسلة
-        const phoneNumber = property.user.phone || '01012345678'
-        const message = `السلام عليكم ورحمة الله وبركاته\n\nأنا مهتم بالعقار التالي:\n📍 ${property.title}\n🏘️ ${property.city} - ${property.district}\n💰 ${formatPrice(property.price)}\n📐 ${property.area} متر مربع\n\nيرجى التواصل معي للمزيد من التفاصيل.`
-        
-        // تنظيف رقم الهاتف (إزالة الرموز والمسافات)
+        const message = `مرحباً، أنا مهتم بالعقار: ${property.title} (${formatPrice(property.price)})`
         const cleanPhone = phoneNumber.replace(/[^0-9]/g, '')
-        const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
-        
-        // فتح WhatsApp في نافذة جديدة
-        const whatsappWindow = window.open(whatsappUrl, '_blank')
-        
-        if (!whatsappWindow) {
-          alert('يرجى السماح للنوافذ المنبثقة لفتح WhatsApp')
-        } else {
-          // إشعار نجاح
-          setTimeout(() => {
-            alert(`تم فتح محادثة WhatsApp مع ${property.user.firstName} ${property.user.lastName}`)
-          }, 1000)
-        }
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank')
       }
       
-      // إضافة تأخير قصير للتأثير البصري
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
+      await new Promise(resolve => setTimeout(resolve, 1000))
     } catch (error) {
-      logger.error('خطأ في التواصل:', error)
-      alert('حدث خطأ أثناء محاولة التواصل. يرجى المحاولة مرة أخرى.')
+      console.error('Error contacting:', error)
     } finally {
       setContactingProperty(null)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 font-sans">
       {/* Hero Section */}
-      <motion.section 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="relative h-[50vh] flex items-center justify-center bg-gradient-to-r from-blue-900 to-blue-700 text-white"
-      >
-        <div className="absolute inset-0 bg-black/30"></div>
-        <motion.div 
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="relative z-10 text-center"
-        >
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 px-4">
-            إعلانات العقارات
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-blue-100 px-4">
-            اكتشف العقارات المتاحة من المستخدمين
-          </p>
-        </motion.div>
-      </motion.section>
+      <div className="relative min-h-[60vh] bg-slate-900 flex flex-col">
+        {/* Background Image */}
+        <div className="absolute inset-0 overflow-hidden">
+          <Image
+            src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=2000&auto=format&fit=crop"
+            alt="Real Estate Listings"
+            fill
+            className="object-cover opacity-40"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/80 to-slate-50"></div>
+        </div>
 
-      {/* Search and Filters */}
-      <motion.section 
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.8 }}
-        className="py-12 bg-gradient-to-b from-gray-50 to-white"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Search Bar - Enhanced */}
-          <div className="relative mb-8">
-            <div className="flex rounded-2xl bg-white/80 backdrop-blur-sm border border-white/20 overflow-hidden shadow-2xl shadow-blue-600/10">
-              <div className="flex-1 relative">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
+        {/* Content */}
+        <div className="relative flex-1 container mx-auto px-4 flex flex-col items-center justify-center text-center z-10 pt-32 pb-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/80 text-sm font-medium mb-6">
+              اكتشف منزل أحلامك
+            </span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+              عقارات مميزة <br />
+              <span className={`text-transparent bg-clip-text bg-gradient-to-r ${colors.primary}`}>
+                لنمط حياة استثنائي
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed">
+              تصفح آلاف العقارات المتاحة للبيع والإيجار في أرقى المناطق، 
+              واختر ما يناسب طموحاتك وميزانيتك.
+            </p>
+          </motion.div>
+
+          {/* Search Bar */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="w-full max-w-4xl relative z-50"
+          >
+            <div className="bg-white p-2 rounded-[2rem] shadow-2xl shadow-indigo-500/20 border border-white/50 backdrop-blur-xl flex flex-col md:flex-row gap-2">
+              <div className="flex-1 relative group">
+                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                  <MagnifyingGlassIcon className="h-6 w-6 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                </div>
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="ابحث عن العقارات بالعنوان أو المنطقة... (Ctrl+K)"
-                  className="w-full pl-12 pr-6 py-5 text-lg focus:outline-none bg-transparent placeholder-gray-500"
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  placeholder="ابحث بالمنطقة، المدينة، أو اسم المشروع..."
+                  className="w-full h-14 pr-12 pl-4 bg-slate-50 border-none rounded-[1.5rem] text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-100 focus:bg-white transition-all text-lg"
                 />
               </div>
-              <button
-                onClick={handleSearch}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-5 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40"
-              >
-                <MagnifyingGlassIcon className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Filters - Enhanced Design */}
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/20">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-              <div className="relative group">
-                <select
-                  value={filters.propertyType}
-                  onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-                  className="w-full appearance-none bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 cursor-pointer hover:shadow-md group-hover:border-blue-300"
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`h-14 px-6 rounded-[1.5rem] border border-slate-200 flex items-center gap-2 font-medium transition-all ${showFilters ? 'bg-indigo-50 text-indigo-600 border-indigo-200' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
                 >
-                  <option value="">جميع الأنواع</option>
-                  <option value="APARTMENT">شقة</option>
-                  <option value="VILLA">فيلا</option>
-                  <option value="HOUSE">منزل</option>
-                  <option value="OFFICE">مكتب</option>
-                  <option value="COMMERCIAL">تجاري</option>
-                  <option value="LAND">أرض</option>
-                </select>
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <HomeIcon className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-
-              <div className="relative group">
-                <select
-                  value={filters.purpose}
-                  onChange={(e) => handleFilterChange('purpose', e.target.value)}
-                  className="w-full appearance-none bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 pr-10 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 cursor-pointer hover:shadow-md group-hover:border-blue-300"
+                  <AdjustmentsHorizontalIcon className="w-5 h-5" />
+                  <span className="hidden sm:inline">تصفية</span>
+                </button>
+                
+                <button
+                  onClick={handleSearch}
+                  className={`h-14 px-8 rounded-[1.5rem] bg-gradient-to-r ${colors.primary} text-white font-bold shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2`}
                 >
-                  <option value="">الغرض</option>
-                  <option value="SALE">للبيع</option>
-                  <option value="RENT">للإيجار</option>
-                </select>
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <TagIcon className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-
-              <div className="relative group">
-                <input
-                  type="number"
-                  value={filters.minPrice}
-                  onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                  placeholder="أقل سعر"
-                  className="w-full bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 pl-10 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md group-hover:border-blue-300"
-                />
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <CurrencyDollarIcon className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-
-              <div className="relative group">
-                <input
-                  type="number"
-                  value={filters.maxPrice}
-                  onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                  placeholder="أعلى سعر"
-                  className="w-full bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 pl-10 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md group-hover:border-blue-300"
-                />
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <CurrencyDollarIcon className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-
-              <div className="relative group">
-                <input
-                  type="text"
-                  value={filters.city}
-                  onChange={(e) => handleFilterChange('city', e.target.value)}
-                  placeholder="المدينة"
-                  className="w-full bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 pl-10 text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 hover:shadow-md group-hover:border-blue-300"
-                />
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <MapPinIcon className="h-4 w-4 text-gray-400" />
-                </div>
+                  <span>بحث</span>
+                </button>
               </div>
             </div>
-          </div>
-        </div>
-      </motion.section>
 
-      {/* Properties Grid */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Results Counter */}
-          {!loading && properties.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8 flex items-center justify-between bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
-            >
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded-full ml-2 animate-pulse"></div>
-                <span className="text-gray-700 font-medium">
-                  تم العثور على <span className="text-blue-600 font-bold">{totalProperties}</span> عقار
-                </span>
-              </div>
-              <div className="text-sm text-gray-500">
-                الصفحة {currentPage} من {totalPages}
-              </div>
-            </motion.div>
-          )}
-
-          {loading && initialLoad ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-20"
-            >
-              <div className="relative">
-                <div className="animate-spin rounded-full h-20 w-20 border-4 border-blue-100 border-t-blue-600 mx-auto"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <HomeIcon className="h-8 w-8 text-blue-600" />
-                </div>
-              </div>
-              <p className="mt-6 text-lg text-gray-600 font-medium">جاري البحث عن العقارات المناسبة لك...</p>
-              <div className="mt-4 flex justify-center space-x-1 space-x-reverse">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-            </motion.div>
-          ) : properties.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
-            >
-              <HomeIcon className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-2xl font-semibold text-gray-700 mb-2">
-                لا توجد عقارات متاحة
-              </h3>
-              <p className="text-gray-500">
-                لم يتم العثور على عقارات تطابق معايير البحث الخاصة بك
-              </p>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10"
-            >
-              {properties.map((property, index) => (
+            {/* Expanded Filters */}
+            <AnimatePresence>
+              {showFilters && (
                 <motion.div
-                  key={property.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100"
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  className="overflow-hidden"
                 >
-                  {/* Image Section */}
-                  <div className="relative h-56 overflow-hidden">
+                  <div className="bg-white rounded-[2rem] p-6 shadow-xl border border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-500">نوع العقار</label>
+                      <select
+                        value={filters.propertyType}
+                        onChange={(e) => handleFilterChange('propertyType', e.target.value)}
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      >
+                        <option value="">الكل</option>
+                        <option value="APARTMENT">شقة</option>
+                        <option value="VILLA">فيلا</option>
+                        <option value="HOUSE">منزل</option>
+                        <option value="OFFICE">مكتب</option>
+                        <option value="COMMERCIAL">تجاري</option>
+                        <option value="LAND">أرض</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-500">الغرض</label>
+                      <select
+                        value={filters.purpose}
+                        onChange={(e) => handleFilterChange('purpose', e.target.value)}
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      >
+                        <option value="">الكل</option>
+                        <option value="SALE">للبيع</option>
+                        <option value="RENT">للإيجار</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-500">السعر (من)</label>
+                      <input
+                        type="number"
+                        value={filters.minPrice}
+                        onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                        placeholder="0"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-500">السعر (إلى)</label>
+                      <input
+                        type="number"
+                        value={filters.maxPrice}
+                        onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                        placeholder="لا يوجد حد"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Results Section */}
+      <div className="container mx-auto px-4 py-12 -mt-20 relative z-10">
+        {/* Stats Bar */}
+        {!loading && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-white/50 shadow-sm"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-slate-600 font-medium">
+                تم العثور على <span className="text-indigo-600 font-bold text-lg">{totalProperties}</span> عقار
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm text-slate-500">
+              <span>ترتيب حسب:</span>
+              <select className="bg-transparent font-medium text-slate-800 outline-none cursor-pointer">
+                <option>الأحدث</option>
+                <option>الأعلى سعراً</option>
+                <option>الأقل سعراً</option>
+              </select>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Loading Spinner */}
+        {loading && initialLoad ? (
+          <div className="min-h-[500px] flex flex-col items-center justify-center">
+            <div className="relative flex items-center justify-center">
+              {/* Outer Ring */}
+              <div className="w-24 h-24 rounded-full border-4 border-indigo-100"></div>
+              {/* Spinning Ring */}
+              <div className="absolute w-24 h-24 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+              {/* Inner Icon */}
+              <HomeIcon className="absolute w-8 h-8 text-indigo-600 animate-bounce" />
+            </div>
+            <h3 className="mt-8 text-xl font-bold text-slate-800">جاري التحميل</h3>
+            <p className="text-slate-500 mt-2">نبحث لك عن أفضل الخيارات...</p>
+          </div>
+        ) : properties.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-[3rem] shadow-sm border border-slate-100">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <HomeIcon className="w-10 h-10 text-slate-300" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">لا توجد نتائج</h3>
+            <p className="text-slate-500 max-w-md mx-auto">
+              لم نتمكن من العثور على عقارات تطابق معايير البحث الخاصة بك. 
+              حاول تغيير الفلاتر أو البحث عن منطقة أخرى.
+            </p>
+            <button 
+              onClick={() => {
+                setSearchTerm('')
+                setFilters({ propertyType: '', purpose: '', minPrice: '', maxPrice: '', city: '' })
+              }}
+              className="mt-8 px-8 py-3 bg-slate-800 text-white rounded-xl font-medium hover:bg-slate-700 transition-colors"
+            >
+              مسح جميع الفلاتر
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {properties.map((property, index) => (
+              <motion.div
+                key={property.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="group bg-white rounded-[2rem] overflow-hidden shadow-lg shadow-slate-200/50 hover:shadow-2xl hover:shadow-indigo-500/10 border border-slate-100 transition-all duration-500 hover:-translate-y-2"
+              >
+                {/* Image Container */}
+                <div className="relative h-72 overflow-hidden">
+                  <Link href={`/listings/${property.id}`}>
                     <Image
                       src={property.images[0]?.url || '/images/placeholder.jpg'}
                       alt={property.title}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    
-                    {/* Overlay Gradient for Price */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                    
-                    {/* Status & Type Badges - Top */}
-                    <div className="absolute top-3 right-3 flex flex-wrap gap-2">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-lg ${
-                        property.purpose === 'SALE' 
-                          ? 'bg-green-500/90 text-white' 
-                          : 'bg-blue-500/90 text-white'
-                      }`}>
-                        {getPurposeLabel(property.purpose)}
+                  </Link>
+                  
+                  {/* Badges */}
+                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-lg backdrop-blur-md ${
+                      property.purpose === 'SALE' 
+                        ? 'bg-emerald-500/90' 
+                        : 'bg-blue-500/90'
+                    }`}>
+                      {getPurposeLabel(property.purpose)}
+                    </span>
+                    {property.negotiable && (
+                      <span className="px-4 py-1.5 rounded-full text-xs font-bold text-white bg-amber-500/90 shadow-lg backdrop-blur-md">
+                        قابل للتفاوض
                       </span>
-                      <span className="bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold text-gray-800 shadow-lg">
-                        {getPropertyTypeLabel(property.propertyType)}
-                      </span>
-                      {property.negotiable && (
-                        <span className="bg-gradient-to-r from-amber-500 to-orange-500 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
-                          <span>💰</span>
-                          <span>قابل للتفاوض</span>
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Price - Bottom of Image */}
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <div className="text-2xl font-bold text-white drop-shadow-lg">
-                        {formatPrice(property.price)}
-                      </div>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Content Section */}
-                  <div className="p-4">
-                    {/* Title */}
-                    <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                  <div className="absolute top-4 left-4">
+                    <button className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-all duration-300">
+                      <StarIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Price Tag */}
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl flex items-center justify-between shadow-lg">
+                      <div>
+                        <p className="text-xs text-slate-500 font-medium mb-0.5">السعر</p>
+                        <p className="text-lg font-bold text-indigo-600">
+                          {formatPrice(property.price)}
+                        </p>
+                      </div>
+                      <span className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <TagIcon className="w-5 h-5" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <div className="flex items-center gap-2 text-xs font-medium text-indigo-600 mb-3 bg-indigo-50 w-fit px-3 py-1 rounded-lg">
+                    <HomeIcon className="w-4 h-4" />
+                    {getPropertyTypeLabel(property.propertyType)}
+                  </div>
+
+                  <Link href={`/listings/${property.id}`}>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors">
                       {property.title}
                     </h3>
+                  </Link>
+
+                  <div className="flex items-center text-slate-500 text-sm mb-6">
+                    <MapPinIcon className="w-4 h-4 ml-1 text-slate-400" />
+                    {property.city}، {property.district}
+                  </div>
+
+                  {/* Features */}
+                  <div className="grid grid-cols-3 gap-4 py-4 border-t border-slate-100 mb-6">
+                    <div className="text-center">
+                      <p className="text-slate-400 text-xs mb-1">المساحة</p>
+                      <p className="font-bold text-slate-700">{property.area} م²</p>
+                    </div>
+                    <div className="text-center border-r border-slate-100">
+                      <p className="text-slate-400 text-xs mb-1">غرف</p>
+                      <p className="font-bold text-slate-700">{property.bedrooms}</p>
+                    </div>
+                    <div className="text-center border-r border-slate-100">
+                      <p className="text-slate-400 text-xs mb-1">حمامات</p>
+                      <p className="font-bold text-slate-700">{property.bathrooms}</p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-3">
+                    <Link href={`/listings/${property.id}`} className="flex-1">
+                      <button className="w-full py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2 group/btn">
+                        <span>التفاصيل</span>
+                        <EyeIcon className="w-5 h-5 group-hover/btn:text-indigo-600 transition-colors" />
+                      </button>
+                    </Link>
                     
-                    {/* Location */}
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <MapPinIcon className="h-4 w-4 ml-1 text-blue-500 flex-shrink-0" />
-                      <span className="text-sm truncate">{property.city} - {property.district}</span>
-                    </div>
-
-                    {/* Property Details - Compact */}
-                    <div className="flex items-center gap-3 mb-3 text-sm">
-                      <div className="flex items-center gap-1 text-gray-700">
-                        <HomeIcon className="h-4 w-4 text-blue-500" />
-                        <span className="font-semibold">{property.area}م²</span>
-                      </div>
-                      {property.bedrooms > 0 && (
-                        <div className="flex items-center gap-1 text-gray-700">
-                          <span className="text-base">🛏️</span>
-                          <span className="font-semibold">{property.bedrooms}</span>
-                        </div>
-                      )}
-                      {property.bathrooms > 0 && (
-                        <div className="flex items-center gap-1 text-gray-700">
-                          <span className="text-base">🚿</span>
-                          <span className="font-semibold">{property.bathrooms}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Action Buttons - Compact */}
-                    <div className="flex items-center gap-2">
-                      <Link href={`/listings/${property.id}`} className="flex-1">
-                        <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-2.5 px-3 rounded-lg font-bold text-sm shadow-lg transition-all duration-300 flex items-center justify-center gap-1.5">
-                          <EyeIcon className="w-4 h-4" />
-                          التفاصيل
-                        </button>
-                      </Link>
-                      
+                    <div className="flex gap-2">
                       <button 
                         onClick={() => handleContact('phone', property)}
-                        disabled={contactingProperty === property.id}
-                        className={`p-2.5 rounded-lg transition-all duration-300 ${
-                          contactingProperty === property.id
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-green-500 hover:bg-green-600 shadow-lg'
-                        }`}
-                        title="اتصل الآن"
+                        className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-sm hover:shadow-emerald-500/30"
                       >
-                        <PhoneIcon className="h-5 w-5 text-white" />
+                        <PhoneIcon className="w-5 h-5" />
                       </button>
-                      
                       <button 
                         onClick={() => handleContact('message', property)}
-                        disabled={contactingProperty === property.id}
-                        className={`p-2.5 rounded-lg transition-all duration-300 ${
-                          contactingProperty === property.id
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-emerald-500 hover:bg-emerald-600 shadow-lg'
-                        }`}
-                        title="واتساب"
+                        className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm hover:shadow-blue-500/30"
                       >
-                        <ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
+                        <ChatBubbleLeftRightIcon className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-
-          {/* Loading indicator for pagination */}
-          {loading && !initialLoad && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center py-8"
-            >
-              <div className="flex items-center space-x-2 space-x-reverse bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-100 border-t-blue-600"></div>
-                <span className="text-sm text-gray-600">جاري التحديث...</span>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Pagination - Enhanced */}
-          {totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="flex justify-center items-center mt-16"
-            >
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/20 flex items-center space-x-2 space-x-reverse">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-50 transition-all duration-300 text-gray-700 font-medium disabled:hover:bg-transparent"
-                >
-                  السابق
-                </button>
-                
-                <div className="flex items-center space-x-1 space-x-reverse mx-2">
-                  {[...Array(Math.min(totalPages, 5))].map((_, index) => {
-                    let pageNumber;
-                    if (totalPages <= 5) {
-                      pageNumber = index + 1;
-                    } else if (currentPage <= 3) {
-                      pageNumber = index + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNumber = totalPages - 4 + index;
-                    } else {
-                      pageNumber = currentPage - 2 + index;
-                    }
-                    
-                    return (
-                      <button
-                        key={pageNumber}
-                        onClick={() => setCurrentPage(pageNumber)}
-                        className={`w-10 h-10 rounded-xl transition-all duration-300 font-medium ${
-                          currentPage === pageNumber
-                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40'
-                            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    );
-                  })}
                 </div>
-                
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-50 transition-all duration-300 text-gray-700 font-medium disabled:hover:bg-transparent"
-                >
-                  التالي
-                </button>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-16 flex justify-center">
+            <div className="bg-white p-2 rounded-2xl shadow-lg border border-slate-100 flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-transparent transition-colors font-medium"
+              >
+                السابق
+              </button>
+              
+              <div className="flex items-center gap-1 px-2 border-x border-slate-100">
+                {[...Array(Math.min(totalPages, 5))].map((_, index) => {
+                  const pageNumber = index + 1; // Simplified for demo
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`w-10 h-10 rounded-xl font-bold transition-all ${
+                        currentPage === pageNumber
+                          ? `bg-gradient-to-r ${colors.primary} text-white shadow-lg shadow-indigo-500/30`
+                          : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                })}
               </div>
-            </motion.div>
-          )}
-        </div>
-      </section>
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-transparent transition-colors font-medium"
+              >
+                التالي
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
