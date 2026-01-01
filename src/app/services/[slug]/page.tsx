@@ -106,6 +106,7 @@ export default function ServicePage() {
   const slug = params.slug as string
 
   const [service, setService] = useState<any | null>(null)
+  const [otherServices, setOtherServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -123,6 +124,15 @@ export default function ServicePage() {
         if (response.ok) {
           const data = await response.json()
           setService(data.service)
+          
+          // Fetch other services
+          const allServicesResponse = await fetch('/api/services')
+          if (allServicesResponse.ok) {
+            const allServicesData = await allServicesResponse.json()
+            // Filter out the current service
+            const filtered = allServicesData.services.filter((s: any) => s.slug !== slug).slice(0, 3)
+            setOtherServices(filtered)
+          }
         } else {
           // Handle not found or error
           console.error('Service not found')
@@ -592,6 +602,69 @@ export default function ServicePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Other Services Section */}
+      {!loading && otherServices.length > 0 && (
+        <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">خدمات أخرى قد تهمك</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">استكشف المزيد من خدماتنا المتميزة</p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {otherServices.map((otherService, index) => {
+                const Icon = iconMap[otherService.icon] || BuildingOfficeIcon
+                const colors = colorMap[otherService.color] || colorMap.blue
+                
+                return (
+                  <motion.div
+                    key={otherService.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="group"
+                  >
+                    <Link href={`/services/${otherService.slug}`}>
+                      <div className={`relative h-full bg-white rounded-2xl border ${colors.border} p-8 hover:shadow-2xl ${colors.shadow} transition-all duration-300 hover:-translate-y-2`}>
+                        {/* Icon */}
+                        <div className={`w-16 h-16 ${colors.lightBg} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className={`w-8 h-8 ${colors.text}`} />
+                        </div>
+                        
+                        {/* Content */}
+                        <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:${colors.text} transition-colors">
+                          {otherService.title}
+                        </h3>
+                        <p className="text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                          {otherService.description}
+                        </p>
+                        
+                        {/* CTA */}
+                        <div className={`flex items-center gap-2 ${colors.text} font-semibold group-hover:gap-4 transition-all`}>
+                          <span>تفاصيل أكثر</span>
+                          <ArrowRightIcon className="w-5 h-5" />
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                )
+              })}
+            </div>
+            
+            <div className="text-center mt-12">
+              <Link 
+                href="/services"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-gray-800 transition-all hover:scale-105"
+              >
+                <span>عرض جميع الخدمات</span>
+                <ArrowRightIcon className="w-5 h-5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
     </div>
   )
