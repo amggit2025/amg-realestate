@@ -4,23 +4,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserActivities, getActivityStats } from '@/lib/activity-logger'
 import { verifyToken } from '@/lib/auth'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 // GET: جلب أنشطة المستخدم
 export async function GET(request: NextRequest) {
   try {
-    // التحقق من المصادقة
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
-      return NextResponse.json(
-        { success: false, message: 'غير مصرح - تسجيل الدخول مطلوب' },
-        { status: 401 }
-      )
+    let userId: string | null = null
+
+    // أولاً: فحص NextAuth session
+    const session = await getServerSession(authOptions)
+    if (session?.user?.id) {
+      userId = session.user.id as string
     }
 
-    const decoded = verifyToken(token)
-    if (!decoded || !decoded.userId) {
+    // ثانياً: فحص JWT token العادي
+    if (!userId) {
+      const token = request.cookies.get('auth-token')?.value
+      if (token) {
+        const decoded = verifyToken(token)
+        if (decoded?.userId) {
+          userId = decoded.userId
+        }
+      }
+    }
+
+    if (!userId) {
       return NextResponse.json(
-        { success: false, message: 'رمز غير صحيح' },
+        { success: false, message: 'غير مصرح - تسجيل الدخول مطلوب' },
         { status: 401 }
       )
     }
@@ -30,10 +41,10 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
     const includeStats = searchParams.get('stats') === 'true'
 
-    console.log(`🔍 Fetching activities for user ${decoded.userId}`)
+    console.log(`🔍 Fetching activities for user ${userId}`)
 
     // جلب الأنشطة
-    const activities = await getUserActivities(decoded.userId, limit, offset)
+    const activities = await getUserActivities(userId, limit, offset)
 
     // تحضير البيانات للعرض
     const formattedActivities = activities.map((activity: any) => ({
@@ -51,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     let stats = null
     if (includeStats) {
-      stats = await getActivityStats(decoded.userId)
+      stats = await getActivityStats(userId)
     }
 
     console.log(`✅ Retrieved ${activities.length} activities`)
