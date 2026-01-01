@@ -2,11 +2,10 @@
 
 export const dynamic = 'force-dynamic'
 
-import { logger } from '@/lib/logger'
-
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import NextImage from 'next/image'
+import Image from 'next/image'
+import Link from 'next/link'
 import { 
   WrenchScrewdriverIcon,
   PaintBrushIcon,
@@ -20,10 +19,12 @@ import {
   ClockIcon,
   BuildingOffice2Icon,
   MegaphoneIcon,
-  HomeIcon
+  HomeIcon,
+  SparklesIcon,
+  ShieldCheckIcon,
+  TrophyIcon,
+  ArrowDownIcon
 } from '@heroicons/react/24/outline'
-import Link from 'next/link'
-import SEOHead from '@/components/SEOHead'
 
 // Icon mapping
 const iconMap: { [key: string]: any } = {
@@ -36,49 +37,55 @@ const iconMap: { [key: string]: any } = {
   HomeIcon
 }
 
-// Color mapping
-const colorMap: { [key: string]: { gradient: string, bg: string, icon: string, button: string } } = {
+// Color mapping with enhanced gradients for "Genius" look
+const colorMap: { [key: string]: { gradient: string, bg: string, text: string, border: string, shadow: string, glow: string } } = {
   blue: {
-    gradient: 'from-blue-500 to-cyan-500',
-    bg: 'bg-blue-50',
-    icon: 'text-blue-600',
-    button: 'bg-blue-600 hover:bg-blue-700'
+    gradient: 'from-blue-600 to-cyan-500',
+    bg: 'bg-blue-50/50',
+    text: 'text-blue-600',
+    border: 'border-blue-200/50',
+    shadow: 'shadow-blue-500/10',
+    glow: 'group-hover:shadow-blue-500/30'
   },
   orange: {
     gradient: 'from-orange-500 to-red-500',
-    bg: 'bg-orange-50',
-    icon: 'text-orange-600',
-    button: 'bg-orange-600 hover:bg-orange-700'
+    bg: 'bg-orange-50/50',
+    text: 'text-orange-600',
+    border: 'border-orange-200/50',
+    shadow: 'shadow-orange-500/10',
+    glow: 'group-hover:shadow-orange-500/30'
   },
   purple: {
-    gradient: 'from-purple-500 to-indigo-500',
-    bg: 'bg-purple-50',
-    icon: 'text-purple-600',
-    button: 'bg-purple-600 hover:bg-purple-700'
+    gradient: 'from-purple-600 to-indigo-500',
+    bg: 'bg-purple-50/50',
+    text: 'text-purple-600',
+    border: 'border-purple-200/50',
+    shadow: 'shadow-purple-500/10',
+    glow: 'group-hover:shadow-purple-500/30'
   },
   green: {
-    gradient: 'from-green-500 to-emerald-500',
-    bg: 'bg-green-50',
-    icon: 'text-green-600',
-    button: 'bg-green-600 hover:bg-green-700'
-  },
-  gray: {
-    gradient: 'from-gray-500 to-slate-500',
-    bg: 'bg-gray-50',
-    icon: 'text-gray-600',
-    button: 'bg-gray-600 hover:bg-gray-700'
-  },
-  amber: {
-    gradient: 'from-amber-500 to-yellow-500',
-    bg: 'bg-amber-50',
-    icon: 'text-amber-600',
-    button: 'bg-amber-600 hover:bg-amber-700'
+    gradient: 'from-emerald-500 to-teal-500',
+    bg: 'bg-emerald-50/50',
+    text: 'text-emerald-600',
+    border: 'border-emerald-200/50',
+    shadow: 'shadow-emerald-500/10',
+    glow: 'group-hover:shadow-emerald-500/30'
   },
   red: {
-    gradient: 'from-red-500 to-rose-500',
-    bg: 'bg-red-50',
-    icon: 'text-red-600',
-    button: 'bg-red-600 hover:bg-red-700'
+    gradient: 'from-rose-500 to-pink-600',
+    bg: 'bg-rose-50/50',
+    text: 'text-rose-600',
+    border: 'border-rose-200/50',
+    shadow: 'shadow-rose-500/10',
+    glow: 'group-hover:shadow-rose-500/30'
+  },
+  gray: {
+    gradient: 'from-slate-600 to-gray-500',
+    bg: 'bg-slate-50/50',
+    text: 'text-slate-600',
+    border: 'border-slate-200/50',
+    shadow: 'shadow-slate-500/10',
+    glow: 'group-hover:shadow-slate-500/30'
   }
 }
 
@@ -95,7 +102,7 @@ export default function ServicesPage() {
           setServices(data.services || [])
         }
       } catch (error) {
-        logger.error('Error fetching services:', error)
+        console.error('Error fetching services:', error)
       } finally {
         setLoading(false)
       }
@@ -103,328 +110,290 @@ export default function ServicesPage() {
     fetchServices()
   }, [])
 
-  // إحصائيات الشركة
-  const companyStats = [
-    { number: '15+', label: 'سنة خبرة', icon: ClockIcon },
-    { number: '500+', label: 'عميل راضي', icon: UserGroupIcon },
-    { number: '200+', label: 'مشروع منجز', icon: BuildingOfficeIcon },
-    { number: '4.9', label: 'تقييم العملاء', icon: StarIcon }
-  ]
-
   return (
-    <>
-      <SEOHead 
-        title="خدماتنا - مجموعة أحمد الملاح"
-        description="تعرف على خدماتنا المتخصصة في الإنشاءات والتشطيبات والأثاث والتسويق العقاري"
-      />
+    <div className="min-h-screen bg-gray-50 selection:bg-primary-500 selection:text-white overflow-x-hidden">
       
-      <div className="min-h-screen bg-gray-50 pt-20">
-        {/* Hero Section */}
-        <section className="relative">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl mt-8 overflow-hidden">
-              <div className="relative">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <NextImage
-                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=2000&q=80"
-                    alt="خدماتنا المتخصصة"
-                    fill
-                    sizes="100vw"
-                    className="object-cover"
-                    quality={60}
-                  />
-                </div>
-                
-                {/* Content */}
-                <div className="relative z-10 px-8 py-16 text-center text-white">
-                  <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                  >
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
-                      className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-4 py-2 mb-6"
-                    >
-                      <StarIcon className="w-4 h-4 text-yellow-300" />
-                      <span className="text-sm font-medium">خدمات متميزة منذ 2009</span>
-                    </motion.div>
-                    
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                      خدماتنا المتخصصة
-                    </h1>
-                    
-                    <p className="text-lg text-green-100 max-w-2xl mx-auto mb-8 leading-relaxed">
-                      نقدم حلول عقارية متكاملة بخبرة تزيد عن 15 عاماً
-                    </p>
-                    
-                    {/* Service Categories */}
-                    <div className="flex flex-wrap justify-center gap-3 mt-8">
-                      <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
-                        <span className="text-sm font-medium">إنشاءات</span>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
-                        <span className="text-sm font-medium">تشطيبات</span>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
-                        <span className="text-sm font-medium">أثاث</span>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
-                        <span className="text-sm font-medium">تسويق عقاري</span>
-                      </div>
-                      <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
-                        <span className="text-sm font-medium">مصانع</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* Background Mesh Gradient */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-400/20 blur-[100px] animate-pulse delay-1000" />
+      </div>
 
-        {/* Stats Section */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {companyStats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  className="text-center group motion-safe"
-                  style={{ transform: 'translateZ(0)' }}
-                >
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                    <stat.icon className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-600 text-sm">{stat.label}</div>
-                </motion.div>
-              ))}
+      {/* Hero Section - Immersive */}
+      <div className="relative h-[60vh] min-h-[500px] bg-gray-900 overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop"
+            alt="Services Hero"
+            fill
+            className="object-cover opacity-60 scale-105 animate-slow-zoom"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 via-gray-900/60 to-gray-50" />
+        </div>
+        
+        <div className="relative z-10 container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
+              <SparklesIcon className="w-4 h-4 text-yellow-400" />
+              <span className="text-white/90 text-sm font-medium tracking-wide">نبتكر لأجلك</span>
             </div>
-          </div>
-        </section>
+            
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 font-heading leading-tight tracking-tight">
+              خدمات عقارية <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient-x">
+                بمعايير عالمية
+              </span>
+            </h1>
+            
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed font-light mb-12">
+              نجمع بين الخبرة العريقة والحلول المبتكرة لنقدم لك تجربة استثنائية تفوق التوقعات.
+            </p>
 
-        {/* Services Grid */}
-        <section id="services" className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4 max-w-6xl">
-            {/* Section Header */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              viewport={{ once: true, amount: 0.2 }}
-              className="text-center mb-12 motion-safe"
-              style={{ transform: 'translateZ(0)' }}
+            <motion.div 
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute bottom-[-80px] left-1/2 -translate-x-1/2 text-white/50"
             >
-              <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
-                <BuildingOfficeIcon className="w-4 h-4" />
-                خدماتنا المتميزة
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                نبني أحلامكم بـ
-                <span className="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent"> الاحترافية</span>
-              </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                كل خدمة نقدمها هي التزام منا بالجودة والتميز والابتكار في عالم البناء والتطوير
-              </p>
+              <ArrowDownIcon className="w-6 h-6" />
             </motion.div>
+          </motion.div>
+        </div>
+      </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {loading ? (
-                <div className="col-span-full text-center py-12 text-gray-500">
-                  جاري التحميل...
-                </div>
-              ) : services.length === 0 ? (
-                <div className="col-span-full text-center py-12 text-gray-500">
-                  لا توجد خدمات متاحة حالياً
-                </div>
-              ) : (
-                services.map((service, index) => {
-                  const IconComponent = iconMap[service.iconName] || BuildingOfficeIcon
-                  const colors = colorMap[service.color] || colorMap.blue
-                  const serviceFeatures = Array.isArray(service.features) ? service.features : []
-                  const firstStat = Array.isArray(service.stats) && service.stats.length > 0 
-                    ? `${service.stats[0].number} ${service.stats[0].label}` 
-                    : ''
+      {/* Services Grid - The "Genius" Layout */}
+      <div className="container mx-auto px-4 py-24 relative z-10 -mt-20">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center min-h-[400px] bg-white/50 backdrop-blur-xl rounded-3xl border border-white/20 shadow-xl">
+            <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-6"></div>
+            <p className="text-gray-600 font-medium text-lg">جاري تجهيز الخدمات...</p>
+          </div>
+        ) : (
+          <>
+            {/* First Row - 3 Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+              {services.slice(0, 3).map((service, index) => {
+                const Icon = iconMap[service.iconName] || BuildingOfficeIcon
+                const colors = colorMap[service.color] || colorMap.blue
 
-                  return (
-                    <motion.div
-                      key={service.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-                      viewport={{ once: true, amount: 0.2 }}
-                      className="group relative motion-safe"
-                      style={{ transform: 'translateZ(0)' }}
-                    >
-                      <div className="relative bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
-                        
-                        {/* Service Image */}
-                        <div className="relative h-48 w-full overflow-hidden bg-gray-100">
-                          {(service.cardImage || service.heroImage) ? (
-                            <NextImage
-                              src={service.cardImage || service.heroImage}
-                              alt={service.title}
-                              fill
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              quality={75}
-                            />
-                          ) : (
-                            <div className={`w-full h-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center`}>
-                              <IconComponent className="w-20 h-20 text-white opacity-20" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                          
-                          {/* Service Icon */}
-                          <div className="absolute top-4 left-4">
-                            <div className={`w-10 h-10 bg-gradient-to-br ${colors.gradient} rounded-lg flex items-center justify-center shadow-lg`}>
-                              <IconComponent className="w-5 h-5 text-white" />
-                            </div>
-                          </div>
-                          
-                          {/* Stats Badge */}
-                          <div className="absolute top-4 right-4">
-                            <div className="bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1">
-                              <span className="text-xs font-bold text-gray-800">{firstStat}</span>
-                            </div>
-                          </div>
-                          
-                          {/* Overlay Content */}
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="text-lg font-bold text-white drop-shadow-lg">
+                return (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.6, delay: index * 0.15 }}
+                    whileHover={{ y: -10 }}
+                    className={`group relative bg-white rounded-[2rem] shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 flex flex-col h-full ${colors.glow}`}
+                  >
+                    {/* Image Section with Overlay */}
+                    <div className="relative h-64 overflow-hidden">
+                      <Image
+                        src={service.heroImage || '/images/placeholder.jpg'}
+                        alt={service.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-500" />
+                      
+                      {/* Floating Icon Badge */}
+                      <div className={`absolute top-6 right-6 ${colors.bg} backdrop-blur-md p-4 rounded-2xl shadow-lg border ${colors.border} group-hover:scale-110 transition-transform duration-300`}>
+                        <Icon className={`w-8 h-8 ${colors.text}`} />
+                      </div>
+
+                      {/* Title Overlay on Image */}
+                      <div className="absolute bottom-0 left-0 right-0 p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-md">
                           {service.title}
                         </h3>
+                        <div className={`h-1 w-12 bg-gradient-to-r ${colors.gradient} rounded-full group-hover:w-24 transition-all duration-500`} />
                       </div>
                     </div>
 
-                    {/* Service Content */}
-                    <div className="p-6">
-                      <p className="text-gray-600 mb-4 leading-relaxed text-sm">
+                    {/* Content Section */}
+                    <div className="p-8 flex-1 flex flex-col bg-white relative z-10">
+                      <p className="text-gray-600 text-base mb-8 leading-relaxed line-clamp-3 flex-1 font-light">
                         {service.description}
                       </p>
 
-                      {/* Features Grid */}
-                      <div className="grid grid-cols-1 gap-2 mb-6">
-                        {serviceFeatures.slice(0, 3).map((feature: any, featureIndex: number) => (
-                          <div
-                            key={featureIndex}
-                            className="flex items-center gap-2 p-1"
-                          >
-                            <div className={`w-5 h-5 ${colors.bg} rounded-full flex items-center justify-center flex-shrink-0`}>
-                              <CheckCircleIcon className={`w-3 h-3 ${colors.icon}`} />
-                            </div>
-                            <span className="text-gray-700 text-xs">{feature.title || feature}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Action Button */}
-                      <Link
+                      {/* Action Button - Modern & Sleek */}
+                      <Link 
                         href={`/services/${service.slug}`}
-                        className={`block text-center ${colors.button} text-white px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-sm hover:scale-105`}
+                        className={`group/btn relative w-full inline-flex items-center justify-center px-6 py-4 bg-gray-50 text-gray-900 font-bold rounded-xl overflow-hidden transition-all duration-300 hover:text-white shadow-sm hover:shadow-lg border border-gray-100`}
                       >
-                        اطلب الخدمة الآن
+                        <span className={`absolute inset-0 w-full h-full bg-gradient-to-r ${colors.gradient} opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 ease-out`} />
+                        <span className="relative flex items-center gap-2">
+                          <span>اكتشف المزيد</span>
+                          <ArrowRightIcon className="w-5 h-5 group-hover/btn:-translate-x-1 transition-transform" />
+                        </span>
                       </Link>
                     </div>
-                  </div>
-                </motion.div>
-                  )
-                })
-              )}
+                  </motion.div>
+                )
+              })}
             </div>
-          </div>
-        </section>
 
-        {/* CTA Section */}
-        <section className="px-4 md:px-8 lg:px-16 py-8">
-          <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl overflow-hidden">
-            <div className="relative">
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <NextImage
-                  src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2000&q=80"
-                  alt="تواصل معنا"
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                  quality={60}
-                />
-              </div>
-              
-              <div className="relative z-10 px-8 py-12 text-center text-white">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  className="motion-safe"
-                  style={{ transform: 'translateZ(0)' }}
-                >
-                  <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-4 py-2 mb-6">
-                    <PhoneIcon className="w-4 h-4 text-green-200" />
-                    <span className="text-sm font-medium">نحن في انتظار مكالمتك</span>
-                  </div>
-                  
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                    مستعدون لتحويل أحلامكم لحقيقة؟
-                  </h2>
-                  
-                  <p className="text-green-100 max-w-2xl mx-auto mb-8 text-lg leading-relaxed">
-                    اتصلوا بنا اليوم واحصلوا على استشارة مجانية مع خبرائنا في العقارات والإنشاءات
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto mb-8">
-                    <Link
-                      href="/contact"
-                      className="w-full sm:w-auto bg-white text-green-600 hover:bg-green-50 px-8 py-3 rounded-lg font-bold transition-all duration-300 hover:scale-105"
-                    >
-                      احجز استشارة مجانية
-                    </Link>
-                    
-                    <a
-                      href="tel:+201000025080"
-                      className="w-full sm:w-auto bg-green-800 hover:bg-green-900 text-white px-8 py-3 rounded-lg font-bold transition-all duration-300 hover:scale-105"
-                    >
-                      01000025080
-                    </a>
-                  </div>
-                  
-                  {/* Trust Indicators */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center max-w-2xl mx-auto">
-                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-white mb-1">24/7</div>
-                      <div className="text-green-200 text-xs">خدمة العملاء</div>
+            {/* Second Row - 2 Cards Centered */}
+            <div className="flex flex-col md:flex-row justify-center gap-8">
+              {services.slice(3, 5).map((service, index) => {
+                const Icon = iconMap[service.iconName] || BuildingOfficeIcon
+                const colors = colorMap[service.color] || colorMap.blue
+
+                return (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.6, delay: (index + 3) * 0.15 }}
+                    whileHover={{ y: -10 }}
+                    className={`group relative bg-white rounded-[2rem] shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 flex flex-col h-full w-full md:max-w-md ${colors.glow}`}
+                  >
+                    {/* Image Section */}
+                    <div className="relative h-64 overflow-hidden">
+                      <Image
+                        src={service.heroImage || '/images/placeholder.jpg'}
+                        alt={service.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-500" />
+                      
+                      <div className={`absolute top-6 right-6 ${colors.bg} backdrop-blur-md p-4 rounded-2xl shadow-lg border ${colors.border} group-hover:scale-110 transition-transform duration-300`}>
+                        <Icon className={`w-8 h-8 ${colors.text}`} />
+                      </div>
+
+                      <div className="absolute bottom-0 left-0 right-0 p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-md">
+                          {service.title}
+                        </h3>
+                        <div className={`h-1 w-12 bg-gradient-to-r ${colors.gradient} rounded-full group-hover:w-24 transition-all duration-500`} />
+                      </div>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-white mb-1">100%</div>
-                      <div className="text-green-200 text-xs">ضمان الجودة</div>
+
+                    <div className="p-8 flex-1 flex flex-col bg-white relative z-10">
+                      <p className="text-gray-600 text-base mb-8 leading-relaxed line-clamp-3 flex-1 font-light">
+                        {service.description}
+                      </p>
+
+                      <Link 
+                        href={`/services/${service.slug}`}
+                        className={`group/btn relative w-full inline-flex items-center justify-center px-6 py-4 bg-gray-50 text-gray-900 font-bold rounded-xl overflow-hidden transition-all duration-300 hover:text-white shadow-sm hover:shadow-lg border border-gray-100`}
+                      >
+                        <span className={`absolute inset-0 w-full h-full bg-gradient-to-r ${colors.gradient} opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 ease-out`} />
+                        <span className="relative flex items-center gap-2">
+                          <span>اكتشف المزيد</span>
+                          <ArrowRightIcon className="w-5 h-5 group-hover/btn:-translate-x-1 transition-transform" />
+                        </span>
+                      </Link>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-white mb-1">15+</div>
-                      <div className="text-green-200 text-xs">سنة خبرة</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-white mb-1">4.9★</div>
-                      <div className="text-green-200 text-xs">تقييم العملاء</div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Why Choose Us - Bento Grid Style */}
+      <div className="py-24 bg-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+        
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <span className="text-primary-600 font-bold tracking-wider uppercase text-sm mb-4 block">لماذا نحن؟</span>
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">التميز هو معيارنا الوحيد</h2>
+            <p className="text-gray-500 text-lg font-light">نلتزم بتقديم تجربة استثنائية تجمع بين الجودة والاحترافية في كل خطوة.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: TrophyIcon,
+                title: 'خبرة وريادة',
+                desc: 'سنوات من التميز في السوق العقاري المصري، نقدم خلالها حلولاً مبتكرة.',
+                bg: 'bg-blue-50',
+                text: 'text-blue-600'
+              },
+              {
+                icon: UserGroupIcon,
+                title: 'فريق متخصص',
+                desc: 'نخبة من الخبراء والاستشاريين لضمان أفضل النتائج لمشروعك.',
+                bg: 'bg-purple-50',
+                text: 'text-purple-600'
+              },
+              {
+                icon: ShieldCheckIcon,
+                title: 'موطوقية وأمان',
+                desc: 'نلتزم بأعلى معايير الشفافية والمصداقية في جميع تعاملاتنا.',
+                bg: 'bg-emerald-50',
+                text: 'text-emerald-600'
+              }
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.2 }}
+                whileHover={{ y: -5 }}
+                className="relative p-10 rounded-[2.5rem] bg-gray-50 hover:bg-white hover:shadow-2xl transition-all duration-500 border border-gray-100 group overflow-hidden"
+              >
+                <div className={`absolute top-0 right-0 w-32 h-32 ${feature.bg} rounded-bl-[100px] -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out`} />
+                
+                <div className={`relative w-16 h-16 ${feature.bg} ${feature.text} rounded-2xl flex items-center justify-center mb-8 group-hover:rotate-6 transition-transform duration-300 shadow-sm`}>
+                  <feature.icon className="w-8 h-8" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed font-light">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section - Modern Glass */}
+      <div className="container mx-auto px-4 py-24">
+        <div className="relative rounded-[3rem] overflow-hidden p-12 md:p-24 text-center">
+          <Image
+            src="https://images.unsplash.com/photo-1486325212027-8081e485255e?q=80&w=2070&auto=format&fit=crop"
+            alt="CTA Background"
+            fill
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm" />
+          
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">
+              هل أنت مستعد لبدء <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">رحلة النجاح؟</span>
+            </h2>
+            <p className="text-xl text-gray-300 mb-12 font-light">
+              فريقنا جاهز للرد على استفساراتك وتقديم الاستشارة المناسبة لاحتياجاتك.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link
+                href="/contact"
+                className="px-10 py-4 bg-white text-gray-900 rounded-2xl font-bold hover:bg-gray-100 transition-all hover:scale-105 shadow-lg hover:shadow-white/20"
+              >
+                تواصل معنا الآن
+              </Link>
+              <Link
+                href="/projects"
+                className="px-10 py-4 bg-transparent border border-white/30 text-white rounded-2xl font-bold hover:bg-white/10 transition-all hover:scale-105 backdrop-blur-md"
+              >
+                تصفح المشاريع
+              </Link>
             </div>
           </div>
-        </section>
+        </div>
       </div>
-    </>
+    </div>
   )
 }
