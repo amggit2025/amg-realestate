@@ -47,25 +47,23 @@ export default function GoogleMap({ className = "" }: GoogleMapProps) {
         const loader = new Loader({
           apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
           version: 'weekly',
-          libraries: ['places', 'marker']
         });
 
-        const google = await loader.load();
+        // Load the maps library
+        const mapsLib = await loader.importLibrary('maps');
+        const markerLib = await loader.importLibrary('marker');
         
         if (!mapRef.current) return;
 
+        // Type assertions
+        const MapClass = mapsLib.Map;
+        const InfoWindowClass = mapsLib.InfoWindow;
+
         // إنشاء الخريطة
-        const map = new google.maps.Map(mapRef.current, {
-          center: { lat: 30.65, lng: 31.8 }, // نقطة وسط
+        const map = new MapClass(mapRef.current, {
+          center: { lat: 30.65, lng: 31.8 },
           zoom: 8,
-          mapId: 'AMG_REALESTATE_MAP', // مهم للـ Advanced Markers
-          styles: [
-            {
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [{ visibility: 'on' }]
-            }
-          ],
+          mapId: 'AMG_REALESTATE_MAP',
           zoomControl: true,
           mapTypeControl: false,
           streetViewControl: true,
@@ -74,64 +72,51 @@ export default function GoogleMap({ className = "" }: GoogleMapProps) {
 
         // إضافة علامات لكل موقع
         locations.forEach((location) => {
-          // إنشاء محتوى العلامة المخصصة
-          const markerContent = document.createElement('div');
-          markerContent.style.width = location.isMain ? '40px' : '32px';
-          markerContent.style.height = location.isMain ? '40px' : '32px';
-          markerContent.style.background = location.isMain ? '#EF4444' : '#3B82F6';
-          markerContent.style.border = '4px solid white';
-          markerContent.style.borderRadius = '50% 50% 50% 0';
-          markerContent.style.transform = 'rotate(-45deg)';
-          markerContent.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-          markerContent.style.display = 'flex';
-          markerContent.style.alignItems = 'center';
-          markerContent.style.justifyContent = 'center';
-          markerContent.style.cursor = 'pointer';
-          markerContent.innerHTML = `<div style="width: 12px; height: 12px; background: white; border-radius: 50%; transform: rotate(45deg);"></div>`;
+          // إنشاء SVG icon
+          const iconSize = location.isMain ? 40 : 32;
+          const iconColor = location.isMain ? '#EF4444' : '#3B82F6';
+          
+          const svgIcon = `
+            <svg width="${iconSize}" height="${iconSize}" viewBox="0 0 ${iconSize} ${iconSize}" xmlns="http://www.w3.org/2000/svg">
+              <path d="M ${iconSize/2} 2 
+                       C ${iconSize*0.25} 2, 2 ${iconSize*0.25}, 2 ${iconSize*0.5}
+                       C 2 ${iconSize*0.7}, ${iconSize*0.25} ${iconSize*0.9}, ${iconSize/2} ${iconSize-2}
+                       C ${iconSize*0.75} ${iconSize*0.9}, ${iconSize-2} ${iconSize*0.7}, ${iconSize-2} ${iconSize*0.5}
+                       C ${iconSize-2} ${iconSize*0.25}, ${iconSize*0.75} 2, ${iconSize/2} 2 Z" 
+                    fill="${iconColor}" 
+                    stroke="white" 
+                    stroke-width="3"/>
+              <circle cx="${iconSize/2}" cy="${iconSize*0.45}" r="${iconSize*0.15}" fill="white"/>
+            </svg>
+          `;
 
-          // إنشاء العلامة
-          const marker = new google.maps.Marker({
+          // استخدام Advanced Marker Element
+          const markerElement = document.createElement('div');
+          markerElement.innerHTML = svgIcon;
+          markerElement.style.cursor = 'pointer';
+          markerElement.style.transition = 'transform 0.2s ease';
+          
+          // Hover effect
+          markerElement.addEventListener('mouseenter', () => {
+            markerElement.style.transform = 'scale(1.2)';
+          });
+          markerElement.addEventListener('mouseleave', () => {
+            markerElement.style.transform = 'scale(1)';
+          });
+
+          // إنشاء Advanced Marker
+          const AdvancedMarkerElement = (markerLib as any).AdvancedMarkerElement;
+          
+          const marker = new AdvancedMarkerElement({
             position: { lat: location.lat, lng: location.lng },
             map: map,
             title: location.name,
-            icon: {
-              url: `data:image/svg+xml,${encodeURIComponent(`
-                <svg width="${location.isMain ? 40 : 32}" height="${location.isMain ? 40 : 32}" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-                      <feOffset dx="0" dy="2" result="offsetblur"/>
-                      <feComponentTransfer>
-                        <feFuncA type="linear" slope="0.3"/>
-                      </feComponentTransfer>
-                      <feMerge>
-                        <feMergeNode/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                  </defs>
-                  <g filter="url(#shadow)">
-                    <path d="M ${location.isMain ? 20 : 16} 0 
-                             C ${location.isMain ? 8 : 7} 0, 0 ${location.isMain ? 8 : 7}, 0 ${location.isMain ? 20 : 16}
-                             C 0 ${location.isMain ? 28 : 22}, ${location.isMain ? 8 : 7} ${location.isMain ? 36 : 28}, ${location.isMain ? 20 : 16} ${location.isMain ? 40 : 32}
-                             C ${location.isMain ? 32 : 25} ${location.isMain ? 36 : 28}, ${location.isMain ? 40 : 32} ${location.isMain ? 28 : 22}, ${location.isMain ? 40 : 32} ${location.isMain ? 20 : 16}
-                             C ${location.isMain ? 40 : 32} ${location.isMain ? 8 : 7}, ${location.isMain ? 32 : 25} 0, ${location.isMain ? 20 : 16} 0 Z" 
-                          fill="${location.isMain ? '#EF4444' : '#3B82F6'}" 
-                          stroke="white" 
-                          stroke-width="4"/>
-                    <circle cx="${location.isMain ? 20 : 16}" cy="${location.isMain ? 18 : 14}" r="6" fill="white"/>
-                  </g>
-                </svg>
-              `)}`,
-              scaledSize: new google.maps.Size(location.isMain ? 40 : 32, location.isMain ? 40 : 32),
-              anchor: new google.maps.Point(location.isMain ? 20 : 16, location.isMain ? 40 : 32),
-            },
-            animation: google.maps.Animation.DROP,
+            content: markerElement,
           });
 
           // محتوى InfoWindow
           const infoWindowContent = `
-            <div style="padding: 16px; min-width: 280px; font-family: 'Cairo', sans-serif;">
+            <div style="padding: 16px; min-width: 280px; font-family: 'Cairo', sans-serif; direction: rtl;">
               ${location.isMain ? `
                 <div style="display: inline-block; background: linear-gradient(135deg, #EF4444, #F97316); 
                             color: white; font-size: 11px; font-weight: bold; padding: 4px 12px; 
@@ -171,26 +156,23 @@ export default function GoogleMap({ className = "" }: GoogleMapProps) {
                  style="display: block; width: 100%; background: linear-gradient(135deg, #2563EB, #1E40AF); 
                         color: white; text-align: center; padding: 10px; border-radius: 8px; 
                         text-decoration: none; font-weight: 600; font-size: 13px; 
-                        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3); transition: all 0.2s;">
+                        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);">
                 🧭 احصل على الاتجاهات
               </a>
             </div>
           `;
 
-          const infoWindow = new google.maps.InfoWindow({
+          const infoWindow = new InfoWindowClass({
             content: infoWindowContent,
             maxWidth: 320,
           });
 
           // عرض InfoWindow عند الضغط
           marker.addListener('click', () => {
-            infoWindow.open(map, marker);
-          });
-
-          // تأثير hover
-          marker.addListener('mouseover', () => {
-            marker.setAnimation(google.maps.Animation.BOUNCE);
-            setTimeout(() => marker.setAnimation(null), 700);
+            infoWindow.open({
+              anchor: marker,
+              map: map,
+            });
           });
         });
 
