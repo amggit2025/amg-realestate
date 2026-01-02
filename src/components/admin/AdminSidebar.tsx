@@ -94,7 +94,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
 
   // Auto-detect current page from URL
   useEffect(() => {
-    const pathMap = {
+    const pathMap: Record<string, string> = {
       '/admin': 'dashboard',
       '/admin/users': 'users',
       '/admin/properties/review': 'properties-review',
