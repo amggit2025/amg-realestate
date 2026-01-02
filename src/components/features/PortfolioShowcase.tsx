@@ -210,10 +210,11 @@ const PortfolioShowcase = () => {
           if (data.data && data.data.length > 0) {
             setItems(data.data)
           } else {
-            setItems(FALLBACK_ITEMS)
+            // لو مفيش بيانات، اترك القائمة فارغة - مش هنعرض بيانات وهمية
+            setItems([])
           }
         } else {
-          setItems(FALLBACK_ITEMS)
+          setItems([])
         }
 
         if (statsRes.ok) {
@@ -224,7 +225,7 @@ const PortfolioShowcase = () => {
         }
       } catch (error) {
         console.error('Error fetching portfolio data:', error)
-        setItems(FALLBACK_ITEMS)
+        setItems([])
         setStats(FALLBACK_STATS)
       } finally {
         setLoading(false)
@@ -238,6 +239,7 @@ const PortfolioShowcase = () => {
     ? items 
     : items.filter(item => item.category === activeCategory)
 
+  // لو بيحمل، اعرض loading
   if (loading) {
     return (
       <section className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
@@ -257,6 +259,11 @@ const PortfolioShowcase = () => {
         </div>
       </section>
     )
+  }
+
+  // لو مفيش بيانات، مش هنعرض القسم خالص
+  if (items.length === 0) {
+    return null
   }
 
   return (
