@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Image from 'next/image'
 import ContactForm from '@/components/features/ContactForm'
-import FreeMap from '@/components/ui/FreeMap'
+import GoogleMap from '@/components/ui/GoogleMap'
 import { logger } from '@/lib/logger'
 import { 
   PhoneIcon,
@@ -182,7 +182,7 @@ export default function ContactPage() {
                   viewport={{ once: true }}
                   className="h-[400px] rounded-3xl overflow-hidden shadow-lg border-4 border-white relative"
                 >
-                  <FreeMap className="h-full w-full" />
+                  <GoogleMap className="h-full w-full" />
                   {/* Overlay Card */}
                   <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-lg max-w-xs z-[1000]">
                     <div className="flex items-start gap-3">
