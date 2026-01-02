@@ -83,90 +83,80 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-blue-600 rounded-full"></div>
-        <div className="absolute top-40 right-20 w-16 h-16 bg-indigo-600 rounded-full"></div>
-        <div className="absolute bottom-20 left-20 w-24 h-24 bg-blue-500 rounded-full"></div>
-        <div className="absolute bottom-40 right-10 w-12 h-12 bg-indigo-500 rounded-full"></div>
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-blue-700/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-20 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 right-10 w-20 h-20 bg-blue-700/20 rounded-full blur-3xl"></div>
       </div>
+      
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 relative z-10 backdrop-blur-sm border border-white/20"
+        className="max-w-md w-full bg-white/80 rounded-3xl shadow-2xl p-8 relative z-10 backdrop-blur-md border border-gray-200"
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"
-          >
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/20 mb-6 transform rotate-3 hover:rotate-0 transition-all duration-300">
             <ShieldCheckIcon className="w-10 h-10 text-white" />
-          </motion.div>
-          
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            لوحة التحكم الإدارية
-          </h1>
-          <p className="text-gray-600">
-            AMG Real Estate Management System
-          </p>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">لوحة التحكم</h1>
+          <p className="text-gray-500">قم بتسجيل الدخول للوصول إلى لوحة الإدارة</p>
         </div>
-
-        {/* Error Message */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
-          >
-            {error}
-          </motion.div>
-        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username Field */}
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-              اسم المستخدم
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <UserIcon className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                className="block w-full pr-10 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="أدخل اسم المستخدم"
-                required
-                disabled={isLoading}
-              />
-            </div>
-          </div>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm text-center font-medium"
+            >
+              {error}
+            </motion.div>
+          )}
 
-          {/* Password Field */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              كلمة المرور
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <LockClosedIcon className="h-5 w-5 text-gray-400" />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-2">اسم المستخدم</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <UserIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="username"
+                  required
+                  className="block w-full pr-10 pl-3 py-3 bg-gray-50/50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  placeholder="أدخل اسم المستخدم"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                />
               </div>
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-2">كلمة المرور</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  required
+                  className="block w-full pr-10 pl-10 py-3 bg-gray-50/50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  placeholder="أدخل كلمة المرور"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
-                  disabled={isLoading}
+                  className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? (
                     <EyeSlashIcon className="h-5 w-5" />
@@ -175,52 +165,26 @@ export default function AdminLoginPage() {
                   )}
                 </button>
               </div>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="block w-full px-4 py-3 pr-10 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="أدخل كلمة المرور"
-                required
-                disabled={isLoading}
-              />
             </div>
           </div>
 
-          {/* Submit Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-amber-400 hover:to-amber-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
           >
             {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                جاري تسجيل الدخول...
-              </div>
+              <div className="w-6 h-6 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
             ) : (
               'تسجيل الدخول'
             )}
-          </motion.button>
+          </button>
         </form>
 
-        {/* Demo Credentials */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">بيانات تجريبية:</h3>
-          <div className="text-xs text-gray-600 space-y-1">
-            <div><strong>Super Admin:</strong> username: admin, password: admin123</div>
-            <div><strong>Moderator:</strong> username: moderator, password: mod123</div>
-          </div>
-        </div>
-
         {/* Footer */}
-        <div className="text-center mt-6">
-          <p className="text-xs text-gray-500">
-            AMG Real Estate Management System
+        <div className="mt-8 text-center">
+          <p className="text-xs text-gray-400">
+            جميع الحقوق محفوظة © {new Date().getFullYear()} AMG Real Estate
           </p>
         </div>
       </motion.div>

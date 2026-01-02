@@ -113,26 +113,26 @@ export default function AdminPage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
       {/* Navigation Tabs */}
       <div className="mb-6">
-        <div className="flex space-x-1 space-x-reverse bg-white p-1 rounded-lg shadow-sm">
+        <div className="flex space-x-1 space-x-reverse bg-white p-1 rounded-lg border border-gray-200 w-fit">
           <button
             onClick={() => setCurrentView('dashboard')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               currentView === 'dashboard'
-                ? 'bg-blue-500 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-bold'
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
             📊 لوحة المعلومات
           </button>
           <button
             onClick={() => setCurrentView('database')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               currentView === 'database'
-                ? 'bg-blue-500 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 font-bold'
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
             🛠️ إدارة قاعدة البيانات
@@ -145,19 +145,19 @@ export default function AdminPage() {
         
         {/* Database Management Page */}
         {currentView === 'database' && (
-          <div>
+          <div className="max-w-7xl mx-auto">
             {/* Welcome Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200 p-8">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 🎛️ لوحة إدارة قاعدة البيانات
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-gray-500 max-w-2xl mx-auto">
                 إدارة شاملة لقاعدة بيانات موقع AMG العقارية. يمكنك من هنا مراقبة الإحصائيات، إدارة المحتوى، والتحكم في النظام.
               </p>
             </div>
@@ -171,23 +171,23 @@ export default function AdminPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
         >
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-blue-100">
+          <div className="bg-white/80 backdrop-blur-md rounded-xl p-6 border border-gray-200 hover:border-blue-500/30 transition-colors">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">المستخدمين</p>
+                <p className="text-sm font-medium text-gray-500">المستخدمين</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {loading ? '...' : stats?.users || 0}
                 </p>
               </div>
-              <UserGroupIcon className="w-8 h-8 text-blue-500" />
+              <UserGroupIcon className="w-8 h-8 text-blue-600" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-green-100">
+          <div className="bg-white/80 backdrop-blur-md rounded-xl p-6 border border-gray-200 hover:border-green-500/30 transition-colors">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">العقارات</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm font-medium text-gray-500">العقارات</p>
+                <p className="text-2xl font-bold text-green-500">
                   {loading ? '...' : stats?.properties || 0}
                 </p>
               </div>
@@ -195,11 +195,11 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-purple-100">
+          <div className="bg-white/80 backdrop-blur-md rounded-xl p-6 border border-gray-200 hover:border-purple-500/30 transition-colors">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">المشاريع</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-sm font-medium text-gray-500">المشاريع</p>
+                <p className="text-2xl font-bold text-purple-500">
                   {loading ? '...' : stats?.projects || 0}
                 </p>
               </div>
@@ -207,11 +207,11 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-lg border border-orange-100">
+          <div className="bg-white/80 backdrop-blur-md rounded-xl p-6 border border-gray-200 hover:border-orange-500/30 transition-colors">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">الاستفسارات</p>
-                <p className="text-2xl font-bold text-orange-600">
+                <p className="text-sm font-medium text-gray-500">الاستفسارات</p>
+                <p className="text-2xl font-bold text-orange-500">
                   {loading ? '...' : stats?.inquiries || 0}
                 </p>
               </div>
@@ -225,7 +225,7 @@ export default function AdminPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl p-8 shadow-lg mb-8"
+          className="bg-white/80 backdrop-blur-md rounded-xl p-8 border border-gray-200 mb-8"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
             <CircleStackIcon className="w-7 h-7 text-blue-600" />
@@ -237,11 +237,11 @@ export default function AdminPage() {
             <button
               onClick={testConnection}
               disabled={loading}
-              className="flex flex-col items-center gap-3 p-6 border-2 border-blue-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 disabled:opacity-50"
+              className="flex flex-col items-center gap-3 p-6 border border-gray-300 rounded-xl hover:border-blue-500 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50"
             >
               <ChartBarIcon className="w-8 h-8 text-blue-600" />
               <span className="font-semibold text-gray-900">اختبار الاتصال</span>
-              <span className="text-sm text-gray-600 text-center">
+              <span className="text-sm text-gray-500 text-center">
                 اختبار الاتصال بقاعدة البيانات
               </span>
             </button>
@@ -250,11 +250,11 @@ export default function AdminPage() {
             <button
               onClick={fetchStats}
               disabled={loading}
-              className="flex flex-col items-center gap-3 p-6 border-2 border-green-200 rounded-xl hover:border-green-400 hover:bg-green-50 transition-all duration-200 disabled:opacity-50"
+              className="flex flex-col items-center gap-3 p-6 border border-gray-300 rounded-xl hover:border-green-500 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50"
             >
-              <ChartBarIcon className="w-8 h-8 text-green-600" />
+              <ChartBarIcon className="w-8 h-8 text-green-500" />
               <span className="font-semibold text-gray-900">تحديث الإحصائيات</span>
-              <span className="text-sm text-gray-600 text-center">
+              <span className="text-sm text-gray-500 text-center">
                 جلب آخر إحصائيات قاعدة البيانات
               </span>
             </button>
@@ -263,11 +263,11 @@ export default function AdminPage() {
             <button
               onClick={() => window.location.href = '/api/admin/database/export-json'}
               disabled={loading}
-              className="flex flex-col items-center gap-3 p-6 border-2 border-orange-200 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-all duration-200 disabled:opacity-50"
+              className="flex flex-col items-center gap-3 p-6 border border-gray-300 rounded-xl hover:border-orange-500 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50"
             >
-              <CircleStackIcon className="w-8 h-8 text-orange-600" />
+              <CircleStackIcon className="w-8 h-8 text-orange-500" />
               <span className="font-semibold text-gray-900">تصدير قاعدة البيانات</span>
-              <span className="text-sm text-gray-600 text-center">
+              <span className="text-sm text-gray-500 text-center">
                 تحميل نسخة احتياطية (JSON)
               </span>
             </button>
@@ -275,22 +275,22 @@ export default function AdminPage() {
 
           {/* Additional Export Options */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 mb-3 font-semibold">خيارات التصدير الإضافية:</p>
+            <p className="text-sm text-gray-500 mb-3 font-semibold">خيارات التصدير الإضافية:</p>
             <div className="flex gap-3 flex-wrap">
               <a
                 href="/api/admin/database/export"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-blue-600 rounded-lg hover:bg-zinc-700 transition-colors text-sm font-medium border border-gray-300"
               >
                 📄 تصدير SQL (لـ phpMyAdmin)
               </a>
               <a
                 href="/api/admin/database/export-json"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-green-500 rounded-lg hover:bg-zinc-700 transition-colors text-sm font-medium border border-gray-300"
               >
                 📋 تصدير JSON (نسخة احتياطية)
               </a>
             </div>
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-gray-400 mt-3">
               💡 ملف SQL يمكن استيراده مباشرة في cPanel phpMyAdmin
             </p>
           </div>
@@ -301,16 +301,16 @@ export default function AdminPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl p-8 shadow-lg mb-8"
+          className="bg-white/80 backdrop-blur-md rounded-xl p-8 border border-gray-200 mb-8"
         >
           <h3 className="text-xl font-bold text-gray-900 mb-4">بيانات تجريبية</h3>
-          <p className="text-gray-600 mb-4 text-sm">
+          <p className="text-gray-500 mb-4 text-sm">
             يمكنك إضافة بيانات تجريبية لاختبار النظام. هذه العملية آمنة ولا تؤثر على البيانات الموجودة.
           </p>
           <button
             onClick={seedDatabase}
             disabled={loading}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:opacity-50"
+            className="px-6 py-3 bg-purple-600 text-gray-900 rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:opacity-50"
           >
             إضافة بيانات تجريبية
           </button>
@@ -324,19 +324,19 @@ export default function AdminPage() {
             className="space-y-4"
           >
             {testResult && (
-              <div className={`p-4 rounded-xl border-2 ${
+              <div className={`p-4 rounded-xl border ${
                 testResult.success 
-                  ? 'border-green-200 bg-green-50' 
-                  : 'border-red-200 bg-red-50'
+                  ? 'border-green-500/30 bg-green-500/10' 
+                  : 'border-red-500/30 bg-red-500/10'
               }`}>
                 <div className="flex items-center gap-3">
                   {testResult.success ? (
-                    <CheckCircleIcon className="w-6 h-6 text-green-600" />
+                    <CheckCircleIcon className="w-6 h-6 text-green-500" />
                   ) : (
-                    <XCircleIcon className="w-6 h-6 text-red-600" />
+                    <XCircleIcon className="w-6 h-6 text-red-500" />
                   )}
                   <span className={`font-semibold ${
-                    testResult.success ? 'text-green-900' : 'text-red-900'
+                    testResult.success ? 'text-green-500' : 'text-red-500'
                   }`}>
                     نتيجة اختبار الاتصال: {testResult.message}
                   </span>
@@ -345,18 +345,18 @@ export default function AdminPage() {
             )}
 
             {seedResult && (
-              <div className={`p-4 rounded-xl border-2 ${
+              <div className={`p-4 rounded-xl border ${
                 seedResult.success 
-                  ? 'border-green-200 bg-green-50' 
-                  : 'border-red-200 bg-red-50'
+                  ? 'border-green-500/30 bg-green-500/10' 
+                  : 'border-red-500/30 bg-red-500/10'
               }`}>
                 <div className="flex items-center gap-3">
                   {seedResult.success ? (
-                    <CheckCircleIcon className="w-6 h-6 text-green-600" />
+                    <CheckCircleIcon className="w-6 h-6 text-green-500" />
                   ) : (
-                    <XCircleIcon className="w-6 h-6 text-red-600" />
+                    <XCircleIcon className="w-6 h-6 text-red-500" />
                   )}
-                  <span className={`font-semibold ${seedResult.success ? 'text-green-900' : 'text-red-900'}`}>
+                  <span className={`font-semibold ${seedResult.success ? 'text-green-500' : 'text-red-500'}`}>
                     نتيجة إضافة البيانات: {seedResult.message}
                   </span>
                 </div>
@@ -366,6 +366,6 @@ export default function AdminPage() {
         )}
         </div>
       )}
-    </>
+    </div>
   )
 }

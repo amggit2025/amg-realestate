@@ -122,8 +122,8 @@ export default function AdminLayout({
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري التحميل...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-500">جاري التحميل...</p>
         </div>
       </div>
     );
@@ -132,7 +132,7 @@ export default function AdminLayout({
   // إذا كنا في صفحة login، نعرضها بدون sidebar
   if (pathname === '/admin/login') {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-gray-50">
         {children}
       </div>
     );
@@ -144,7 +144,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <AdminSidebar 
         key="admin-sidebar"
@@ -156,10 +156,10 @@ export default function AdminLayout({
       {/* Main Content Area */}
       <div className="flex-1 lg:mr-[280px] min-h-screen">
         {/* Top Header */}
-        <div className="bg-white shadow-sm border-b px-6 py-4">
+        <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 space-x-reverse">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <span className="text-white font-bold text-sm">A</span>
               </div>
               <div className="text-right">
@@ -187,7 +187,7 @@ export default function AdminLayout({
                   router.push('/admin/login');
                   router.refresh();
                 }}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                className="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500 hover:text-gray-900 transition-all"
               >
                 تسجيل خروج
               </button>

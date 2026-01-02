@@ -94,7 +94,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
 
   // Auto-detect current page from URL
   useEffect(() => {
-    const pathMap: { [key: string]: string } = {
+    const pathMap = {
       '/admin': 'dashboard',
       '/admin/users': 'users',
       '/admin/properties/review': 'properties-review',
@@ -131,91 +131,91 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
       id: 'users',
       name: 'إدارة المستخدمين',
       icon: UsersIcon,
-      module: 'users' as Module,
+      module: 'users',
     },
     {
       id: 'properties-review',
       name: 'مراجعة العقارات',
       icon: ShieldCheckIcon,
-      module: 'properties' as Module,
+      module: 'properties',
     },
     {
       id: 'projects',
       name: 'إدارة المشاريع',
       icon: ChartBarIcon,
-      module: 'projects' as Module,
+      module: 'projects',
     },
     {
       id: 'portfolio',
       name: 'إدارة الأعمال',
       icon: DocumentTextIcon,
-      module: 'portfolio' as Module,
+      module: 'portfolio',
     },
     {
       id: 'services',
       name: 'إدارة الخدمات',
       icon: BuildingOfficeIcon,
-      module: 'services' as Module,
+      module: 'services',
     },
     {
       id: 'inquiries',
       name: 'الاستفسارات',
       icon: ChatBubbleLeftRightIcon,
-      module: 'inquiries' as Module,
+      module: 'inquiries',
     },
     {
       id: 'appointments',
       name: 'مواعيد المعاينات',
       icon: CalendarDaysIcon,
-      module: 'appointments' as Module,
+      module: 'appointments',
     },
     {
       id: 'subscriptions',
       name: 'الاشتراكات',
       icon: EnvelopeIcon,
-      module: 'newsletter' as Module,
+      module: 'newsletter',
     },
     {
       id: 'service-requests',
       name: 'طلبات الاستشارات',
       icon: ChatBubbleLeftRightIcon,
-      module: 'inquiries' as Module,
+      module: 'inquiries',
     },
     {
       id: 'listing-requests',
       name: 'طلبات عرض العقارات',
       icon: BuildingOfficeIcon,
-      module: 'inquiries' as Module,
+      module: 'inquiries',
     },
     {
       id: 'testimonials',
       name: 'آراء العملاء',
       icon: ChatBubbleLeftRightIcon,
-      module: 'testimonials' as Module,
+      module: 'testimonials',
     },
     {
       id: 'general-info',
       name: 'معلومات عامة',
       icon: CircleStackIcon,
-      module: 'general-info' as Module,
+      module: 'general-info',
     },
     {
       id: 'about-page',
       name: 'صفحة من نحن',
       icon: DocumentTextIcon,
-      module: 'about' as Module,
+      module: 'about',
     },
     {
       id: 'reports',
       name: 'التقارير',
       icon: DocumentTextIcon,
-      module: 'reports' as Module,
+      module: 'reports',
     },
     {
       id: 'admins',
       name: 'إدارة المشرفين',
       icon: ShieldCheckIcon,
-      module: 'admins' as Module,
+      module: 'admins',
     },
     {
       id: 'settings',
@@ -238,9 +238,9 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
   })
 
   // Handle navigation
-  const handleNavigation = (itemId: string) => {
+  const handleNavigation = (itemId) => {
     // Map menu items to their routes
-    const routeMap: { [key: string]: string } = {
+    const routeMap = {
       'dashboard': '/admin',
       'users': '/admin/users',
       'properties-review': '/admin/properties/review',
@@ -303,12 +303,12 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-2 bg-white rounded-lg shadow-lg border"
+          className="p-2 bg-white rounded-lg shadow-lg border border-gray-200"
         >
           {isMobileOpen ? (
-            <XMarkIcon className="w-6 h-6 text-gray-600" />
+            <XMarkIcon className="w-6 h-6 text-gray-900" />
           ) : (
-            <Bars3Icon className="w-6 h-6 text-gray-600" />
+            <Bars3Icon className="w-6 h-6 text-gray-900" />
           )}
         </motion.button>
       </div>
@@ -321,7 +321,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileOpen(false)}
-            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            className="lg:hidden fixed inset-0 bg-gray-50/80 backdrop-blur-sm z-40"
           />
         )}
       </AnimatePresence>
@@ -333,7 +333,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
           transform: isMobileOpen ? 'translateX(0)' : (windowWidth < 1024 ? 'translateX(-280px)' : 'translateX(0)'),
           transition: 'all 0.3s ease'
         }}
-        className={`fixed right-0 top-0 h-full bg-white border-l border-gray-200 shadow-xl z-40 ${
+        className={`fixed right-0 top-0 h-full bg-gray-50 border-l border-gray-200 shadow-2xl z-40 ${
           isMobileOpen ? 'lg:relative' : 'hidden lg:block'
         }`}
       >
@@ -347,7 +347,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                   animate={{ opacity: 1 }}
                   className="flex items-center space-x-3 space-x-reverse"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                     <ShieldCheckIcon className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -367,15 +367,15 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg hover:bg-white transition-colors"
               >
-                <Bars3Icon className="w-5 h-5 text-gray-600" />
+                <Bars3Icon className="w-5 h-5 text-gray-500" />
               </motion.button>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
             {filteredMenuItems.length > 0 ? (
               filteredMenuItems.map((item) => {
                 const IconComponent = item.icon
@@ -389,13 +389,13 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                     onClick={() => handleNavigation(item.id)}
                     className={`w-full flex items-center justify-between space-x-3 space-x-reverse p-3 rounded-xl transition-all ${
                       isActive
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/20 font-bold'
+                        : 'text-gray-500 hover:bg-white hover:text-gray-900'
                     }`}
                   >
                     <div className="flex items-center space-x-3 space-x-reverse relative">
                       <div className="relative">
-                        <IconComponent className="w-5 h-5 flex-shrink-0" />
+                        <IconComponent className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-900'}`} />
                         
                         {/* Badge Dot - يظهر دائماً حتى في حالة collapsed */}
                         {isCollapsed && (
@@ -404,49 +404,49 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                               <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-black animate-pulse"
                               />
                             )}
                             {item.id === 'inquiries' && stats.inquiries > 0 && (
                               <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full border-2 border-white animate-pulse"
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full border-2 border-black animate-pulse"
                               />
                             )}
                             {item.id === 'users' && stats.users > 0 && (
                               <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black animate-pulse"
                               />
                             )}
                             {item.id === 'testimonials' && stats.testimonials > 0 && (
                               <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-white animate-pulse"
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-black animate-pulse"
                               />
                             )}
                             {item.id === 'subscriptions' && stats.subscriptions > 0 && (
                               <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white animate-pulse"
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-black animate-pulse"
                               />
                             )}
                             {item.id === 'service-requests' && stats.serviceRequests > 0 && (
                               <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-white animate-pulse"
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border-2 border-black animate-pulse"
                               />
                             )}
                             {item.id === 'appointments' && stats.appointments > 0 && (
                               <motion.span
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-500 rounded-full border-2 border-white animate-pulse"
+                                className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-500 rounded-full border-2 border-black animate-pulse"
                               />
                             )}
                           </>
@@ -473,8 +473,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             animate={{ scale: 1 }}
                             className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                               isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-red-500 text-white animate-pulse'
+                                ? 'bg-white text-blue-700 shadow-sm'
+                                : 'bg-red-600 text-white shadow-sm animate-pulse'
                             }`}
                           >
                             {stats.properties}
@@ -486,8 +486,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             animate={{ scale: 1 }}
                             className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                               isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-purple-500 text-white animate-pulse'
+                                ? 'bg-white text-blue-700 shadow-sm'
+                                : 'bg-purple-600 text-white shadow-sm animate-pulse'
                             }`}
                           >
                             {stats.inquiries}
@@ -499,8 +499,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             animate={{ scale: 1 }}
                             className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                               isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-green-500 text-white animate-pulse'
+                                ? 'bg-white text-blue-700 shadow-sm'
+                                : 'bg-green-600 text-white shadow-sm animate-pulse'
                             }`}
                           >
                             {stats.users} جديد
@@ -512,8 +512,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             animate={{ scale: 1 }}
                             className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                               isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-yellow-500 text-white animate-pulse'
+                                ? 'bg-white text-blue-700 shadow-sm'
+                                : 'bg-yellow-400 text-black shadow-sm animate-pulse'
                             }`}
                           >
                             {stats.testimonials}
@@ -525,8 +525,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             animate={{ scale: 1 }}
                             className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                               isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-blue-500 text-white animate-pulse'
+                                ? 'bg-white text-blue-700 shadow-sm'
+                                : 'bg-blue-600 text-white shadow-sm animate-pulse'
                             }`}
                           >
                             {stats.subscriptions} جديد
@@ -538,8 +538,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             animate={{ scale: 1 }}
                             className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                               isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-orange-500 text-white animate-pulse'
+                                ? 'bg-white text-blue-700 shadow-sm'
+                                : 'bg-orange-600 text-white shadow-sm animate-pulse'
                             }`}
                           >
                             {stats.serviceRequests}
@@ -551,8 +551,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                             animate={{ scale: 1 }}
                             className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                               isActive
-                                ? 'bg-white/20 text-white'
-                                : 'bg-cyan-500 text-white animate-pulse'
+                                ? 'bg-white text-blue-700 shadow-sm'
+                                : 'bg-cyan-600 text-white shadow-sm animate-pulse'
                             }`}
                           >
                             {stats.appointments}
@@ -564,7 +564,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                 )
               })
             ) : (
-              <div className="text-center text-gray-500 py-4">
+              <div className="text-center text-gray-400 py-4">
                 <p className="text-sm">جاري التحميل...</p>
               </div>
             )}
@@ -577,7 +577,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleLogout}
-              className="w-full flex items-center space-x-3 space-x-reverse p-3 rounded-xl transition-all text-red-600 hover:bg-red-50"
+              className="w-full flex items-center space-x-3 space-x-reverse p-3 rounded-xl transition-all text-red-500 hover:bg-red-500/10"
             >
               <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && (
@@ -597,8 +597,8 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
                 animate={{ opacity: 1 }}
                 className="text-center pt-2"
               >
-                <p className="text-xs text-gray-500 mb-2">AMG Real Estate</p>
-                <p className="text-xs text-gray-400">Admin Panel v1.0</p>
+                <p className="text-xs text-gray-400 mb-2">AMG Real Estate</p>
+                <p className="text-xs text-zinc-600">Admin Panel v1.0</p>
               </motion.div>
             )}
           </div>
@@ -610,7 +610,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
 
 export default function AdminSidebar(props: AdminSidebarProps) {
   return (
-    <Suspense fallback={<div className="h-screen w-64 bg-gray-900" />}>
+    <Suspense fallback={<div className="h-screen w-64 bg-gray-50" />}>
       <AdminSidebarContent {...props} />
     </Suspense>
   )

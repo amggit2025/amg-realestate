@@ -228,7 +228,7 @@ export default function PortfolioPage() {
       </section>
 
       {/* 2. Advanced Filter Bar */}
-      <section className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm transition-all duration-300">
+      <section className="sticky top-0 z-[60] bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm transition-all duration-300">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Categories */}

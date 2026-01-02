@@ -12,7 +12,8 @@ import {
   TrendingUp, 
   ShieldCheck, 
   MapPin,
-  Home
+  Home,
+  Star
 } from 'lucide-react'
 
 // Components
@@ -232,21 +233,36 @@ export default function HomePage() {
       {/* 3. Featured Projects */}
       <section className="py-24 bg-white relative">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <span className="text-blue-600 font-semibold tracking-wider uppercase text-sm">مشاريع مميزة</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">أحدث العقارات المضافة</h2>
-            </div>
-            <Link href="/projects" className="hidden md:flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium">
-              عرض كل المشاريع <ArrowRight className="w-5 h-5" />
-            </Link>
+          <div className="text-center mb-16 relative">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-block"
+            >
+              <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-bold tracking-wide border border-blue-100 mb-6 shadow-sm hover:shadow-md transition-shadow cursor-default">
+                <Star className="w-4 h-4 fill-blue-600 text-blue-600" />
+                مشاريع مميزة
+              </span>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
+                أحدث العقارات <span className="relative inline-block">
+                  <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">المضافة</span>
+                  <span className="absolute bottom-2 left-0 w-full h-3 bg-blue-100/50 -z-0 transform -rotate-2 rounded-full"></span>
+                </span>
+              </h2>
+              <div className="w-24 h-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mx-auto shadow-lg shadow-blue-500/30"></div>
+            </motion.div>
           </div>
           
           <FeaturedProjects />
           
-          <div className="mt-12 text-center md:hidden">
-            <Link href="/projects" className="inline-flex items-center gap-2 text-blue-600 font-medium">
-              عرض كل المشاريع <ArrowRight className="w-5 h-5" />
+          <div className="mt-16 text-center">
+            <Link 
+              href="/projects" 
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-blue-600 transition-all duration-300 shadow-lg hover:shadow-blue-500/30 group"
+            >
+              عرض كل المشاريع 
+              <ArrowRight className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>

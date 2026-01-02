@@ -1,7 +1,7 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { useState, useEffect, memo } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useState, useEffect, useRef, memo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ImageLoader } from '@/components/ui'
@@ -10,8 +10,8 @@ import {
   BedDouble, 
   Maximize, 
   ArrowRight, 
-  Star, 
-  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Building2
 } from 'lucide-react'
 
@@ -42,6 +42,7 @@ function FeaturedProjects() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({})
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchFeaturedProjects()
@@ -80,12 +81,31 @@ function FeaturedProjects() {
     return Number(project.price).toLocaleString()
   }
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current
+      const cardWidth = container.firstElementChild?.clientWidth || 0
+      const gap = 24 // gap-6 is 1.5rem = 24px
+      const scrollAmount = cardWidth + gap
+      
+      const currentScroll = container.scrollLeft
+      const targetScroll = direction === 'left' 
+        ? currentScroll - scrollAmount 
+        : currentScroll + scrollAmount
+      
+      container.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div className="flex gap-6 overflow-hidden">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 h-[400px] animate-pulse">
-            <div className="h-64 bg-gray-200" />
+          <div key={i} className="min-w-[350px] md:min-w-[400px] bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 h-[500px] animate-pulse">
+            <div className="h-80 bg-gray-200" />
             <div className="p-6 space-y-4">
               <div className="h-6 bg-gray-200 rounded w-3/4" />
               <div className="h-4 bg-gray-200 rounded w-1/2" />
@@ -108,93 +128,108 @@ function FeaturedProjects() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-      {projects.map((project, index) => (
-        <motion.div
-          key={project.id}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
-          viewport={{ once: true }}
-          className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-100 flex flex-col"
-        >
-          {/* Image Container */}
-          <div className="relative h-72 overflow-hidden">
-            <ImageLoader isLoading={imageLoadingStates[project.id]} />
-            <Image
-              src={project.image}
-              alt={project.title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
-              onLoad={() => handleImageLoad(project.id)}
-            />
-            
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+    <div className="relative group/container md:px-16">
+      {/* Navigation Buttons */}
+      <button 
+        onClick={() => scroll('left')}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white p-4 rounded-full shadow-xl text-gray-800 hover:bg-blue-600 hover:text-white transition-all duration-300 opacity-0 group-hover/container:opacity-100 translate-x-4 group-hover/container:translate-x-0 disabled:opacity-0 hidden md:block border border-gray-100"
+      >
+        <ChevronLeft className="w-6 h-6" />
+      </button>
+      
+      <button 
+        onClick={() => scroll('right')}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white p-4 rounded-full shadow-xl text-gray-800 hover:bg-blue-600 hover:text-white transition-all duration-300 opacity-0 group-hover/container:opacity-100 -translate-x-4 group-hover/container:translate-x-0 disabled:opacity-0 hidden md:block border border-gray-100"
+      >
+        <ChevronRight className="w-6 h-6" />
+      </button>
 
-            {/* Badges */}
-            <div className="absolute top-4 left-4 flex gap-2">
-              <span className="bg-white/90 backdrop-blur-md text-gray-900 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                {project.type}
-              </span>
-            </div>
-
-            <div className="absolute top-4 right-4">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm ${
-                project.status === 'متاح' ? 'bg-green-500' : 'bg-amber-500'
-              }`}>
-                {project.status}
-              </span>
-            </div>
-
-            {/* Price Tag */}
-            <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl shadow-lg">
-              <p className="text-blue-600 font-bold text-sm">
-                {formatPrice(project)} <span className="text-xs font-normal text-gray-500">{project.currency || 'EGP'}</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 flex-1 flex flex-col">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                {project.title}
-              </h3>
-              <div className="flex items-center text-gray-500 text-sm">
-                <MapPin className="w-4 h-4 ml-1" />
-                {project.location}
+      {/* Scroll Container */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-12"
+        style={{ scrollBehavior: 'smooth' }}
+      >
+        {projects.map((project, index) => (
+          <motion.div
+            key={project.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            viewport={{ once: true }}
+            className="min-w-[85%] md:min-w-[calc(33.333%-16px)] snap-center group relative h-[420px] rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+          >
+            <Link href={`/projects/${project.id}`} className="block h-full w-full">
+              {/* Image Background */}
+              <div className="absolute inset-0">
+                <ImageLoader isLoading={imageLoadingStates[project.id]} />
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  onLoad={() => handleImageLoad(project.id)}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90 transition-opacity duration-300" />
               </div>
-            </div>
 
-            {/* Features */}
-            <div className="flex items-center gap-4 mb-6 text-sm text-gray-600 bg-gray-50 p-3 rounded-xl">
-              {project.bedrooms && (
-                <div className="flex items-center gap-1.5">
-                  <BedDouble className="w-4 h-4 text-blue-500" />
-                  <span className="font-medium">{project.bedrooms} غرف</span>
-                </div>
-              )}
-              {project.area && (
-                <div className="flex items-center gap-1.5 border-r border-gray-200 pr-4 mr-4">
-                  <Maximize className="w-4 h-4 text-blue-500" />
-                  <span className="font-medium">{project.area} م²</span>
-                </div>
-              )}
-            </div>
+              {/* Top Badges */}
+              <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-10">
+                <span className="bg-white/20 backdrop-blur-md border border-white/20 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase">
+                  {project.type}
+                </span>
+                <span className={`px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-sm ${
+                  project.status === 'متاح' ? 'bg-green-500' : 'bg-amber-500'
+                }`}>
+                  {project.status}
+                </span>
+              </div>
 
-            <div className="mt-auto">
-              <Link 
-                href={`/projects/${project.id}`}
-                className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition-colors group/btn"
-              >
-                عرض التفاصيل
-                <ArrowRight className="w-4 h-4 group-hover/btn:-translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        </motion.div>
-      ))}
+              {/* Bottom Content */}
+              <div className="absolute bottom-0 left-0 right-0 p-8 z-10 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
+                    {project.title}
+                  </h3>
+                  <div className="flex items-center text-gray-100 text-sm font-medium drop-shadow-md">
+                    <MapPin className="w-4 h-4 ml-1 text-blue-400" />
+                    {project.location}
+                  </div>
+                </div>
+
+                {/* Features */}
+                <div className="flex items-center gap-4 mb-6 text-sm text-gray-200 border-t border-white/20 pt-4 drop-shadow-md">
+                  {project.bedrooms && (
+                    <div className="flex items-center gap-2">
+                      <BedDouble className="w-4 h-4 text-blue-400" />
+                      <span>{project.bedrooms} غرف</span>
+                    </div>
+                  )}
+                  {project.area && (
+                    <div className="flex items-center gap-2">
+                      <Maximize className="w-4 h-4 text-blue-400" />
+                      <span>{project.area} م²</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Price & Action */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-300 mb-1 font-medium drop-shadow-md">يبدأ من</p>
+                    <p className="text-xl font-bold text-white drop-shadow-lg">
+                      {formatPrice(project)} <span className="text-xs font-normal text-gray-300">{project.currency || 'EGP'}</span>
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-600/30 border border-white/10">
+                    <ArrowRight className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
     </div>
   )
 }
