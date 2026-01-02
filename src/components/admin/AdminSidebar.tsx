@@ -240,7 +240,7 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
   // Handle navigation
   const handleNavigation = (itemId: string) => {
     // Map menu items to their routes
-    const routeMap = {
+    const routeMap: Record<string, string> = {
       'dashboard': '/admin',
       'users': '/admin/users',
       'properties-review': '/admin/properties/review',
