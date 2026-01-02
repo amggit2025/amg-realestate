@@ -3,34 +3,36 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-// GET - جلب إحصائيات معرض الأعمال
+// GET - جلب إحصائيات معرض الأعمال - بيانات حقيقية من قاعدة البيانات
 export async function GET() {
   try {
-    // @ts-ignore - مؤقتاً
-    const stats = await prisma.portfolioStats.findFirst({
-      where: { isActive: true }
-    })
-
-    if (!stats) {
-      // إرجاع قيم افتراضية
-      return NextResponse.json({
-        success: true,
-        data: {
-          totalProjects: 50,
-          happyClients: 125,
-          averageRating: 4.8,
-          totalViews: 12000
-        }
+    // جلب عدد المشاريع الحقيقي من قاعدة البيانات
+    const [totalProjects, featuredProjects, totalViews, avgRating] = await Promise.all([
+      // عدد كل المشاريع المنشورة
+      prisma.portfolioItem.count({
+        where: { published: true }
+      }),
+      // عدد المشاريع المميزة
+      prisma.portfolioItem.count({
+        where: { published: true, featured: true }
+      }),
+      // إجمالي المشاهدات
+      prisma.portfolioItem.aggregate({
+        _sum: { views: true }
+      }),
+      // متوسط التقييم
+      prisma.portfolioItem.aggregate({
+        _avg: { rating: true }
       })
-    }
+    ])
 
     return NextResponse.json({
       success: true,
       data: {
-        totalProjects: stats.totalProjects,
-        happyClients: stats.happyClients,
-        averageRating: stats.averageRating,
-        totalViews: stats.totalViews
+        totalProjects: totalProjects || 0,
+        featuredCount: featuredProjects || 0,
+        totalViews: totalViews._sum.views || 0,
+        averageRating: avgRating._avg.rating ? Number(avgRating._avg.rating.toFixed(1)) : 0
       }
     })
   } catch (error) {

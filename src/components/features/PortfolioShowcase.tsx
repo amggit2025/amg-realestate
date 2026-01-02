@@ -136,11 +136,12 @@ const FALLBACK_ITEMS: FeaturedPortfolioItem[] = [
   }
 ]
 
-const FALLBACK_STATS: PortfolioStats = {
-  totalProjects: 150,
-  totalViews: 50000,
-  averageRating: 4.9,
-  featuredCount: 12
+// لا نستخدم إحصائيات وهمية - سنعرض الأرقام الحقيقية من قاعدة البيانات
+const EMPTY_STATS: PortfolioStats = {
+  totalProjects: 0,
+  totalViews: 0,
+  averageRating: 0,
+  featuredCount: 0
 }
 
 // Animated Counter Component
@@ -219,14 +220,14 @@ const PortfolioShowcase = () => {
 
         if (statsRes.ok) {
           const data = await statsRes.json()
-          setStats(data.data || FALLBACK_STATS)
+          setStats(data.data || EMPTY_STATS)
         } else {
-          setStats(FALLBACK_STATS)
+          setStats(EMPTY_STATS)
         }
       } catch (error) {
         console.error('Error fetching portfolio data:', error)
         setItems([])
-        setStats(FALLBACK_STATS)
+        setStats(EMPTY_STATS)
       } finally {
         setLoading(false)
       }
@@ -259,11 +260,6 @@ const PortfolioShowcase = () => {
         </div>
       </section>
     )
-  }
-
-  // لو مفيش بيانات، مش هنعرض القسم خالص
-  if (items.length === 0) {
-    return null
   }
 
   return (
@@ -377,6 +373,21 @@ const PortfolioShowcase = () => {
         )}
 
         {/* Projects Grid - Modern Card Layout */}
+        {filteredItems.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-20"
+          >
+            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+              <Trophy className="w-12 h-12 text-gray-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">لا توجد أعمال حالياً</h3>
+            <p className="text-gray-400 text-center max-w-md">
+              سيتم عرض أعمالنا المميزة هنا قريباً. نعمل على إضافة مشاريعنا الحديثة.
+            </p>
+          </motion.div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredItems.slice(0, 6).map((item, index) => (
             <motion.div
@@ -473,6 +484,7 @@ const PortfolioShowcase = () => {
             </motion.div>
           ))}
         </div>
+        )}
 
         {/* View All Button */}
         <motion.div
