@@ -97,7 +97,23 @@ export default function AboutPage() {
     { title: 'المصداقية', description: 'الشفافية والوضوح هما أساس تعاملنا' }
   ]
 
-  const displayValues = data?.values && data.values.length > 0 ? data.values : defaultValues
+  // Ensure displayValues is always an array
+  const getDisplayValues = () => {
+    if (!data?.values) return defaultValues
+    if (Array.isArray(data.values) && data.values.length > 0) return data.values
+    // Handle case where values is a JSON string
+    if (typeof data.values === 'string') {
+      try {
+        const parsed = JSON.parse(data.values)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      } catch {
+        return defaultValues
+      }
+    }
+    return defaultValues
+  }
+  
+  const displayValues = getDisplayValues()
 
   if (loading) {
     return (

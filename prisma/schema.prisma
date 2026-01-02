@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -152,7 +152,7 @@ model Property {
   @@index([city, district])
   @@index([propertyType, purpose])
   @@index([price, currency])
-  @@index([userId], map: "properties_userId_fkey")
+  @@index([userId])
   @@map("properties")
 }
 
@@ -167,7 +167,7 @@ model PropertyImage {
   createdAt  DateTime @default(now())
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@index([propertyId], map: "property_images_propertyId_fkey")
+  @@index([propertyId])
   @@map("property_images")
 }
 
@@ -218,7 +218,7 @@ model ProjectImage {
   createdAt DateTime @default(now())
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([projectId], map: "project_images_projectId_fkey")
+  @@index([projectId])
   @@map("project_images")
 }
 
@@ -275,7 +275,7 @@ model PortfolioImage {
   createdAt   DateTime      @default(now())
   portfolio   PortfolioItem @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 
-  @@index([portfolioId], map: "portfolio_images_portfolioId_fkey")
+  @@index([portfolioId])
   @@map("portfolio_images")
 }
 
@@ -288,7 +288,7 @@ model Favorite {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, propertyId])
-  @@index([propertyId], map: "favorites_propertyId_fkey")
+  @@index([propertyId])
   @@map("favorites")
 }
 
@@ -308,8 +308,8 @@ model Inquiry {
   property    Property?     @relation(fields: [propertyId], references: [id])
   user        User?         @relation(fields: [userId], references: [id])
 
-  @@index([propertyId], map: "inquiries_propertyId_fkey")
-  @@index([userId], map: "inquiries_userId_fkey")
+  @@index([propertyId])
+  @@index([userId])
   @@map("inquiries")
 }
 
@@ -367,7 +367,7 @@ model listing_favorites {
   users     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, listingId])
-  @@index([listingId], map: "listing_favorites_listingId_fkey")
+  @@index([listingId])
 }
 
 model listing_images {
@@ -381,7 +381,7 @@ model listing_images {
   createdAt DateTime @default(now())
   listings  listings @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
-  @@index([listingId], map: "listing_images_listingId_fkey")
+  @@index([listingId])
 }
 
 model listing_stats {
@@ -412,7 +412,7 @@ model listing_videos {
   createdAt DateTime @default(now())
   listings  listings @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
-  @@index([listingId], map: "listing_videos_listingId_fkey")
+  @@index([listingId])
 }
 
 model listings {
@@ -476,7 +476,7 @@ model listings {
   messages           messages[]
   reports            reports[]
 
-  @@index([categoryId], map: "listings_categoryId_fkey")
+  @@index([categoryId])
   @@index([createdAt, status])
   @@index([governorate, city, district])
   @@index([price, currency])
@@ -505,7 +505,7 @@ model messages {
   users_messages_senderIdTousers   User                 @relation("messages_senderIdTousers", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([listingId, createdAt])
-  @@index([parentId], map: "messages_parentId_fkey")
+  @@index([parentId])
   @@index([receiverId, status, createdAt])
   @@index([senderId, createdAt])
 }
@@ -527,7 +527,7 @@ model reports {
   users       User           @relation(fields: [reporterId], references: [id], onDelete: Cascade)
 
   @@index([listingId, status])
-  @@index([reporterId], map: "reports_reporterId_fkey")
+  @@index([reporterId])
   @@index([status, createdAt])
 }
 
@@ -547,7 +547,7 @@ model reviews {
   users_reviews_targetIdTousers User               @relation("reviews_targetIdTousers", fields: [targetId], references: [id], onDelete: Cascade)
 
   @@unique([authorId, targetId])
-  @@index([targetId], map: "reviews_targetId_fkey")
+  @@index([targetId])
 }
 
 model UserActivity {
