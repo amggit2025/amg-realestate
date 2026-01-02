@@ -37,11 +37,12 @@ export async function POST(
     }
 
     // إضافة الصورة الجديدة مع publicId
+    const isFirstImage = project.images.length === 0
     const imageData = {
       url: imageUrl,
       publicId: publicId || null,
       alt: alt || `${project.title} - صورة ${project.images.length + 1}`,
-      isMain: project.images.length === 0,
+      isMain: isFirstImage,
       order: project.images.length,
       projectId: projectId
     }
@@ -50,6 +51,15 @@ export async function POST(
     const newImage = await prisma.projectImage.create({
       data: imageData
     })
+
+    // 🔄 لو هي أول صورة، حدث mainImage في جدول المشروع الرئيسي
+    if (isFirstImage) {
+      await prisma.project.update({
+        where: { id: projectId },
+        data: { mainImage: imageUrl }
+      })
+      console.log('✅ Updated project mainImage to:', imageUrl)
+    }
 
     return NextResponse.json({
       success: true,
