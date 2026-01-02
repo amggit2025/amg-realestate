@@ -32,10 +32,10 @@ export default function GoogleMap({ className = "" }: GoogleMapProps) {
       isMain: false,
     },
     {
-      lat: 30.0330,
-      lng: 31.3480,
+      lat: 30.0183,
+      lng: 31.4383,
       name: "المقر الرئيسي",
-      address: "التجمع الخامس، القاهرة الجديدة، القاهرة",
+      address: "3FC2+HXW، القاهرة الجديدة، محافظة القاهرة",
       phone: "+20 123 456 7891",
       isMain: true,
     }
