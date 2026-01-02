@@ -234,11 +234,11 @@ function AdminSidebarContent({ currentPage, onPageChange, adminRole }: AdminSide
     if (!admin) return false
     
     // التحقق من صلاحية الوصول للوحدة
-    return checkModuleAccess(item.module)
+    return checkModuleAccess(item.module as Module)
   })
 
   // Handle navigation
-  const handleNavigation = (itemId) => {
+  const handleNavigation = (itemId: string) => {
     // Map menu items to their routes
     const routeMap = {
       'dashboard': '/admin',
