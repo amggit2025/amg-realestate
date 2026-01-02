@@ -67,6 +67,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
 
         <button
           type="button"
+          onClick={() => signIn('facebook', { callbackUrl: '/dashboard' })}
           className={`w-full flex items-center justify-center gap-3 px-4 py-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 group ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <svg className="w-5 h-5 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -19,6 +20,10 @@ export const authOptions: NextAuthOptions = {
           response_type: "code",
         },
       },
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
     }),
     CredentialsProvider({
       name: "credentials",
@@ -63,7 +68,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (account?.provider === "google") {
+      if (account?.provider === "google" || account?.provider === "facebook") {
         try {
           // Check if user exists
           const existingUser = await prisma.user.findUnique({
@@ -71,36 +76,49 @@ export const authOptions: NextAuthOptions = {
           }) as any;
 
           if (existingUser) {
-            // Update existing user with Google ID if not set
-            if (!existingUser.googleId) {
-              await (prisma.user as any).update({
-                where: { email: user.email! },
-                data: {
-                  googleId: account.providerAccountId,
-                  provider: "google",
-                  avatar: user.image,
-                  emailVerified: true,
-                  verified: true,
-                },
-              });
+            // Update existing user with provider ID if not set
+            const updateData: any = {
+              avatar: user.image,
+              emailVerified: true,
+              verified: true,
+            };
+
+            if (account.provider === "google" && !existingUser.googleId) {
+              updateData.googleId = account.providerAccountId;
+              updateData.provider = "google";
+            } else if (account.provider === "facebook" && !existingUser.facebookId) {
+              updateData.facebookId = account.providerAccountId;
+              updateData.provider = "facebook";
             }
+
+            await (prisma.user as any).update({
+              where: { email: user.email! },
+              data: updateData,
+            });
           } else {
-            // Create new user from Google profile
+            // Create new user from OAuth profile
             const names = user.name?.split(" ") || ["", ""];
             const firstName = names[0] || "User";
             const lastName = names.slice(1).join(" ") || "";
 
+            const createData: any = {
+              email: user.email!,
+              firstName,
+              lastName,
+              avatar: user.image,
+              provider: account.provider,
+              emailVerified: true,
+              verified: true,
+            };
+
+            if (account.provider === "google") {
+              createData.googleId = account.providerAccountId;
+            } else if (account.provider === "facebook") {
+              createData.facebookId = account.providerAccountId;
+            }
+
             await (prisma.user as any).create({
-              data: {
-                email: user.email!,
-                firstName,
-                lastName,
-                avatar: user.image,
-                googleId: account.providerAccountId,
-                provider: "google",
-                emailVerified: true,
-                verified: true,
-              },
+              data: createData,
             });
           }
 
@@ -119,7 +137,7 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email;
       }
 
-      if (account?.provider === "google") {
+      if (account?.provider === "google" || account?.provider === "facebook") {
         // Fetch full user details from database
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email! },
