@@ -533,36 +533,37 @@ export default function EditPortfolioPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <AdminSidebar 
-          currentPage="portfolio" 
-          onPageChange={() => {}} 
-          adminRole="ADMIN"
-        />
-        
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري تحميل بيانات العمل...</p>
+      <>
+        <div className="min-h-screen bg-gray-50 flex">
+          <AdminSidebar 
+            currentPage="portfolio" 
+            onPageChange={() => {}} 
+            adminRole="ADMIN"
+          />
+          
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">جاري تحميل بيانات العمل...</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Confirm Delete Image Dialog */}
-      <ConfirmDialog
-        isOpen={deleteConfirmOpen}
-        onClose={() => setDeleteConfirmOpen(false)}
-        onConfirm={removeExistingImage}
-        title="حذف صورة"
-        message="هل أنت متأكد من حذف هذه الصورة؟ سيتم حذفها من Cloudinary نهائياً."
-        confirmText="حذف"
-        cancelText="إلغاء"
-        type="danger"
-        isLoading={deleting}
-      />
-    </div>
-  )
-}
+        {/* Confirm Delete Image Dialog */}
+        <ConfirmDialog
+          isOpen={deleteConfirmOpen}
+          onClose={() => setDeleteConfirmOpen(false)}
+          onConfirm={removeExistingImage}
+          title="حذف صورة"
+          message="هل أنت متأكد من حذف هذه الصورة؟ سيتم حذفها من Cloudinary نهائياً."
+          confirmText="حذف"
+          cancelText="إلغاء"
+          type="danger"
+          isLoading={deleting}
+        />
+      </>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
