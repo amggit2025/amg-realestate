@@ -309,7 +309,7 @@ export default function AdminServicesPage() {
         confirmText="حذف"
         cancelText="إلغاء"
         type="danger"
-        loading={deleting}
+        isLoading={deleting}
       />
     </div>
   )

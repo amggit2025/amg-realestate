@@ -777,7 +777,7 @@ export default function AdminPortfolioPage() {
         confirmText="حذف"
         cancelText="إلغاء"
         type="danger"
-        loading={deleting}
+        isLoading={deleting}
       />
     </div>
   )
