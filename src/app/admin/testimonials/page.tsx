@@ -7,7 +7,7 @@ import { PlusIcon, PencilIcon, TrashIcon, StarIcon } from '@heroicons/react/24/o
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid'
 import { logger } from '@/lib/logger'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
-import { useToast } from '@/lib/ToastContext'
+import { useToastContext } from '@/lib/ToastContext'
 
 interface Testimonial {
   id: string
@@ -44,7 +44,7 @@ export default function TestimonialsPage() {
   const [message, setMessage] = useState({ type: '', text: '' })
   
   // Confirm dialog state
-  const toast = useToast()
+  const toast = useToastContext()
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [testimonialToDelete, setTestimonialToDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)

@@ -15,9 +15,7 @@ import {
   XCircleIcon,
 } from '@heroicons/react/24/outline'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
-import { useToast } from '@/lib/ToastContext'
-import ConfirmDialog from '@/components/ui/ConfirmDialog'
-import { useToast } from '@/lib/ToastContext'
+import { useToastContext } from '@/lib/ToastContext'
 
 interface Admin {
   id: string
@@ -123,7 +121,7 @@ export default function AdminsPage() {
   })
 
   // Toast and confirm dialog states
-  const toast = useToast()
+  const toast = useToastContext()
   const [sessionConfirmOpen, setSessionConfirmOpen] = useState(false)
   const [sessionToTerminate, setSessionToTerminate] = useState<string | null>(null)
   const [terminatingSession, setTerminatingSession] = useState(false)
@@ -169,7 +167,7 @@ export default function AdminsPage() {
   }
 
   // State for confirm dialogs
-  const toast = useToast()
+  const toast = useToastContext()
   const [sessionConfirmOpen, setSessionConfirmOpen] = useState(false)
   const [sessionToTerminate, setSessionToTerminate] = useState<string | null>(null)
   const [terminatingSession, setTerminatingSession] = useState(false)

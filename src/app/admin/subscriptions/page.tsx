@@ -15,7 +15,7 @@ import {
   CalendarIcon,
 } from '@heroicons/react/24/outline'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
-import { useToast } from '@/lib/ToastContext'
+import { useToastContext } from '@/lib/ToastContext'
 
 interface Subscription {
   id: string
@@ -48,7 +48,7 @@ export default function SubscriptionsPage() {
   const itemsPerPage = 10
   
   // Confirm dialog state
-  const toast = useToast()
+  const toast = useToastContext()
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [subscriptionToDelete, setSubscriptionToDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -125,9 +125,6 @@ export default function SubscriptionsPage() {
       toast.error('حدث خطأ أثناء الحذف')
     } finally {
       setDeleting(false)
-    }
-  }
-      showMessage('error', 'حدث خطأ أثناء الحذف')
     }
   }
 

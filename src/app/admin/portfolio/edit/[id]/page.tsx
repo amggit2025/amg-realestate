@@ -546,6 +546,7 @@ export default function EditPortfolioPage() {
             <p className="text-gray-600">جاري تحميل بيانات العمل...</p>
           </div>
         </div>
+      </div>
 
       {/* Confirm Delete Image Dialog */}
       <ConfirmDialog
@@ -559,7 +560,8 @@ export default function EditPortfolioPage() {
         type="danger"
         isLoading={deleting}
       />
-    )
+    </div>
+  )
   }
 
   return (
