@@ -166,15 +166,6 @@ export default function AdminsPage() {
     }
   }
 
-  // State for confirm dialogs
-  const toast = useToastContext()
-  const [sessionConfirmOpen, setSessionConfirmOpen] = useState(false)
-  const [sessionToTerminate, setSessionToTerminate] = useState<string | null>(null)
-  const [terminatingSession, setTerminatingSession] = useState(false)
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-  const [adminToDelete, setAdminToDelete] = useState<string | null>(null)
-  const [deletingAdmin, setDeletingAdmin] = useState(false)
-
   const handleTerminateSessionClick = (sessionId: string) => {
     setSessionToTerminate(sessionId)
     setSessionConfirmOpen(true)
