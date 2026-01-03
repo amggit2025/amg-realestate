@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
 import { useToastContext } from '@/lib/ToastContext'
@@ -62,6 +63,9 @@ export default function AdminPortfolioPage() {
   const [currentPage, setCurrentPage] = useState('portfolio')
   const [adminRole] = useState('ADMIN') // يمكن جلبه من السيشن لاحقاً
   const [projects, setProjects] = useState<any[]>([])
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -197,17 +201,24 @@ export default function AdminPortfolioPage() {
   }
 
   // حذف عمل
-  const deletePortfolioItem = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا العمل؟')) return
+  const handleDeleteClick = (id: string) => {
+    setItemToDelete(id)
+    setDeleteConfirmOpen(true)
+  }
 
+  const deletePortfolioItem = async () => {
+    if (!itemToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/admin/portfolio/${id}`, {
+      const response = await fetch(`/api/admin/portfolio/${itemToDelete}`, {
         method: 'DELETE'
       })
       
       const data = await response.json()
       
       if (data.success) {
+        toast.success('تم حذف العمل بنجاح')
         fetchPortfolioItems()
       } else {
         toast.error('حدث خطأ في حذف العمل: ' + data.message)
@@ -215,6 +226,10 @@ export default function AdminPortfolioPage() {
     } catch (error) {
       logger.error('خطأ في حذف العمل:', error)
       toast.error('حدث خطأ في الاتصال بالخادم')
+    } finally {
+      setDeleting(false)
+      setDeleteConfirmOpen(false)
+      setItemToDelete(null)
     }
   }
 
@@ -518,8 +533,9 @@ export default function AdminPortfolioPage() {
                         </PermissionGuard>
                         <PermissionGuard module="portfolio" permission="delete">
                           <button
-                            onClick={() => deletePortfolioItem(item.id)}
-                            className="text-red-600 hover:text-red-900"
+                            onClick={() => handleDeleteClick(item.id)}
+                            disabled={deleting}
+                            className="text-red-600 hover:text-red-900 disabled:opacity-50"
                           >
                             <TrashIcon className="w-4 h-4" />
                           </button>
@@ -751,6 +767,18 @@ export default function AdminPortfolioPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={deletePortfolioItem}
+        title="تأكيد الحذف"
+        message="هل أنت متأكد من حذف هذا العمل؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        loading={deleting}
+      />
     </div>
   )
 }

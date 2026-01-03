@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
 import { useToastContext } from '@/lib/ToastContext'
@@ -65,7 +66,9 @@ export default function AdminServicesPage() {
   const [adminRole] = useState('ADMIN')
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
-  const [deleting, setDeleting] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     fetchServices()
@@ -93,12 +96,17 @@ export default function AdminServicesPage() {
     }
   }
 
-  const handleDelete = async (serviceId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذه الخدمة؟')) return
+  const handleDeleteClick = (serviceId: string) => {
+    setItemToDelete(serviceId)
+    setDeleteConfirmOpen(true)
+  }
 
-    setDeleting(serviceId)
+  const handleDelete = async () => {
+    if (!itemToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/admin/services/${serviceId}`, {
+      const response = await fetch(`/api/admin/services/${itemToDelete}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -107,7 +115,7 @@ export default function AdminServicesPage() {
       })
 
       if (response.ok) {
-        setServices(services.filter(s => s.id !== serviceId))
+        setServices(services.filter(s => s.id !== itemToDelete))
         toast.success('تم حذف الخدمة بنجاح')
       } else {
         const data = await response.json()
@@ -116,7 +124,9 @@ export default function AdminServicesPage() {
     } catch (error) {
       toast.error('حدث خطأ أثناء الحذف')
     } finally {
-      setDeleting(null)
+      setDeleting(false)
+      setDeleteConfirmOpen(false)
+      setItemToDelete(null)
     }
   }
 
@@ -260,8 +270,8 @@ export default function AdminServicesPage() {
                         </button>
                         <PermissionGuard module="services" permission="delete">
                           <button 
-                            onClick={() => handleDelete(service.id)}
-                            disabled={deleting === service.id}
+                            onClick={() => handleDeleteClick(service.id)}
+                            disabled={deleting}
                             className="bg-red-100 text-red-600 px-3 py-2 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
                           >
                             <TrashIcon className="w-4 h-4" />
@@ -289,6 +299,18 @@ export default function AdminServicesPage() {
             </div>
           </div>
         </div>
+
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="تأكيد الحذف"
+        message="هل أنت متأكد من حذف هذه الخدمة؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        loading={deleting}
+      />
     </div>
   )
 }

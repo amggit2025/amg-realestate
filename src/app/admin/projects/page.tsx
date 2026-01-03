@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
 import { useToastContext } from '@/lib/ToastContext'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -34,6 +35,9 @@ export default function AdminProjectsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [seedLoading, setSeedLoading] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchProjects()
@@ -81,24 +85,34 @@ export default function AdminProjectsPage() {
     }
   }
 
-  const deleteProject = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المشروع؟')) return
+  const handleDeleteClick = (id: string) => {
+    setProjectToDelete(id)
+    setDeleteConfirmOpen(true)
+  }
+
+  const deleteProject = async () => {
+    if (!projectToDelete) return
 
     try {
-      const response = await fetch(`/api/projects/${id}`, {
+      setDeleting(true)
+      const response = await fetch(`/api/projects/${projectToDelete}`, {
         method: 'DELETE'
       })
       const data = await response.json()
 
       if (data.success) {
-        setProjects(prev => prev.filter(p => p.id !== id))
+        setProjects(prev => prev.filter(p => p.id !== projectToDelete))
         toast.success('تم حذف المشروع بنجاح')
+        setDeleteConfirmOpen(false)
+        setProjectToDelete(null)
       } else {
         toast.error('فشل في حذف المشروع', data.message)
       }
     } catch (error) {
       logger.error('Error deleting project:', error)
       toast.error('حدث خطأ في الاتصال بالخادم')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -303,7 +317,7 @@ export default function AdminProjectsPage() {
                               </PermissionGuard>
                               <PermissionGuard module="projects" permission="delete">
                                 <button
-                                  onClick={() => deleteProject(project.id)}
+                                  onClick={() => handleDeleteClick(project.id)}
                                   className="p-2 text-gray-600 hover:text-red-600 transition-colors"
                                   title="حذف"
                                 >
@@ -348,5 +362,22 @@ export default function AdminProjectsPage() {
             </div>
           )}
         </div>
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          setDeleteConfirmOpen(false)
+          setProjectToDelete(null)
+        }}
+        onConfirm={deleteProject}
+        title="حذف المشروع"
+        message="هل أنت متأكد من حذف هذا المشروع؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
+    </div>
   )
 }
