@@ -22,6 +22,8 @@ import {
   ArrowPathIcon,
   BellAlertIcon
 } from '@heroicons/react/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToastContext } from '@/lib/ToastContext'
 
 // ترجمة الحالات
 const statusLabels: Record<string, { label: string; color: string; bg: string }> = {
@@ -105,6 +107,7 @@ interface Stats {
 }
 
 export default function ListingRequestsPage() {
+  const toast = useToastContext()
   const [requests, setRequests] = useState<ListingRequest[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -116,6 +119,9 @@ export default function ListingRequestsPage() {
   const [newRequestCount, setNewRequestCount] = useState(0)
   const lastFetchedCount = useRef<number>(0)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [requestToDelete, setRequestToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
   
   // Filters
   const [statusFilter, setStatusFilter] = useState('')
@@ -247,11 +253,17 @@ export default function ListingRequestsPage() {
   }
 
   // Delete request
-  const deleteRequest = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return
+  const handleDeleteClick = (id: string) => {
+    setRequestToDelete(id)
+    setDeleteConfirmOpen(true)
+  }
 
+  const deleteRequest = async () => {
+    if (!requestToDelete) return
+
+    setDeleting(true)
     try {
-      const res = await fetch(`/api/listing-requests/${id}`, {
+      const res = await fetch(`/api/listing-requests/${requestToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${getToken()}`
@@ -259,12 +271,20 @@ export default function ListingRequestsPage() {
       })
 
       if (res.ok) {
+        toast.success('تم حذف الطلب بنجاح')
         fetchRequests()
         fetchStats()
         setIsModalOpen(false)
+        setDeleteConfirmOpen(false)
+        setRequestToDelete(null)
+      } else {
+        toast.error('فشل حذف الطلب')
       }
     } catch (error) {
       console.error('Error deleting request:', error)
+      toast.error('حدث خطأ أثناء حذف الطلب')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -541,7 +561,7 @@ export default function ListingRequestsPage() {
                           <EyeIcon className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => deleteRequest(request.id)}
+                          onClick={() => handleDeleteClick(request.id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="حذف"
                         >
@@ -736,6 +756,19 @@ export default function ListingRequestsPage() {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={deleteRequest}
+        title="حذف طلب عرض عقار"
+        message="هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

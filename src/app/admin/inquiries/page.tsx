@@ -15,6 +15,8 @@ import {
   EyeIcon,
 } from '@heroicons/react/24/outline'
 import { PermissionGuard } from '@/components/admin/PermissionGuard'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToastContext } from '@/lib/ToastContext'
 
 interface Inquiry {
   id: string
@@ -50,6 +52,7 @@ interface Stats {
 }
 
 export default function InquiriesPage() {
+  const toast = useToastContext()
   const [inquiries, setInquiries] = useState<Inquiry[]>([])
   const [stats, setStats] = useState<Stats>({ 
     total: 0, 
@@ -70,6 +73,9 @@ export default function InquiriesPage() {
   const [lastFetchedCount, setLastFetchedCount] = useState<number>(0)
   const [showNewInquiryToast, setShowNewInquiryToast] = useState(false)
   const itemsPerPage = 10
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [inquiryToDelete, setInquiryToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchInquiries()
@@ -136,27 +142,35 @@ export default function InquiriesPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الاستفسار؟')) {
-      return
-    }
+  const handleDeleteClick = (id: string) => {
+    setInquiryToDelete(id)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDelete = async () => {
+    if (!inquiryToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/admin/inquiries/${id}`, {
+      const response = await fetch(`/api/admin/inquiries/${inquiryToDelete}`, {
         method: 'DELETE',
       })
 
       const result = await response.json()
 
       if (result.success) {
-        showMessage('success', 'تم الحذف بنجاح')
+        toast.success('تم حذف الاستفسار بنجاح')
         setSelectedInquiry(null)
         fetchInquiries()
+        setDeleteConfirmOpen(false)
+        setInquiryToDelete(null)
       } else {
-        showMessage('error', result.message || 'فشل الحذف')
+        toast.error(result.message || 'فشل الحذف')
       }
     } catch (error) {
-      showMessage('error', 'حدث خطأ أثناء الحذف')
+      toast.error('حدث خطأ أثناء الحذف')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -532,7 +546,7 @@ export default function InquiriesPage() {
                         </button>
                         <PermissionGuard module="inquiries" permission="delete">
                           <button
-                            onClick={() => handleDelete(inquiry.id)}
+                            onClick={() => handleDeleteClick(inquiry.id)}
                             className="text-red-600 hover:text-red-900"
                             title="حذف"
                           >
@@ -680,7 +694,7 @@ export default function InquiriesPage() {
                   </PermissionGuard>
                   <PermissionGuard module="inquiries" permission="delete">
                     <button
-                      onClick={() => handleDelete(selectedInquiry.id)}
+                      onClick={() => handleDeleteClick(selectedInquiry.id)}
                       className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700"
                     >
                       حذف
@@ -692,6 +706,19 @@ export default function InquiriesPage() {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="حذف استفسار"
+        message="هل أنت متأكد من حذف هذا الاستفسار؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

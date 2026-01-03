@@ -14,6 +14,10 @@ import {
   CheckCircleIcon,
   XCircleIcon,
 } from '@heroicons/react/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/lib/ToastContext'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/lib/ToastContext'
 
 interface Admin {
   id: string
@@ -118,6 +122,15 @@ export default function AdminsPage() {
     },
   })
 
+  // Toast and confirm dialog states
+  const toast = useToast()
+  const [sessionConfirmOpen, setSessionConfirmOpen] = useState(false)
+  const [sessionToTerminate, setSessionToTerminate] = useState<string | null>(null)
+  const [terminatingSession, setTerminatingSession] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [adminToDelete, setAdminToDelete] = useState<string | null>(null)
+  const [deletingAdmin, setDeletingAdmin] = useState(false)
+
   useEffect(() => {
     fetchData()
   }, [])
@@ -155,22 +168,43 @@ export default function AdminsPage() {
     }
   }
 
-  const terminateSession = async (sessionId: string) => {
-    if (!confirm('هل أنت متأكد من إنهاء هذه الجلسة؟')) return
+  // State for confirm dialogs
+  const toast = useToast()
+  const [sessionConfirmOpen, setSessionConfirmOpen] = useState(false)
+  const [sessionToTerminate, setSessionToTerminate] = useState<string | null>(null)
+  const [terminatingSession, setTerminatingSession] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [adminToDelete, setAdminToDelete] = useState<string | null>(null)
+  const [deletingAdmin, setDeletingAdmin] = useState(false)
 
+  const handleTerminateSessionClick = (sessionId: string) => {
+    setSessionToTerminate(sessionId)
+    setSessionConfirmOpen(true)
+  }
+
+  const terminateSession = async () => {
+    if (!sessionToTerminate) return
+
+    setTerminatingSession(true)
     try {
-      const response = await fetch(`/api/admin/sessions?sessionId=${sessionId}`, {
+      const response = await fetch(`/api/admin/sessions?sessionId=${sessionToTerminate}`, {
         method: 'DELETE',
       })
 
       const result = await response.json()
 
       if (result.success) {
-        showMessage('success', 'تم إنهاء الجلسة بنجاح')
+        toast.success('تم إنهاء الجلسة بنجاح')
+        setSessionConfirmOpen(false)
+        setSessionToTerminate(null)
         fetchData()
+      } else {
+        toast.error(result.message || 'حدث خطأ أثناء إنهاء الجلسة')
       }
     } catch (error) {
-      showMessage('error', 'حدث خطأ أثناء إنهاء الجلسة')
+      toast.error('حدث خطأ أثناء إنهاء الجلسة')
+    } finally {
+      setTerminatingSession(false)
     }
   }
 
@@ -234,24 +268,34 @@ export default function AdminsPage() {
     }
   }
 
-  const handleDeleteAdmin = async (adminId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المشرف؟ هذا الإجراء لا يمكن التراجع عنه.')) return
+  const handleDeleteAdminClick = (adminId: string) => {
+    setAdminToDelete(adminId)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDeleteAdmin = async () => {
+    if (!adminToDelete) return
+
+    setDeletingAdmin(true)
     try {
-      const response = await fetch(`/api/admin/admins?id=${adminId}`, {
+      const response = await fetch(`/api/admin/admins?id=${adminToDelete}`, {
         method: 'DELETE',
       })
 
       const result = await response.json()
 
       if (result.success) {
-        showMessage('success', 'تم حذف المشرف بنجاح')
+        toast.success('تم حذف المشرف بنجاح')
+        setDeleteConfirmOpen(false)
+        setAdminToDelete(null)
         fetchData()
       } else {
-        showMessage('error', result.message || 'حدث خطأ أثناء حذف المشرف')
+        toast.error(result.message || 'حدث خطأ أثناء حذف المشرف')
       }
     } catch (error) {
-      showMessage('error', 'حدث خطأ أثناء حذف المشرف')
+      toast.error('حدث خطأ أثناء حذف المشرف')
+    } finally {
+      setDeletingAdmin(false)
     }
   }
 
@@ -587,7 +631,7 @@ export default function AdminsPage() {
                               </button>
                               {admin.role !== 'SUPER_ADMIN' && (
                                 <button
-                                  onClick={() => handleDeleteAdmin(admin.id)}
+                                  onClick={() => handleDeleteAdminClick(admin.id)}
                                   className="text-red-600 hover:text-red-800 font-semibold text-sm"
                                 >
                                   حذف
@@ -711,7 +755,7 @@ export default function AdminsPage() {
                       </div>
 
                       <button
-                        onClick={() => terminateSession(session.id)}
+                        onClick={() => handleTerminateSessionClick(session.id)}
                         className="mt-4 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                       >
                         <XMarkIcon className="w-4 h-4" />
@@ -1022,6 +1066,31 @@ export default function AdminsPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Confirm Dialogs */}
+      <ConfirmDialog
+        isOpen={sessionConfirmOpen}
+        onClose={() => setSessionConfirmOpen(false)}
+        onConfirm={terminateSession}
+        title="إنهاء الجلسة"
+        message="هل أنت متأكد من إنهاء هذه الجلسة؟"
+        confirmText="إنهاء"
+        cancelText="إلغاء"
+        type="warning"
+        isLoading={terminatingSession}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteAdmin}
+        title="حذف المشرف"
+        message="هل أنت متأكد من حذف هذا المشرف؟ هذا الإجراء لا يمكن التراجع عنه."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deletingAdmin}
+      />
     </div>
   )
 }

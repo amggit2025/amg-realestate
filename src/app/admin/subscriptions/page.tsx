@@ -14,6 +14,8 @@ import {
   MagnifyingGlassIcon,
   CalendarIcon,
 } from '@heroicons/react/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/lib/ToastContext'
 
 interface Subscription {
   id: string
@@ -44,6 +46,12 @@ export default function SubscriptionsPage() {
   const [lastFetchedCount, setLastFetchedCount] = useState<number>(0)
   const [showNewSubscriptionToast, setShowNewSubscriptionToast] = useState(false)
   const itemsPerPage = 10
+  
+  // Confirm dialog state
+  const toast = useToast()
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [subscriptionToDelete, setSubscriptionToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchSubscriptions()
@@ -89,25 +97,36 @@ export default function SubscriptionsPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الاشتراك نهائياً؟')) {
-      return
-    }
+  const handleDeleteClick = (id: string) => {
+    setSubscriptionToDelete(id)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDelete = async () => {
+    if (!subscriptionToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/admin/newsletter-subscriptions/${id}`, {
+      const response = await fetch(`/api/admin/newsletter-subscriptions/${subscriptionToDelete}`, {
         method: 'DELETE',
       })
 
       const result = await response.json()
 
       if (result.success) {
-        showMessage('success', 'تم الحذف بنجاح')
+        toast.success('تم الحذف بنجاح')
+        setDeleteConfirmOpen(false)
+        setSubscriptionToDelete(null)
         fetchSubscriptions()
       } else {
-        showMessage('error', result.message || 'فشل الحذف')
+        toast.error(result.message || 'فشل الحذف')
       }
     } catch (error) {
+      toast.error('حدث خطأ أثناء الحذف')
+    } finally {
+      setDeleting(false)
+    }
+  }
       showMessage('error', 'حدث خطأ أثناء الحذف')
     }
   }
@@ -413,7 +432,7 @@ export default function SubscriptionsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
-                          onClick={() => handleDelete(subscription.id)}
+                          onClick={() => handleDeleteClick(subscription.id)}
                           className="text-red-600 hover:text-red-900"
                           title="حذف"
                         >
@@ -459,6 +478,18 @@ export default function SubscriptionsPage() {
           </>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="حذف الاشتراك"
+        message="هل أنت متأكد من حذف هذا الاشتراك نهائياً؟"
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

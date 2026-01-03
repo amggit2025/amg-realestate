@@ -10,6 +10,8 @@ import {
   XCircleIcon,
   ShareIcon
 } from '@heroicons/react/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToastContext } from '@/lib/ToastContext'
 
 interface HeroStats {
   yearsOfExperience: number
@@ -58,10 +60,13 @@ interface SocialLinksData {
 }
 
 export default function GeneralInfoPage() {
+  const toast = useToastContext()
   const [activeTab, setActiveTab] = useState('hero')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   
   // Hero Stats State
   const [heroStats, setHeroStats] = useState<HeroStats>({
@@ -278,17 +283,18 @@ export default function GeneralInfoPage() {
   }
 
   // حذف صورة Hero نهائياً
-  const handleDeleteHeroImage = async () => {
+  const handleDeleteHeroImageClick = () => {
     if (!heroStats.heroImagePublicId) {
-      setError('لا توجد صورة لحذفها')
+      toast.error('لا توجد صورة لحذفها')
       return
     }
+    setDeleteConfirmOpen(true)
+  }
 
-    if (!confirm('هل أنت متأكد من حذف صورة Hero؟ سيتم استخدام الصورة الافتراضية.')) {
-      return
-    }
+  const handleDeleteHeroImage = async () => {
+    if (!heroStats.heroImagePublicId) return
 
-    setLoading(true)
+    setDeleting(true)
     setError('')
 
     try {
@@ -302,13 +308,13 @@ export default function GeneralInfoPage() {
         heroImagePublicId: ''
       }))
 
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 2000)
+      toast.success('تم حذف الصورة بنجاح')
+      setDeleteConfirmOpen(false)
     } catch (err) {
-      setError('حدث خطأ أثناء حذف الصورة')
+      toast.error('حدث خطأ أثناء حذف الصورة')
       logger.error('Delete error:', err)
     } finally {
-      setLoading(false)
+      setDeleting(false)
     }
   }
 
@@ -1378,6 +1384,19 @@ export default function GeneralInfoPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Confirm Delete Hero Image Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteHeroImage}
+        title="حذف صورة Hero"
+        message="هل أنت متأكد من حذف صورة Hero؟ سيتم حذفها من Cloudinary واستخدام الصورة الافتراضية."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

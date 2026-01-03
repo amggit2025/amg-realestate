@@ -17,6 +17,8 @@ import {
 } from '@heroicons/react/24/outline'
 import { format } from 'date-fns'
 import { ar } from 'date-fns/locale'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToastContext } from '@/lib/ToastContext'
 
 interface ServiceRequest {
   id: string
@@ -36,6 +38,7 @@ interface ServiceRequest {
 }
 
 export default function ServiceRequestsPage() {
+  const toast = useToastContext()
   const [requests, setRequests] = useState<ServiceRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('all')
@@ -47,6 +50,9 @@ export default function ServiceRequestsPage() {
   const [lastFetchedCount, setLastFetchedCount] = useState<number>(0)
   const [showNewRequestToast, setShowNewRequestToast] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [requestToDelete, setRequestToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
@@ -123,20 +129,34 @@ export default function ServiceRequestsPage() {
     }
   }
 
-  const handleDelete = async (requestId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return
+  const handleDeleteClick = (requestId: string) => {
+    setRequestToDelete(requestId)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDelete = async () => {
+    if (!requestToDelete) return
+
+    setDeleting(true)
     try {
-      const response = await fetch(`/api/admin/service-requests/${requestId}`, {
+      const response = await fetch(`/api/admin/service-requests/${requestToDelete}`, {
         method: 'DELETE',
         credentials: 'include'
       })
 
       if (response.ok) {
+        toast.success('تم حذف الطلب بنجاح')
         fetchRequests()
+        setDeleteConfirmOpen(false)
+        setRequestToDelete(null)
+      } else {
+        toast.error('فشل حذف الطلب')
       }
     } catch (error) {
       logger.error('Error deleting request:', error)
+      toast.error('حدث خطأ أثناء حذف الطلب')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -401,7 +421,7 @@ export default function ServiceRequestsPage() {
                           عرض
                         </button>
                         <button
-                          onClick={() => handleDelete(request.id)}
+                          onClick={() => handleDeleteClick(request.id)}
                           className="text-red-600 hover:text-red-800 font-medium"
                         >
                           حذف
@@ -511,6 +531,19 @@ export default function ServiceRequestsPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="حذف طلب استشارة"
+        message="هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

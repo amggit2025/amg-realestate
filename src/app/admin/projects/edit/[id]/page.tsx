@@ -15,6 +15,8 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToastContext } from '@/lib/ToastContext'
 
 // Available project features
 const availableFeatures = [
@@ -89,6 +91,7 @@ interface EditProjectPageProps {
 
 export default function EditProjectPage({ params }: EditProjectPageProps) {
   const router = useRouter()
+  const toast = useToastContext()
   const [projectId, setProjectId] = useState<string>('')
   const [formData, setFormData] = useState<ProjectData>({
     id: '',
@@ -117,6 +120,9 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [imageToDelete, setImageToDelete] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const getParams = async () => {
@@ -257,17 +263,23 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
   }
 
   // 🗑️ حذف صورة من المشروع
-  const removeImage = async (index: number) => {
+  const handleRemoveImageClick = (index: number) => {
     const imageToRemove = images[index]
     
     if (!imageToRemove.id) {
-      setError('معرف الصورة غير موجود')
+      toast.error('معرف الصورة غير موجود')
       return
     }
 
-    if (!confirm('هل أنت متأكد من حذف هذه الصورة؟ سيتم حذفها من Cloudinary نهائياً.')) {
-      return
-    }
+    setImageToDelete(index)
+    setDeleteConfirmOpen(true)
+  }
+
+  const removeImage = async () => {
+    if (imageToDelete === null) return
+
+    const imageToRemove = images[imageToDelete]
+    setDeleting(true)
 
     try {
       const response = await fetch(`/api/admin/projects/${projectId}/images`, {
@@ -284,16 +296,17 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
 
       if (data.success) {
         await fetchProject(projectId)
-        setSuccess('تم حذف الصورة بنجاح من Cloudinary وقاعدة البيانات!')
-        setTimeout(() => setSuccess(null), 3000)
+        toast.success('تم حذف الصورة بنجاح من Cloudinary وقاعدة البيانات!')
+        setDeleteConfirmOpen(false)
+        setImageToDelete(null)
       } else {
-        setError(data.message || 'خطأ في حذف الصورة')
-        setTimeout(() => setError(null), 5000)
+        toast.error(data.message || 'خطأ في حذف الصورة')
       }
     } catch (error) {
       logger.error('Error removing image:', error)
-      setError('خطأ في حذف الصورة')
-      setTimeout(() => setError(null), 5000)
+      toast.error('خطأ في حذف الصورة')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -1034,7 +1047,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                         />
                         <button
                           type="button"
-                          onClick={() => removeImage(index)}
+                          onClick={() => handleRemoveImageClick(index)}
                           className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <XMarkIcon className="w-3 h-3" />
@@ -1120,6 +1133,19 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           </form>
         </div>
       </div>
+
+      {/* Confirm Delete Image Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={removeImage}
+        title="حذف صورة"
+        message="هل أنت متأكد من حذف هذه الصورة؟ سيتم حذفها من Cloudinary نهائياً."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

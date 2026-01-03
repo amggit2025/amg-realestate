@@ -13,6 +13,7 @@ import {
   XMarkIcon,
   TrashIcon
 } from '@heroicons/react/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 // تصنيفات معرض الأعمال
 const portfolioCategories = [
@@ -112,6 +113,9 @@ export default function EditPortfolioPage() {
   const [newGalleryImages, setNewGalleryImages] = useState<File[]>([])
   const [deletedImages, setDeletedImages] = useState<string[]>([])
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [imageToDelete, setImageToDelete] = useState<{ id: string, publicId?: string } | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Fetch services and projects on mount
   useEffect(() => {
@@ -262,12 +266,20 @@ export default function EditPortfolioPage() {
   }
 
   // حذف صورة من المعرض الموجود
-  const removeExistingImage = async (imageId: string, publicId?: string) => {
-    if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+  const handleRemoveImageClick = (imageId: string, publicId?: string) => {
+    setImageToDelete({ id: imageId, publicId })
+    setDeleteConfirmOpen(true)
+  }
+
+  const removeExistingImage = async () => {
+    if (!imageToDelete) return
+
+    setDeleting(true)
+    try {
       // حذف من Cloudinary إذا وجد publicId
-      if (publicId) {
+      if (imageToDelete.publicId) {
         try {
-          await fetch(`/api/upload/manage?publicId=${publicId}`, {
+          await fetch(`/api/upload/manage?publicId=${imageToDelete.publicId}`, {
             method: 'DELETE'
           })
         } catch (error) {
@@ -276,13 +288,21 @@ export default function EditPortfolioPage() {
       }
       
       // إضافة للقائمة المحذوفة
-      setDeletedImages(prev => [...prev, imageId])
+      setDeletedImages(prev => [...prev, imageToDelete.id])
       
       // حذف من العرض المحلي
       setFormData(prev => ({
         ...prev,
-        images: prev.images.filter(img => img.id !== imageId)
+        images: prev.images.filter(img => img.id !== imageToDelete.id)
       }))
+
+      toast.success('تم حذف الصورة بنجاح')
+      setDeleteConfirmOpen(false)
+      setImageToDelete(null)
+    } catch (error) {
+      toast.error('حدث خطأ أثناء حذف الصورة')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -526,7 +546,19 @@ export default function EditPortfolioPage() {
             <p className="text-gray-600">جاري تحميل بيانات العمل...</p>
           </div>
         </div>
-      </div>
+
+      {/* Confirm Delete Image Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={removeExistingImage}
+        title="حذف صورة"
+        message="هل أنت متأكد من حذف هذه الصورة؟ سيتم حذفها من Cloudinary نهائياً."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     )
   }
 
@@ -841,7 +873,7 @@ export default function EditPortfolioPage() {
                       )}
                       <button
                         type="button"
-                        onClick={() => removeExistingImage(image.id, image.publicId)}
+                        onClick={() => handleRemoveImageClick(image.id, image.publicId)}
                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <TrashIcon className="w-4 h-4" />

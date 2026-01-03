@@ -13,6 +13,7 @@ import {
   PhotoIcon,
   TrashIcon
 } from '@heroicons/react/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 const ICON_OPTIONS = [
   'BuildingOfficeIcon',
@@ -91,6 +92,8 @@ export default function EditServicePage() {
   const [budgetRanges, setBudgetRanges] = useState<string[]>([])
   const [timelines, setTimelines] = useState<string[]>([])
   const [uploadingHero, setUploadingHero] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchService()
@@ -179,6 +182,39 @@ export default function EditServicePage() {
       toast.error('حدث خطأ أثناء رفع الصورة')
     } finally {
       setUploadingHero(false)
+    }
+  }
+
+  const handleDeleteHeroImageClick = () => {
+    if (!formData.heroImagePublicId) {
+      setFormData({ ...formData, heroImage: '', heroImagePublicId: '' })
+      return
+    }
+    setDeleteConfirmOpen(true)
+  }
+
+  const handleDeleteHeroImage = async () => {
+    if (!formData.heroImagePublicId) {
+      setFormData({ ...formData, heroImage: '', heroImagePublicId: '' })
+      setDeleteConfirmOpen(false)
+      return
+    }
+
+    setDeleting(true)
+    try {
+      await fetch('/api/delete-image', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publicId: formData.heroImagePublicId })
+      })
+      setFormData({ ...formData, heroImage: '', heroImagePublicId: '' })
+      toast.success('تم حذف الصورة بنجاح')
+      setDeleteConfirmOpen(false)
+    } catch (error) {
+      logger.error('Error deleting image:', error)
+      toast.error('حدث خطأ أثناء حذف الصورة')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -689,6 +725,19 @@ export default function EditServicePage() {
               </button>
             </div>
       </form>
+
+      {/* Confirm Delete Hero Image Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteHeroImage}
+        title="حذف صورة Hero"
+        message="هل تريد حذف الصورة من Cloudinary؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

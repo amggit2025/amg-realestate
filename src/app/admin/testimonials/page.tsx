@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react'
 import { PlusIcon, PencilIcon, TrashIcon, StarIcon } from '@heroicons/react/24/outline'
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid'
 import { logger } from '@/lib/logger'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/lib/ToastContext'
 
 interface Testimonial {
   id: string
@@ -40,6 +42,12 @@ export default function TestimonialsPage() {
     order: 0
   })
   const [message, setMessage] = useState({ type: '', text: '' })
+  
+  // Confirm dialog state
+  const toast = useToast()
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [testimonialToDelete, setTestimonialToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchTestimonials()
@@ -104,17 +112,29 @@ export default function TestimonialsPage() {
     setShowForm(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف رأي العميل؟')) return
+  const handleDeleteClick = (id: string) => {
+    setTestimonialToDelete(id)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDelete = async () => {
+    if (!testimonialToDelete) return
+
+    setDeleting(true)
     try {
-      const res = await fetch(`/api/testimonials/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/testimonials/${testimonialToDelete}`, { method: 'DELETE' })
       if (res.ok) {
-        setMessage({ type: 'success', text: 'تم حذف رأي العميل بنجاح!' })
+        toast.success('تم حذف رأي العميل بنجاح!')
+        setDeleteConfirmOpen(false)
+        setTestimonialToDelete(null)
         fetchTestimonials()
+      } else {
+        toast.error('حدث خطأ أثناء الحذف')
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'حدث خطأ أثناء الحذف' })
+      toast.error('حدث خطأ أثناء الحذف')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -390,7 +410,7 @@ export default function TestimonialsPage() {
                         <PencilIcon className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(testimonial.id)}
+                        onClick={() => handleDeleteClick(testimonial.id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="حذف"
                       >
@@ -404,6 +424,18 @@ export default function TestimonialsPage() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="حذف رأي العميل"
+        message="هل أنت متأكد من حذف رأي العميل؟"
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="danger"
+        isLoading={deleting}
+      />
     </div>
   )
 }

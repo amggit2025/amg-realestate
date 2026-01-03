@@ -15,6 +15,8 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToastContext } from '@/lib/ToastContext'
 
 interface Admin {
   id: string
@@ -56,6 +58,7 @@ interface Stats {
 }
 
 export default function SettingsPage() {
+  const toast = useToastContext()
   const [admin, setAdmin] = useState<Admin | null>(null)
   const [sessions, setSessions] = useState<Session[]>([])
   const [activities, setActivities] = useState<Activity[]>([])
@@ -63,6 +66,9 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'sessions' | 'activity'>('profile')
   const [isLoading, setIsLoading] = useState(true)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   // Profile form
   const [profileForm, setProfileForm] = useState({
@@ -186,22 +192,32 @@ export default function SettingsPage() {
     }
   }
 
-  const handleDeleteSession = async (sessionId: string) => {
-    if (!confirm('هل تريد حذف هذه الجلسة؟')) return
+  const handleDeleteSessionClick = (sessionId: string) => {
+    setSessionToDelete(sessionId)
+    setDeleteConfirmOpen(true)
+  }
 
+  const handleDeleteSession = async () => {
+    if (!sessionToDelete) return
+
+    setDeleting(true)
     try {
-      const res = await fetch(`/api/admin/sessions/${sessionId}`, {
+      const res = await fetch(`/api/admin/sessions/${sessionToDelete}`, {
         method: 'DELETE',
       })
 
       if (res.ok) {
-        showMessage('success', 'تم حذف الجلسة بنجاح')
+        toast.success('تم حذف الجلسة بنجاح')
         fetchData()
+        setDeleteConfirmOpen(false)
+        setSessionToDelete(null)
       } else {
-        showMessage('error', 'حدث خطأ أثناء حذف الجلسة')
+        toast.error('حدث خطأ أثناء حذف الجلسة')
       }
     } catch (error) {
-      showMessage('error', 'حدث خطأ أثناء حذف الجلسة')
+      toast.error('حدث خطأ أثناء حذف الجلسة')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -567,7 +583,7 @@ export default function SettingsPage() {
                               </div>
                             </div>
                             <button
-                              onClick={() => handleDeleteSession(session.id)}
+                              onClick={() => handleDeleteSessionClick(session.id)}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             >
                               <XMarkIcon className="w-5 h-5" />
@@ -641,6 +657,19 @@ export default function SettingsPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Confirm Delete Session Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteSession}
+        title="حذف جلسة"
+        message="هل تريد حذف هذه الجلسة؟ سيتم تسجيل الخروج من هذا الجهاز."
+        confirmText="حذف"
+        cancelText="إلغاء"
+        type="warning"
+        isLoading={deleting}
+      />
     </div>
   )
 }
