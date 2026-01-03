@@ -12,7 +12,10 @@
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && prisma db push --skip-generate && next build",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "security:check": "snyk test --all-projects",
+    "security:monitor": "snyk monitor",
+    "security:fix": "snyk fix"
   },
   "dependencies": {
     "@alloc/quick-lru": "^5.2.0",
