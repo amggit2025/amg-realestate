@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { logger } from '@/lib/logger';
+import { ToastProvider } from '@/lib/ToastContext';
 
 export default function AdminLayout({
   children,
@@ -132,9 +133,11 @@ export default function AdminLayout({
   // إذا كنا في صفحة login، نعرضها بدون sidebar
   if (pathname === '/admin/login') {
     return (
-      <div className="min-h-screen bg-gray-50">
-        {children}
-      </div>
+      <ToastProvider>
+        <div className="min-h-screen bg-gray-50">
+          {children}
+        </div>
+      </ToastProvider>
     );
   }
 
@@ -144,7 +147,8 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <ToastProvider>
+      <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <AdminSidebar 
         key="admin-sidebar"
@@ -200,6 +204,6 @@ export default function AdminLayout({
           {children}
         </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 }

@@ -40,6 +40,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
       } else if (result?.ok) {
+        // Wait a bit for session to be established
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
         const redirectUrl = searchParams.get('redirect')
         router.push(redirectUrl || '/dashboard')
         router.refresh()

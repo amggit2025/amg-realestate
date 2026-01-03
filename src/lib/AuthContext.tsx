@@ -4,6 +4,7 @@
 // 🔐 AMG Real Estate - Authentication Context
 // ======================================================
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 
 // تعريف أنواع البيانات
 interface User {
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { data: session, status } = useSession()
 
   // دالة لجلب بيانات المستخدم الحالي
   const fetchUser = useCallback(async () => {
@@ -180,22 +182,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // تسجيل الخروج
   const logout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      // استخدام NextAuth signOut
+      await signOut({ redirect: false })
+      
+      // تنظيف الحالة المحلية
+      setUser(null)
+      setStats(null)
+      
+      // Optional: استدعاء API logout للتنظيف
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       })
-      
-      // لا نحتاج لمعالجة النتيجة، فقط تسجيل الأخطاء الحقيقية
-      if (!response.ok && response.status !== 401) {
-        console.warn(`Logout warning: ${response.status} ${response.statusText}`)
-      }
     } catch (error) {
-      // تسجيل أخطاء الشبكة فقط
-      if (error instanceof Error && error.message.includes('network')) {
-        console.error('Network error during logout:', error.message)
-      }
-    } finally {
-      // دائماً نظف الحالة المحلية
+      console.error('Logout error:', error)
+      // دائماً نظف الحالة المحلية حتى لو حصل خطأ
       setUser(null)
       setStats(null)
     }
@@ -213,9 +214,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       setIsLoading(true)
       
-      // تحقق من وجود المكون قبل تحديث الحالة
+      // تحقق من حالة NextAuth session أولاً
+      if (status === 'loading') {
+        return // انتظر حتى يتم تحميل session
+      }
+      
+      // إذا كان هناك session من NextAuth، جلب بيانات المستخدم
+      if (status === 'authenticated' && session?.user) {
+        if (isMounted) {
+          await fetchUser()
+        }
+      } else {
+        // لا يوجد session، نظف البيانات
+        if (isMounted) {
+          setUser(null)
+          setStats(null)
+        }
+      }
+      
       if (isMounted) {
-        await fetchUser()
         setIsLoading(false)
       }
     }
@@ -226,7 +243,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false
     }
-  }, [fetchUser])
+  }, [status, session, fetchUser])
 
   const value: AuthContextType = {
     user,

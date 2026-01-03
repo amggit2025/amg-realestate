@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
+import { useToastContext } from '@/lib/ToastContext'
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -28,6 +29,7 @@ interface Project {
 }
 
 export default function AdminProjectsPage() {
+  const toast = useToastContext()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -66,14 +68,14 @@ export default function AdminProjectsPage() {
       const data = await response.json()
 
       if (data.success) {
-        alert('تم إضافة المشاريع التجريبية بنجاح!')
+        toast.success('تم إضافة المشاريع التجريبية بنجاح')
         fetchProjects() // إعادة تحميل المشاريع
       } else {
-        alert('خطأ: ' + data.message)
+        toast.error('فشل في إضافة المشاريع', data.message)
       }
     } catch (error) {
       logger.error('Error adding sample projects:', error)
-      alert('خطأ في إضافة المشاريع التجريبية')
+      toast.error('حدث خطأ في إضافة المشاريع التجريبية')
     } finally {
       setSeedLoading(false)
     }
@@ -90,13 +92,13 @@ export default function AdminProjectsPage() {
 
       if (data.success) {
         setProjects(prev => prev.filter(p => p.id !== id))
-        alert('تم حذف المشروع بنجاح')
+        toast.success('تم حذف المشروع بنجاح')
       } else {
-        alert(data.message || 'خطأ في حذف المشروع')
+        toast.error('فشل في حذف المشروع', data.message)
       }
     } catch (error) {
       logger.error('Error deleting project:', error)
-      alert('خطأ في الاتصال بالخادم')
+      toast.error('حدث خطأ في الاتصال بالخادم')
     }
   }
 
@@ -142,9 +144,10 @@ export default function AdminProjectsPage() {
           p.id === id ? { ...p, [field]: newValue } : p
         ))
         console.log('✅ Local state updated')
+        toast.success('تم تحديث حالة المشروع بنجاح')
       } else {
         console.error('❌ API returned error:', data.message)
-        alert(`خطأ: ${data.message}`)
+        toast.error('فشل في تحديث حالة المشروع', data.message)
       }
     } catch (error) {
       console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
@@ -155,7 +158,7 @@ export default function AdminProjectsPage() {
         console.error('Error message:', error.message)
         console.error('Error stack:', error.stack)
       }
-      alert(`خطأ في الاتصال: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`)
+      toast.error('حدث خطأ في الاتصال', error instanceof Error ? error.message : 'خطأ غير معروف')
     }
   }
 

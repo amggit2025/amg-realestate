@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
+import { useToastContext } from '@/lib/ToastContext'
 import {
   WrenchScrewdriverIcon,
   PaintBrushIcon,
@@ -59,6 +60,7 @@ interface Service {
 
 export default function AdminServicesPage() {
   const router = useRouter()
+  const toast = useToastContext()
   const [currentPage, setCurrentPage] = useState('services')
   const [adminRole] = useState('ADMIN')
   const [services, setServices] = useState<Service[]>([])
@@ -106,13 +108,13 @@ export default function AdminServicesPage() {
 
       if (response.ok) {
         setServices(services.filter(s => s.id !== serviceId))
-        alert('تم حذف الخدمة بنجاح')
+        toast.success('تم حذف الخدمة بنجاح')
       } else {
         const data = await response.json()
-        alert(data.error || 'فشل حذف الخدمة')
+        toast.error('فشل حذف الخدمة', data.error)
       }
     } catch (error) {
-      alert('حدث خطأ أثناء الحذف')
+      toast.error('حدث خطأ أثناء الحذف')
     } finally {
       setDeleting(null)
     }

@@ -6,6 +6,7 @@ import "./globals.css";
 import "./chrome-fixes.css";
 import { baseMetadata, generateStructuredData } from '@/lib/metadata'
 import { AuthProvider } from '@/lib/AuthContext'
+import { SessionProvider } from '@/lib/SessionProvider'
 import LayoutWrapper from '@/components/layout/LayoutWrapper'
 import GlobalWidgets from '@/components/layout/GlobalWidgets'
 import FirstVisitLoader from '@/components/layout/FirstVisitLoader'
@@ -86,16 +87,18 @@ export default function RootLayout({
       <body suppressHydrationWarning className={cairo.className}>
         <ErrorBoundary>
           <PWAProvider>
-            <AuthProvider>
-              <FirstVisitLoader />
-              <AnalyticsProvider />
-              <OnlineStatusIndicator />
-              <PWAInstallPrompt />
-              <GlobalWidgets />
-              <LayoutWrapper>
-                {children}
-              </LayoutWrapper>
-            </AuthProvider>
+            <SessionProvider>
+              <AuthProvider>
+                <FirstVisitLoader />
+                <AnalyticsProvider />
+                <OnlineStatusIndicator />
+                <PWAInstallPrompt />
+                <GlobalWidgets />
+                <LayoutWrapper>
+                  {children}
+                </LayoutWrapper>
+              </AuthProvider>
+            </SessionProvider>
           </PWAProvider>
         
         {/* Optimized Chrome performance script */}

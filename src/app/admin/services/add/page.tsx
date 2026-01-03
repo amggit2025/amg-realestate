@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
+import { useToastContext } from '@/lib/ToastContext'
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -61,6 +62,7 @@ interface Stat {
 
 export default function AddServicePage() {
   const router = useRouter()
+  const toast = useToastContext()
   const [currentPage, setCurrentPage] = useState('services')
   const [adminRole] = useState('ADMIN')
   const [loading, setLoading] = useState(false)
@@ -110,13 +112,13 @@ export default function AddServicePage() {
       
       if (data.success) {
         setFormData(prev => ({ ...prev, heroImage: data.url }))
-        alert('تم رفع الصورة بنجاح')
+        toast.success('تم رفع الصورة بنجاح')
       } else {
-        alert(data.message || 'فشل رفع الصورة')
+        toast.error('فشل رفع الصورة', data.message)
       }
     } catch (error) {
       logger.error('Error uploading image:', error)
-      alert('حدث خطأ أثناء رفع الصورة')
+      toast.error('حدث خطأ أثناء رفع الصورة')
     } finally {
       setUploadingHero(false)
     }
@@ -126,7 +128,7 @@ export default function AddServicePage() {
     e.preventDefault()
     
     if (!formData.slug || !formData.title || !formData.description) {
-      alert('الرجاء ملء جميع الحقول المطلوبة')
+      toast.warning('الرجاء ملء جميع الحقول المطلوبة')
       return
     }
 
@@ -149,14 +151,14 @@ export default function AddServicePage() {
       })
 
       if (response.ok) {
-        alert('تم إضافة الخدمة بنجاح')
+        toast.success('تم إضافة الخدمة بنجاح')
         router.push('/admin/services')
       } else {
         const data = await response.json()
-        alert(data.error || 'فشل في إضافة الخدمة')
+        toast.error('فشل في إضافة الخدمة', data.error)
       }
     } catch (error) {
-      alert('حدث خطأ أثناء الإضافة')
+      toast.error('حدث خطأ أثناء الإضافة')
     } finally {
       setLoading(false)
     }

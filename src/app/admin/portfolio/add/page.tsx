@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
+import { useToastContext } from '@/lib/ToastContext'
 
 import {
   ArrowLeftIcon,
@@ -24,6 +25,7 @@ const portfolioCategories = [
 
 export default function AddPortfolioPage() {
   const router = useRouter()
+  const toast = useToastContext()
   const [services, setServices] = useState<any[]>([])
   const [loadingServices, setLoadingServices] = useState(true)
   const [projects, setProjects] = useState<any[]>([])
@@ -230,7 +232,7 @@ export default function AddPortfolioPage() {
     e.preventDefault()
     
     if (!formData.title || !formData.description || !formData.location || !formData.client) {
-      alert('يرجى ملء جميع الحقول المطلوبة')
+      toast.error('يرجى ملء جميع الحقول المطلوبة')
       return
     }
 
@@ -294,14 +296,14 @@ export default function AddPortfolioPage() {
           })
         }
         
-        alert('تم إضافة العمل بنجاح!')
+        toast.success('تم إضافة العمل بنجاح!')
         router.push('/admin/portfolio')
       } else {
-        alert('حدث خطأ في إضافة العمل: ' + data.message)
+        toast.error('حدث خطأ في إضافة العمل: ' + data.message)
       }
     } catch (error) {
       logger.error('خطأ في إضافة العمل:', error)
-      alert('حدث خطأ في الاتصال بالخادم')
+      toast.error('حدث خطأ في الاتصال بالخادم')
     } finally {
       setSubmitting(false)
     }

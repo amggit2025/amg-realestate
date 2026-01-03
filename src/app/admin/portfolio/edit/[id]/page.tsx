@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import { logger } from '@/lib/logger'
+import { useToastContext } from '@/lib/ToastContext'
 import {
   ArrowLeftIcon,
   PhotoIcon,
@@ -61,6 +62,7 @@ export default function EditPortfolioPage() {
   const router = useRouter()
   const params = useParams()
   const portfolioId = params.id as string
+  const toast = useToastContext()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -189,12 +191,12 @@ export default function EditPortfolioPage() {
         if (data.success) {
           setFormData(data.portfolioItem)
         } else {
-          alert('خطأ في تحميل بيانات العمل: ' + (data.message || 'خطأ غير محدد'))
+          toast.error('خطأ في تحميل بيانات العمل: ' + (data.message || 'خطأ غير محدد'))
           router.push('/admin/portfolio')
         }
       } catch (error) {
         console.error('❌ خطأ في تحميل العمل:', error)
-        alert(error instanceof Error ? error.message : 'حدث خطأ في تحميل بيانات العمل')
+        toast.error(error instanceof Error ? error.message : 'حدث خطأ في تحميل بيانات العمل')
         router.push('/admin/portfolio')
       } finally {
         setLoading(false)
@@ -363,7 +365,7 @@ export default function EditPortfolioPage() {
     e.preventDefault()
     
     if (!formData.title || !formData.description || !formData.location || !formData.client) {
-      alert('يرجى ملء جميع الحقول المطلوبة')
+      toast.error('يرجى ملء جميع الحقول المطلوبة')
       return
     }
 
@@ -499,11 +501,11 @@ export default function EditPortfolioPage() {
           router.push('/admin/portfolio')
         }, 2000)
       } else {
-        alert('حدث خطأ في تحديث العمل: ' + data.message)
+        toast.error('حدث خطأ في تحديث العمل: ' + data.message)
       }
     } catch (error) {
       console.error('خطأ في تحديث العمل:', error)
-      alert('حدث خطأ في الاتصال بالخادم')
+      toast.error('حدث خطأ في الاتصال بالخادم')
     } finally {
       setSubmitting(false)
     }

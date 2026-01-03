@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
+import { useToastContext } from '@/lib/ToastContext'
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -63,6 +64,7 @@ interface Stat {
 export default function EditServicePage() {
   const router = useRouter()
   const params = useParams()
+  const toast = useToastContext()
   const serviceId = params.id as string
 
   const [loading, setLoading] = useState(true)
@@ -129,7 +131,7 @@ export default function EditServicePage() {
       }
     } catch (error) {
       logger.error('Error fetching service:', error)
-      alert('فشل في تحميل بيانات الخدمة')
+      toast.error('فشل في تحميل بيانات الخدمة')
     } finally {
       setLoading(false)
     }
@@ -168,13 +170,13 @@ export default function EditServicePage() {
           heroImage: data.url,
           heroImagePublicId: data.publicId 
         }))
-        alert('تم رفع الصورة بنجاح')
+        toast.success('تم رفع الصورة بنجاح')
       } else {
-        alert(data.message || 'فشل رفع الصورة')
+        toast.error('فشل رفع الصورة', data.message)
       }
     } catch (error) {
       logger.error('Error uploading image:', error)
-      alert('حدث خطأ أثناء رفع الصورة')
+      toast.error('حدث خطأ أثناء رفع الصورة')
     } finally {
       setUploadingHero(false)
     }
@@ -184,7 +186,7 @@ export default function EditServicePage() {
     e.preventDefault()
     
     if (!formData.slug || !formData.title || !formData.description) {
-      alert('الرجاء ملء جميع الحقول المطلوبة')
+      toast.warning('الرجاء ملء جميع الحقول المطلوبة')
       return
     }
 
@@ -208,14 +210,14 @@ export default function EditServicePage() {
       })
 
       if (response.ok) {
-        alert('تم تحديث الخدمة بنجاح')
+        toast.success('تم تحديث الخدمة بنجاح')
         router.push('/admin/services')
       } else {
         const data = await response.json()
-        alert(data.error || 'فشل في تحديث الخدمة')
+        toast.error('فشل في تحديث الخدمة', data.error)
       }
     } catch (error) {
-      alert('حدث خطأ أثناء التحديث')
+      toast.error('حدث خطأ أثناء التحديث')
     } finally {
       setSubmitting(false)
     }

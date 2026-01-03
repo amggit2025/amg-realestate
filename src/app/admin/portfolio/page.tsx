@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { logger } from '@/lib/logger'
+import { useToastContext } from '@/lib/ToastContext'
 import {
   PlusIcon,
   PencilIcon,
@@ -50,6 +51,7 @@ const portfolioCategories = [
 
 export default function AdminPortfolioPage() {
   const router = useRouter()
+  const toast = useToastContext()
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([])
   const [filteredItems, setFilteredItems] = useState<PortfolioItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -148,7 +150,7 @@ export default function AdminPortfolioPage() {
     e.preventDefault()
     
     if (!formData.title || !formData.slug || !formData.description) {
-      alert('يرجى ملء جميع الحقول المطلوبة')
+      toast.error('يرجى ملء جميع الحقول المطلوبة')
       return
     }
 
@@ -165,7 +167,7 @@ export default function AdminPortfolioPage() {
       const data = await response.json()
       
       if (data.success) {
-        alert('تم إضافة العمل بنجاح!')
+        toast.success('تم إضافة العمل بنجاح!')
         setShowAddForm(false)
         setFormData({
           title: '',
@@ -184,11 +186,11 @@ export default function AdminPortfolioPage() {
         })
         fetchPortfolioItems()
       } else {
-        alert('حدث خطأ في إضافة العمل: ' + data.message)
+        toast.error('حدث خطأ في إضافة العمل: ' + data.message)
       }
     } catch (error) {
       logger.error('خطأ في إضافة العمل:', error)
-      alert('حدث خطأ في الاتصال بالخادم')
+      toast.error('حدث خطأ في الاتصال بالخادم')
     } finally {
       setSubmitting(false)
     }
@@ -208,11 +210,11 @@ export default function AdminPortfolioPage() {
       if (data.success) {
         fetchPortfolioItems()
       } else {
-        alert('حدث خطأ في حذف العمل: ' + data.message)
+        toast.error('حدث خطأ في حذف العمل: ' + data.message)
       }
     } catch (error) {
       logger.error('خطأ في حذف العمل:', error)
-      alert('حدث خطأ في الاتصال بالخادم')
+      toast.error('حدث خطأ في الاتصال بالخادم')
     }
   }
 
@@ -232,11 +234,11 @@ export default function AdminPortfolioPage() {
       if (data.success) {
         fetchPortfolioItems()
       } else {
-        alert('حدث خطأ في تحديث حالة النشر: ' + data.message)
+        toast.error('حدث خطأ في تحديث حالة النشر: ' + data.message)
       }
     } catch (error) {
       logger.error('خطأ في تحديث حالة النشر:', error)
-      alert('حدث خطأ في الاتصال بالخادم')
+      toast.error('حدث خطأ في الاتصال بالخادم')
     }
   }
 
@@ -256,11 +258,11 @@ export default function AdminPortfolioPage() {
       if (data.success) {
         fetchPortfolioItems()
       } else {
-        alert('حدث خطأ في تحديث حالة المميز: ' + data.message)
+        toast.error('حدث خطأ في تحديث حالة المميز: ' + data.message)
       }
     } catch (error) {
       logger.error('خطأ في تحديث حالة المميز:', error)
-      alert('حدث خطأ في الاتصال بالخادم')
+      toast.error('حدث خطأ في الاتصال بالخادم')
     }
   }
 
