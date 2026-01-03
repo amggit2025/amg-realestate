@@ -361,23 +361,22 @@ export default function AdminProjectsPage() {
               </div>
             </div>
           )}
-        </div>
 
-      {/* Confirm Delete Dialog */}
-      <ConfirmDialog
-        isOpen={deleteConfirmOpen}
-        onClose={() => {
-          setDeleteConfirmOpen(false)
-          setProjectToDelete(null)
-        }}
-        onConfirm={deleteProject}
-        title="حذف المشروع"
-        message="هل أنت متأكد من حذف هذا المشروع؟ لا يمكن التراجع عن هذا الإجراء."
-        confirmText="حذف"
-        cancelText="إلغاء"
-        type="danger"
-        isLoading={deleting}
-      />
-    </div>
+          {/* Confirm Delete Dialog */}
+          <ConfirmDialog
+            isOpen={deleteConfirmOpen}
+            onClose={() => {
+              setDeleteConfirmOpen(false)
+              setProjectToDelete(null)
+            }}
+            onConfirm={deleteProject}
+            title="حذف المشروع"
+            message="هل أنت متأكد من حذف هذا المشروع؟ لا يمكن التراجع عن هذا الإجراء."
+            confirmText="حذف"
+            cancelText="إلغاء"
+            type="danger"
+            isLoading={deleting}
+          />
+        </div>
   )
 }
