@@ -18,7 +18,8 @@ import {
   UserIcon,
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  ShoppingBagIcon
 } from '@heroicons/react/24/outline'
 import { COMPANY_INFO } from '@/lib/constants'
 
@@ -129,20 +130,33 @@ export default function Header() {
             ) : (
               // Client-side - render actual content based on auth state
               <>
-                <div className="hidden lg:flex items-center gap-3">
+                <div className="hidden lg:flex items-center gap-1.5 bg-gray-50/50 p-1 rounded-xl border border-gray-100">
+                  {/* Store - Compact Premium */}
+                  <Link
+                    href="/store"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group"
+                  >
+                    <ShoppingBagIcon className="w-3.5 h-3.5" />
+                    <span className="text-xs font-bold">المتجر</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                  </Link>
+
+                  {/* Book Appointment - Compact */}
                   <Link
                     href="/book-appointment"
-                    className="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors"
                   >
-                    <CalendarDaysIcon className="w-4 h-4" />
-                    حجز معاينة
+                    <CalendarDaysIcon className="w-3.5 h-3.5" />
+                    <span>حجز معاينة</span>
                   </Link>
+
+                  {/* List Property - Compact */}
                   <Link
                     href="/list-your-property"
-                    className="flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700 transition-colors bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
                   >
-                    <HomeIcon className="w-4 h-4" />
-                    اعرض عقارك
+                    <HomeIcon className="w-3.5 h-3.5" />
+                    <span>اعرض عقارك</span>
                   </Link>
                 </div>
 
@@ -376,6 +390,17 @@ export default function Header() {
                       </div>
                     ) : (
                       <div className="space-y-3">
+                        {/* Mobile Store Button */}
+                        <Link
+                          href="/store"
+                          className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-colors border border-slate-700 shadow-md"
+                          onClick={closeMenu}
+                        >
+                          <ShoppingBagIcon className="w-5 h-5" />
+                          <span className="font-bold">المتجر</span>
+                          <span className="bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full mr-2">جديد</span>
+                        </Link>
+
                         <Link
                           href="/book-appointment"
                           className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors"
