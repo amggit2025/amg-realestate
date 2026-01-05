@@ -15,6 +15,8 @@ import AnalyticsProvider from '@/components/AnalyticsProvider'
 import { PWAProvider } from '@/components/PWAProvider'
 import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt'
 import OnlineStatusIndicator from '@/components/ui/OnlineStatusIndicator'
+import { CartProvider } from '@/contexts/CartContext'
+import { ToastProvider } from '@/contexts/ToastContext'
 
 // Optimize Cairo font loading
 const cairo = Cairo({
@@ -89,14 +91,18 @@ export default function RootLayout({
           <PWAProvider>
             <SessionProvider>
               <AuthProvider>
-                <FirstVisitLoader />
-                <AnalyticsProvider />
-                <OnlineStatusIndicator />
-                <PWAInstallPrompt />
-                <GlobalWidgets />
-                <LayoutWrapper>
-                  {children}
-                </LayoutWrapper>
+                <CartProvider>
+                  <ToastProvider>
+                    <FirstVisitLoader />
+                    <AnalyticsProvider />
+                    <OnlineStatusIndicator />
+                    <PWAInstallPrompt />
+                    <GlobalWidgets />
+                    <LayoutWrapper>
+                      {children}
+                  </LayoutWrapper>
+                  </ToastProvider>
+                </CartProvider>
               </AuthProvider>
             </SessionProvider>
           </PWAProvider>

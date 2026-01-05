@@ -172,78 +172,86 @@ export default function StorePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-[1200px] md:h-[800px]">
             {/* Large Item - Furniture */}
-            <motion.div 
-              whileHover={{ scale: 0.98 }}
-              className="md:col-span-2 md:row-span-2 relative rounded-3xl overflow-hidden group cursor-pointer"
-            >
-              <Image 
-                src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80" 
-                alt="Furniture" 
-                fill 
-                className="object-cover transition-transform duration-700 group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-8">
-                <span className="text-amber-400 font-medium mb-2 block">الأكثر طلباً</span>
-                <h3 className="text-4xl font-bold text-white mb-2">الأثاث المنزلي</h3>
-                <p className="text-gray-300 mb-6 max-w-md">تشكيلة واسعة من غرف النوم، المعيشة، والسفرة بتصاميم عالمية.</p>
-                <span className="inline-flex items-center gap-2 text-white font-bold border-b border-amber-500 pb-1">
-                  استكشف المجموعة <ArrowRightIcon className="w-4 h-4" />
-                </span>
-              </div>
-            </motion.div>
+            <Link href="/store/products?category=furniture" className="md:col-span-2 md:row-span-2">
+              <motion.div 
+                whileHover={{ scale: 0.98 }}
+                className="relative rounded-3xl overflow-hidden group cursor-pointer h-full"
+              >
+                <Image 
+                  src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80" 
+                  alt="Furniture" 
+                  fill 
+                  className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-8">
+                  <span className="text-amber-400 font-medium mb-2 block">الأكثر طلباً</span>
+                  <h3 className="text-4xl font-bold text-white mb-2">الأثاث المنزلي</h3>
+                  <p className="text-gray-300 mb-6 max-w-md">تشكيلة واسعة من غرف النوم، المعيشة، والسفرة بتصاميم عالمية.</p>
+                  <span className="inline-flex items-center gap-2 text-white font-bold border-b border-amber-500 pb-1">
+                    استكشف المجموعة <ArrowRightIcon className="w-4 h-4" />
+                  </span>
+                </div>
+              </motion.div>
+            </Link>
 
             {/* Medium Item - Kitchens */}
-            <motion.div 
-              whileHover={{ scale: 0.98 }}
-              className="md:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer"
-            >
-              <Image 
-                src="https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80" 
-                alt="Kitchens" 
-                fill 
-                className="object-cover transition-transform duration-700 group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-8">
-                <h3 className="text-2xl font-bold text-white mb-1">المطابخ العصرية</h3>
-                <p className="text-gray-300 text-sm">تصاميم ذكية وعملية</p>
-              </div>
-            </motion.div>
+            <Link href="/store/products?category=kitchens" className="md:col-span-2">
+              <motion.div 
+                whileHover={{ scale: 0.98 }}
+                className="relative rounded-3xl overflow-hidden group cursor-pointer h-full"
+              >
+                <Image 
+                  src="https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80" 
+                  alt="Kitchens" 
+                  fill 
+                  className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-8">
+                  <h3 className="text-2xl font-bold text-white mb-1">المطابخ العصرية</h3>
+                  <p className="text-gray-300 text-sm">تصاميم ذكية وعملية</p>
+                </div>
+              </motion.div>
+            </Link>
 
             {/* Small Item - Office */}
-            <motion.div 
-              whileHover={{ scale: 0.98 }}
-              className="relative rounded-3xl overflow-hidden group cursor-pointer"
-            >
-              <Image 
-                src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" 
-                alt="Office" 
-                fill 
-                className="object-cover transition-transform duration-700 group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="text-xl font-bold text-white">المكاتب</h3>
-              </div>
-            </motion.div>
+            <Link href="/store/products?category=office" className="block">
+              <motion.div 
+                whileHover={{ scale: 0.98 }}
+                className="relative rounded-3xl overflow-hidden group cursor-pointer h-full"
+              >
+                <Image 
+                  src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" 
+                  alt="Office" 
+                  fill 
+                  className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6">
+                  <h3 className="text-xl font-bold text-white">المكاتب</h3>
+                </div>
+              </motion.div>
+            </Link>
 
             {/* Small Item - Decor */}
-            <motion.div 
-              whileHover={{ scale: 0.98 }}
-              className="relative rounded-3xl overflow-hidden group cursor-pointer"
-            >
-              <Image 
-                src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&q=80" 
-                alt="Decor" 
-                fill 
-                className="object-cover transition-transform duration-700 group-hover:scale-110" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="text-xl font-bold text-white">الديكور</h3>
-              </div>
-            </motion.div>
+            <Link href="/store/products?category=decor" className="block">
+              <motion.div 
+                whileHover={{ scale: 0.98 }}
+                className="relative rounded-3xl overflow-hidden group cursor-pointer h-full"
+              >
+                <Image 
+                  src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&q=80" 
+                  alt="Decor" 
+                  fill 
+                  className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6">
+                  <h3 className="text-xl font-bold text-white">الديكور</h3>
+                </div>
+              </motion.div>
+            </Link>
           </div>
         </div>
       </section>
