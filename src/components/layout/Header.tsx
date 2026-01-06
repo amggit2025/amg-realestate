@@ -216,7 +216,7 @@ export default function Header() {
                     className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors"
                   >
                     <CalendarDaysIcon className="w-3.5 h-3.5" />
-                    <span>حجز</span>
+                    <span>حجز معاينة</span>
                   </Link>
 
                   {/* List Property - Compact */}
@@ -225,7 +225,7 @@ export default function Header() {
                     className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
                   >
                     <HomeIcon className="w-3.5 h-3.5" />
-                    <span>عقارك</span>
+                    <span>اعرض عقارك</span>
                   </Link>
                 </div>
 
