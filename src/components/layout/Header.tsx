@@ -199,11 +199,11 @@ export default function Header() {
             ) : (
               // Client-side - render actual content based on auth state
               <>
-                <div className="hidden lg:flex items-center gap-1 bg-gray-50/50 p-1 rounded-xl border border-gray-100">
+                <div className="hidden lg:flex items-center gap-2">
                   {/* Store - Compact Premium */}
                   <Link
                     href="/store"
-                    className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group"
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group"
                   >
                     <ShoppingBagIcon className="w-4 h-4" />
                     <span className="text-sm font-bold">المتجر</span>
@@ -213,7 +213,7 @@ export default function Header() {
                   {/* Book Appointment - Compact */}
                   <Link
                     href="/book-appointment"
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors border border-purple-100"
                   >
                     <CalendarDaysIcon className="w-4 h-4" />
                     <span>حجز معاينة</span>
@@ -222,7 +222,7 @@ export default function Header() {
                   {/* List Property - Compact */}
                   <Link
                     href="/list-your-property"
-                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors border border-green-100"
                   >
                     <HomeIcon className="w-4 h-4" />
                     <span>اعرض عقارك</span>
