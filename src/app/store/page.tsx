@@ -264,15 +264,19 @@ export default function StorePage() {
               <h2 className="text-4xl font-black text-slate-900 mb-2">وصل حديثاً</h2>
               <p className="text-slate-500">نظرة خاطفة على منتجاتنا الحصرية</p>
             </div>
-            <button className="hidden md:flex items-center gap-2 text-slate-900 font-bold hover:text-amber-600 transition-colors">
+            <Link href="/store/products" className="hidden md:flex items-center gap-2 text-slate-900 font-bold hover:text-amber-600 transition-colors">
               عرض الكل <ArrowRightIcon className="w-5 h-5" />
-            </button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {FEATURED_PRODUCTS.map((product) => (
-              <div key={product.id} className="group">
-                <div className="relative aspect-[4/5] bg-gray-100 rounded-2xl overflow-hidden mb-6">
+              <Link 
+                key={product.id} 
+                href={`/store/products/${product.id}`}
+                className="group block"
+              >
+                <div className="relative aspect-[4/5] bg-gray-100 rounded-2xl overflow-hidden mb-6 cursor-pointer">
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -284,9 +288,9 @@ export default function StorePage() {
                   </div>
                   {/* Quick Action Overlay */}
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <button className="bg-white text-slate-900 px-6 py-3 rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all shadow-xl hover:bg-amber-500 hover:text-white">
+                    <span className="bg-white text-slate-900 px-6 py-3 rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all shadow-xl group-hover:bg-amber-500 group-hover:text-white pointer-events-none">
                       عرض التفاصيل
-                    </button>
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -302,7 +306,7 @@ export default function StorePage() {
                   <p className="text-slate-500 text-sm mb-2">{product.category}</p>
                   <p className="text-xl font-black text-slate-900">{product.price} ج.م</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
