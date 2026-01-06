@@ -88,7 +88,7 @@ export default function ContactPage() {
         description="تواصل مع فريق مجموعة أحمد الملاح للاستفسار عن خدماتنا العقارية والمقاولات. نحن هنا لمساعدتك."
       />
 
-      <main ref={containerRef} className="bg-slate-50 min-h-screen">
+      <main ref={containerRef} className="bg-slate-50 min-h-screen pt-28">
         
         {/* 1. Luxury Hero Section */}
         <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">

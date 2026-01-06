@@ -178,7 +178,7 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-28">
       {/* 1. Immersive Hero Section */}
       <section className="relative h-[85vh] overflow-hidden flex items-center justify-center">
         <motion.div 

@@ -111,7 +111,7 @@ export default function ServicesPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50 selection:bg-primary-500 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 selection:bg-primary-500 selection:text-white overflow-x-hidden pt-28">
       
       {/* Background Mesh Gradient */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-30">

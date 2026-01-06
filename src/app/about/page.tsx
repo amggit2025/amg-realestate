@@ -133,7 +133,7 @@ export default function AboutPage() {
         description={data?.ourStory || 'تعرف على مجموعة أحمد الملاح (AMG) - رائدة في مجال المقاولات والتشطيبات والتسويق العقاري'}
       />
       
-      <main ref={containerRef} className="bg-white overflow-hidden selection:bg-slate-900 selection:text-white">
+      <main ref={containerRef} className="bg-white overflow-hidden selection:bg-slate-900 selection:text-white pt-28">
         
         {/* 1. Aesthetic Hero Section */}
         <section className="relative h-screen min-h-[800px] flex items-center overflow-hidden">

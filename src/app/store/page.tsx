@@ -78,7 +78,7 @@ export default function StorePage() {
   }
 
   return (
-    <main className="min-h-screen bg-white selection:bg-amber-500 selection:text-white">
+    <main className="min-h-screen bg-white selection:bg-amber-500 selection:text-white pt-28">
       
       {/* 1. Cinematic Hero Section */}
       <section className="relative h-screen min-h-[800px] flex items-center justify-center overflow-hidden">

@@ -202,7 +202,7 @@ export default function ListingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans pt-28">
       {/* Hero Section */}
       <div className="relative min-h-[60vh] bg-slate-900 flex flex-col">
         {/* Background Image */}

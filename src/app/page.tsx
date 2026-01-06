@@ -49,7 +49,7 @@ export default function HomePage() {
   }
   
   return (
-    <main className="bg-white overflow-hidden">
+    <main className="bg-white overflow-hidden pt-28">
       {/* 1. Genius Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Parallax Background */}

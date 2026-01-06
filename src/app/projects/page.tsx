@@ -93,7 +93,7 @@ export default function ProjectsPage() {
   }, [projects, searchQuery, selectedLocation, selectedType, selectedPrice])
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20 pt-28">
       {/* Hero Section */}
       <div className="relative h-[50vh] min-h-[500px] bg-gray-900 overflow-hidden">
         <div className="absolute inset-0">

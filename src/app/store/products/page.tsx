@@ -368,7 +368,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-20">
+    <main className="min-h-screen bg-gray-50 pt-28">
       
       {/* 1. Page Header (Premium Banner) */}
       <div className="relative h-64 bg-slate-900 overflow-hidden mb-12">
