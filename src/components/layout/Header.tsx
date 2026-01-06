@@ -203,28 +203,28 @@ export default function Header() {
                   {/* Store - Compact Premium */}
                   <Link
                     href="/store"
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group"
                   >
-                    <ShoppingBagIcon className="w-3.5 h-3.5" />
-                    <span className="text-xs font-bold">المتجر</span>
+                    <ShoppingBagIcon className="w-4 h-4" />
+                    <span className="text-sm font-bold">المتجر</span>
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                   </Link>
 
                   {/* Book Appointment - Compact */}
                   <Link
                     href="/book-appointment"
-                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors"
                   >
-                    <CalendarDaysIcon className="w-3.5 h-3.5" />
+                    <CalendarDaysIcon className="w-4 h-4" />
                     <span>حجز معاينة</span>
                   </Link>
 
                   {/* List Property - Compact */}
                   <Link
                     href="/list-your-property"
-                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
                   >
-                    <HomeIcon className="w-3.5 h-3.5" />
+                    <HomeIcon className="w-4 h-4" />
                     <span>اعرض عقارك</span>
                   </Link>
                 </div>
