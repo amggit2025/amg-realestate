@@ -158,7 +158,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 pt-[100px] pb-20">
+    <main className="min-h-screen bg-gray-50 pt-28 pb-20">
       
       {/* Top Navigation / Breadcrumb */}
       <div className="container mx-auto px-4 mb-8">
