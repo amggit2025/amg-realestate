@@ -185,9 +185,9 @@ function DashboardPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20">
+    <div className="min-h-screen bg-gray-50/50 pb-20 pt-28">
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 pt-24 pb-8">
+      <div className="bg-white border-b border-gray-200 pb-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
