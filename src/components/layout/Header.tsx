@@ -20,7 +20,8 @@ import {
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
   CalendarDaysIcon,
-  ShoppingBagIcon
+  ShoppingBagIcon,
+  ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline'
 import { COMPANY_INFO } from '@/lib/constants'
 
@@ -37,6 +38,7 @@ const navigation = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [requestsMenuOpen, setRequestsMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { user, isAuthenticated, logout } = useAuth()
 
@@ -52,16 +54,19 @@ export default function Header() {
       if (!target.closest('.user-menu-container')) {
         setUserMenuOpen(false)
       }
+      if (!target.closest('.requests-menu-container')) {
+        setRequestsMenuOpen(false)
+      }
     }
 
-    if (userMenuOpen) {
+    if (userMenuOpen || requestsMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [userMenuOpen])
+  }, [userMenuOpen, requestsMenuOpen])
 
   const toggleMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -73,6 +78,10 @@ export default function Header() {
 
   const toggleUserMenu = () => {
     setUserMenuOpen(!userMenuOpen)
+  }
+
+  const toggleRequestsMenu = () => {
+    setRequestsMenuOpen(!requestsMenuOpen)
   }
 
   const handleLogout = async () => {
@@ -150,7 +159,7 @@ export default function Header() {
 
       {/* Main Navigation */}
       <nav className="bg-white backdrop-blur-md border-b border-gray-200 shadow-sm" aria-label="Global">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 lg:px-6">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <div className="flex lg:flex-1">
@@ -174,12 +183,12 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:gap-x-3 lg:mr-4">
+          <div className="hidden lg:flex lg:gap-x-6">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-xs font-medium leading-5 text-gray-600 hover:text-blue-600 transition-colors duration-200 py-1.5 px-2 rounded-md hover:bg-gray-50 whitespace-nowrap"
+                className="text-sm font-medium leading-5 text-gray-600 hover:text-blue-600 transition-colors duration-200 py-1.5 px-2 rounded-md hover:bg-gray-50 whitespace-nowrap"
               >
                 {item.name}
               </Link>
@@ -203,30 +212,53 @@ export default function Header() {
                   {/* Store - Compact Premium */}
                   <Link
                     href="/store"
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group whitespace-nowrap"
+                    className="flex items-center gap-2 px-3 py-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group whitespace-nowrap"
                   >
                     <ShoppingBagIcon className="w-4 h-4 flex-shrink-0" />
                     <span className="text-xs font-bold">المتجر</span>
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span>
                   </Link>
 
-                  {/* Book Appointment - Compact */}
-                  <Link
-                    href="/book-appointment"
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors border border-purple-100 whitespace-nowrap"
-                  >
-                    <CalendarDaysIcon className="w-4 h-4 flex-shrink-0" />
-                    <span>حجز معاينة</span>
-                  </Link>
+                  {/* Requests Dropdown */}
+                  <div className="relative requests-menu-container">
+                    <button
+                       onClick={toggleRequestsMenu}
+                       className="flex items-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-100 whitespace-nowrap text-xs font-medium shadow-sm hover:shadow-md"
+                    >
+                      <ClipboardDocumentCheckIcon className="w-4 h-4 flex-shrink-0" />
+                      <span>قدم طلبك</span>
+                      <ChevronDownIcon className={`w-3 h-3 transition-transform duration-200 ${requestsMenuOpen ? 'rotate-180' : ''}`} />
+                    </button>
 
-                  {/* List Property - Compact */}
-                  <Link
-                    href="/list-your-property"
-                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors border border-green-100 whitespace-nowrap"
-                  >
-                    <HomeIcon className="w-4 h-4 flex-shrink-0" />
-                    <span>اعرض عقارك</span>
-                  </Link>
+                    <AnimatePresence>
+                      {requestsMenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10, x: '-50%' }}
+                          animate={{ opacity: 1, y: 0, x: '-50%' }}
+                          exit={{ opacity: 0, y: -10, x: '-50%' }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-1/2 mt-3 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-1.5 z-50 overflow-hidden"
+                        >
+                          <Link
+                            href="/book-appointment"
+                            className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50"
+                            onClick={() => setRequestsMenuOpen(false)}
+                          >
+                            <CalendarDaysIcon className="w-5 h-5" />
+                            حجز معاينة
+                          </Link>
+                          <Link
+                            href="/list-your-property"
+                            className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+                            onClick={() => setRequestsMenuOpen(false)}
+                          >
+                            <HomeIcon className="w-5 h-5" />
+                            اعرض عقارك
+                          </Link>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
 
                 {/* Notification Bell - Only for authenticated users - Desktop Only */}
