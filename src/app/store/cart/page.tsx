@@ -20,7 +20,7 @@ import { useState } from 'react'
 import { useToast } from '@/contexts/ToastContext'
 
 // Mock Coupon Codes
-const MOCK_COUPONS = {
+const MOCK_COUPONS: { [key: string]: { discount: number; minAmount: number; description: string; freeShipping?: boolean } } = {
   'WELCOME10': { discount: 0.10, minAmount: 10000, description: 'خصم 10٪ للعملاء الجدد' },
   'SAVE20': { discount: 0.20, minAmount: 25000, description: 'خصم 20٪ على المشتريات فوق 25,000 ج.م' },
   'FREESHIP': { discount: 0, freeShipping: true, minAmount: 0, description: 'شحن مجاني' }

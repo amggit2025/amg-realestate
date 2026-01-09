@@ -183,22 +183,30 @@ function DashboardPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20 pt-36">
+    <div className="min-h-screen bg-gray-50/50 pb-20 pt-24">
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-100 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700 relative overflow-hidden">
         {/* Decorative Background Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-50/50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        {/* Animated Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
 
-        <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
+        <div className="container mx-auto px-4 py-8 relative z-10">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             
             {/* Greeting & Info */}
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3">
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-400/10 text-amber-400 text-xs font-bold border border-amber-400/20"
               >
                 <Clock className="w-3.5 h-3.5" />
                 <span>نظرة عامة على اليوم</span>
@@ -208,16 +216,16 @@ function DashboardPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-3xl md:text-4xl font-extrabold text-slate-900"
+                className="text-3xl md:text-4xl font-black text-white"
               >
-                مرحباً، <span className="text-blue-600">{user?.firstName}</span> 👋
+                مرحباً، <span className="text-amber-400">{user?.firstName}</span> 👋
               </motion.h1>
               
               <motion.p 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-slate-500 text-lg max-w-xl leading-relaxed"
+                className="text-gray-300 text-base max-w-2xl leading-relaxed"
               >
                 إليك ملخص سريع لأداء عقاراتك ونشاطك الأخير. لديك أدوات جديدة تساعدك على الوصول للمزيد من العملاء.
               </motion.p>
@@ -228,24 +236,21 @@ function DashboardPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
-              className="flex items-center gap-4 w-full lg:w-auto"
+              className="flex items-center gap-3 w-full lg:w-auto"
             >
               {/* Notification Button */}
               <Link href="/dashboard/notifications">
-                <button className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-blue-600 hover:border-blue-100 hover:bg-blue-50/50 transition-all shadow-sm hover:shadow-md">
-                  <Bell className="w-7 h-7" />
-                  <span className="absolute top-3 right-4 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white ring-2 ring-transparent group-hover:ring-red-100 transition-all shadow-sm animate-pulse"></span>
+                <button className="group relative flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-amber-400 hover:border-amber-400 transition-all shadow-lg hover:shadow-amber-500/20">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-900 animate-pulse"></span>
                 </button>
               </Link>
 
               {/* Add Property Button */}
               <Link href="/dashboard/add-property" className="flex-1 lg:flex-none">
-                <button className="w-full lg:w-auto group relative flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-2xl transition-all shadow-xl shadow-slate-900/20 hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-slate-900/30 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity" />
-                  <div className="bg-white/10 p-1.5 rounded-lg group-hover:bg-white/20 transition-colors">
-                    <Plus className="w-5 h-5 font-bold" />
-                  </div>
-                  <span className="font-bold text-lg">إضافة عقار جديد</span>
+                <button className="w-full lg:w-auto group relative flex items-center justify-center gap-2 bg-amber-400 hover:bg-amber-500 text-slate-900 px-6 py-3 rounded-xl transition-all shadow-xl shadow-amber-500/20 hover:shadow-2xl hover:shadow-amber-500/30 overflow-hidden font-bold">
+                  <Plus className="w-5 h-5 font-bold" />
+                  <span className="font-bold">إضافة عقار</span>
                 </button>
               </Link>
             </motion.div>
@@ -256,13 +261,12 @@ function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="mt-8"
+              className="mt-6"
             >
               <EmailVerificationBanner 
                 email={user.email}
                 isVerified={user.emailVerified}
                 onVerificationSuccess={() => {
-                  // Hard reload to clear cache and refetch user data
                   window.location.href = window.location.href
                 }}
               />
