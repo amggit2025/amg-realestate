@@ -114,7 +114,7 @@ export default function Footer() {
     <footer className="relative bg-slate-900 text-white overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-[url('/images/grid-pattern.png')] bg-repeat opacity-20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-slate-900 via-transparent to-slate-900" />
       </div>
 

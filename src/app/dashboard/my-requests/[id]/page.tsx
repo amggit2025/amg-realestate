@@ -180,8 +180,8 @@ export default function PropertyRequestDetailsPage({ params }: { params: Promise
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20" dir="rtl">
       {/* Hero Header */}
-      <div className="bg-[#1e3a5f] text-white pt-24 pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/pattern.png')] opacity-10"></div>
+      <div className="bg-[#1e3a5f] text-white pt-36 pb-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f]/20 to-transparent"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-6xl mx-auto">
             <Link
