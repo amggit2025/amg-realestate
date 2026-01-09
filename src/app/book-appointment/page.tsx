@@ -143,7 +143,7 @@ export default function BookAppointmentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 pt-20 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 pt-36 pb-12">
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div

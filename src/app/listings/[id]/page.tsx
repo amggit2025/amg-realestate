@@ -195,7 +195,7 @@ export default function PropertyDetailPage() {
   if (!property) return null
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 font-sans pt-24">
+    <div className="min-h-screen bg-slate-50 pb-20 font-sans pt-36">
       <div className="container mx-auto px-4">
         
         {/* Breadcrumb & Actions */}

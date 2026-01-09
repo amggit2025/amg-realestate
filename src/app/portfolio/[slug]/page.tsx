@@ -98,7 +98,7 @@ export default function PortfolioDetailPage() {
 
   if (!project) {
     return (
-      <div className="min-h-screen pt-20 flex items-center justify-center">
+      <div className="min-h-screen pt-36 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">المشروع غير موجود</h1>
           <Link href="/portfolio" className="text-orange-500 hover:underline">
@@ -112,7 +112,7 @@ export default function PortfolioDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Hero Section with Breadcrumb */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 pt-20 pb-16">
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 pt-36 pb-16">
         <div className="container mx-auto px-4">
           <nav className="flex items-center gap-2 text-sm text-white/80 mb-8">
             <Link href="/" className="hover:text-white transition-colors">الرئيسية</Link>
