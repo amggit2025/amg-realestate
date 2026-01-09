@@ -267,6 +267,19 @@ const SORT_OPTIONS = [
   { id: 'newest', name: 'وصل حديثاً' },
 ]
 
+// Popular Searches
+const POPULAR_SEARCHES = [
+  'كنبة مودرن',
+  'مكتب خشب',
+  'سرير نفر ونص',
+  'طقم طعام',
+  'خزانة ملابس',
+  'طاولة قهوة'
+]
+
+// Recent Searches Storage Key
+const RECENT_SEARCHES_KEY = 'amg-store-recent-searches'
+
 export default function ProductsPage() {
   const searchParams = useSearchParams()
   const categoryParam = searchParams.get('category')
@@ -281,8 +294,57 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState('featured')
   const [currentPage, setCurrentPage] = useState(1)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [searchFocused, setSearchFocused] = useState(false)
+  const [recentSearches, setRecentSearches] = useState<string[]>([])
 
   const itemsPerPage = 12
+
+  // Load recent searches from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem(RECENT_SEARCHES_KEY)
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved))
+      } catch (e) {
+        console.error('Error loading recent searches:', e)
+      }
+    }
+  }, [])
+
+  // Save search to recent searches
+  const saveRecentSearch = (query: string) => {
+    if (!query.trim()) return
+    
+    const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5)
+    setRecentSearches(updated)
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated))
+  }
+
+  // Handle search submit
+  const handleSearchSubmit = (query: string) => {
+    if (query.trim()) {
+      saveRecentSearch(query.trim())
+      setSearchQuery(query.trim())
+      setSearchFocused(false)
+    }
+  }
+
+  // Clear recent searches
+  const clearRecentSearches = () => {
+    setRecentSearches([])
+    localStorage.removeItem(RECENT_SEARCHES_KEY)
+  }
+
+  // Get search suggestions based on current query
+  const searchSuggestions = useMemo(() => {
+    if (!searchQuery.trim()) return []
+    
+    const query = searchQuery.toLowerCase()
+    return MOCK_PRODUCTS
+      .filter(p => p.name.toLowerCase().includes(query))
+      .slice(0, 5)
+      .map(p => p.name)
+  }, [searchQuery])
 
   // Update category when URL param changes
   useEffect(() => {
@@ -493,16 +555,127 @@ export default function ProductsPage() {
             {/* Toolbar */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
               
-              {/* Search */}
+              {/* Enhanced Search with Dropdown */}
               <div className="relative w-full sm:max-w-md">
-                <MagnifyingGlassIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
                 <input
                   type="text"
                   placeholder="ابحث عن اسم المنتج..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 rounded-xl py-3 pr-12 pl-4 text-sm transition-all shadow-inner"
+                  onFocus={() => setSearchFocused(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearchSubmit(searchQuery)
+                    }
+                  }}
+                  className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 rounded-xl py-3 pr-12 pl-12 text-sm transition-all shadow-inner"
                 />
+                
+                {/* Clear Search Button */}
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors z-10"
+                  >
+                    <XMarkIcon className="w-4 h-4 text-gray-500" />
+                  </button>
+                )}
+
+                {/* Search Dropdown */}
+                <AnimatePresence>
+                  {searchFocused && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-20"
+                        onClick={() => setSearchFocused(false)}
+                      />
+
+                      {/* Dropdown Content */}
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-30 max-h-96 overflow-hidden"
+                      >
+                        {/* Search Suggestions (if typing) */}
+                        {searchQuery && searchSuggestions.length > 0 && (
+                          <div className="border-b border-gray-100">
+                            <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">
+                              اقتراحات البحث
+                            </div>
+                            {searchSuggestions.map((suggestion, index) => (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  handleSearchSubmit(suggestion)
+                                }}
+                                className="w-full text-right px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 group"
+                              >
+                                <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 group-hover:text-amber-500" />
+                                <span className="text-sm text-slate-900">{suggestion}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Recent Searches */}
+                        {!searchQuery && recentSearches.length > 0 && (
+                          <div className="border-b border-gray-100">
+                            <div className="px-4 py-2 flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-500 uppercase">
+                                عمليات البحث الأخيرة
+                              </span>
+                              <button
+                                onClick={clearRecentSearches}
+                                className="text-xs text-rose-600 hover:text-rose-700 font-medium"
+                              >
+                                مسح الكل
+                              </button>
+                            </div>
+                            {recentSearches.map((search, index) => (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  handleSearchSubmit(search)
+                                }}
+                                className="w-full text-right px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 group"
+                              >
+                                <svg className="w-4 h-4 text-gray-400 group-hover:text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="text-sm text-slate-900">{search}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Popular Searches */}
+                        {!searchQuery && (
+                          <div>
+                            <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">
+                              عمليات بحث شائعة
+                            </div>
+                            <div className="px-4 pb-4 flex flex-wrap gap-2">
+                              {POPULAR_SEARCHES.map((search, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => {
+                                    handleSearchSubmit(search)
+                                  }}
+                                  className="px-3 py-1.5 bg-gray-100 hover:bg-slate-900 hover:text-amber-400 text-gray-700 rounded-full text-sm font-medium transition-colors"
+                                >
+                                  {search}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
               </div>
 
               <div className="flex gap-3 w-full sm:w-auto">
@@ -530,6 +703,50 @@ export default function ProductsPage() {
                 </div>
               </div>
             </div>
+
+            {/* Results Count & Active Filters */}
+            {(searchQuery || selectedCategory !== 'all' || minRating > 0) && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 flex flex-wrap items-center gap-3"
+              >
+                {/* Results Count */}
+                <div className="flex items-center gap-2 bg-slate-900 text-amber-400 px-4 py-2 rounded-xl font-bold text-sm">
+                  <SparklesIcon className="w-4 h-4" />
+                  <span>
+                    {filteredAndSortedProducts.length} {filteredAndSortedProducts.length === 1 ? 'منتج' : 'منتجات'}
+                  </span>
+                </div>
+
+                {/* Active Search Query */}
+                {searchQuery && (
+                  <div className="flex items-center gap-2 bg-amber-50 text-amber-900 px-4 py-2 rounded-xl text-sm">
+                    <MagnifyingGlassIcon className="w-4 h-4" />
+                    <span>البحث: <strong>{searchQuery}</strong></span>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="mr-2 hover:bg-amber-100 rounded-full p-1 transition-colors"
+                    >
+                      <XMarkIcon className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Clear All Filters */}
+                <button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setSelectedCategory('all')
+                    setMinRating(0)
+                    setPriceRange([0, 100000])
+                  }}
+                  className="text-sm text-rose-600 hover:text-rose-700 font-medium hover:bg-rose-50 px-4 py-2 rounded-xl transition-colors"
+                >
+                  مسح جميع الفلاتر
+                </button>
+              </motion.div>
+            )}
 
             {/* Products Grid */}
             <div className="min-h-[600px]">
