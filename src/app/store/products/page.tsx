@@ -348,7 +348,7 @@ export default function ProductsPage() {
         id: product.id,
         name: product.name,
         price: product.price,
-        originalPrice: product.originalPrice || undefined,
+        originalPrice: (product as any).originalPrice || undefined,
         image: product.image,
         category: product.category,
         rating: product.rating,
