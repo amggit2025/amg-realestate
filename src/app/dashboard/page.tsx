@@ -183,7 +183,7 @@ function DashboardPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20 pt-28">
+    <div className="min-h-screen bg-gray-50/50 pb-20 pt-36">
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200 pb-8">
         <div className="container mx-auto px-4">
