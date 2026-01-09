@@ -215,7 +215,7 @@ export default function ProductDetailPage() {
                         image: MOCK_PRODUCT.images[0],
                         category: MOCK_PRODUCT.category,
                         rating: MOCK_PRODUCT.rating,
-                        inStock: MOCK_PRODUCT.inStock
+                        inStock: MOCK_PRODUCT.stock > 0
                       })
                       showToast('تم إضافة المنتج إلى المفضلة', 'success')
                     }
