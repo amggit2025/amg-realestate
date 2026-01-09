@@ -476,7 +476,7 @@ export default function ListYourPropertyPage() {
     <div className="min-h-screen bg-gray-50 font-sans" dir="rtl">
       
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-[#1e3a5f] via-[#2d5a8f] to-[#1e3a5f] overflow-hidden pt-24 pb-32">
+      <div className="relative bg-gradient-to-br from-[#1e3a5f] via-[#2d5a8f] to-[#1e3a5f] overflow-hidden pt-36 pb-32">
         <FloatingIcon icon={<Building2 size={80} />} delay={0} x="10%" y="50px" duration={8} />
         <FloatingIcon icon={<Home size={60} />} delay={1} x="85%" y="100px" duration={10} />
         <FloatingIcon icon={<Key size={50} />} delay={0.5} x="15%" y="70%" duration={9} />

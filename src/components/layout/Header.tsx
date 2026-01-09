@@ -183,7 +183,7 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:gap-x-6">
+          <div className="hidden lg:flex lg:gap-x-3">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -208,6 +208,9 @@ export default function Header() {
             ) : (
               // Client-side - render actual content based on auth state
               <>
+                {/* Vertical Separator */}
+                <div className="hidden lg:block h-8 w-px bg-gray-300 mx-3"></div>
+                
                 <div className="hidden lg:flex items-center gap-2.5">
                   {/* Store - Compact Premium */}
                   <Link
