@@ -200,34 +200,49 @@ export default function ProductDetailPage() {
                   )}
                 </div>
 
-                {/* Wishlist Button (Over Image) */}
-                <button 
-                  onClick={() => {
-                    if (isInWishlist(MOCK_PRODUCT.id)) {
-                      removeFromWishlist(MOCK_PRODUCT.id)
-                      showToast('تم حذف المنتج من المفضلة', 'success')
-                    } else {
-                      addToWishlist({
-                        id: MOCK_PRODUCT.id,
-                        name: MOCK_PRODUCT.name,
-                        price: MOCK_PRODUCT.price,
-                        originalPrice: MOCK_PRODUCT.originalPrice,
-                        image: MOCK_PRODUCT.images[0],
-                        category: MOCK_PRODUCT.category,
-                        rating: MOCK_PRODUCT.rating,
-                        inStock: MOCK_PRODUCT.stock > 0
-                      })
-                      showToast('تم إضافة المنتج إلى المفضلة', 'success')
-                    }
-                  }}
-                  className="absolute top-4 left-4 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm"
-                >
-                  {isInWishlist(MOCK_PRODUCT.id) ? (
-                    <HeartSolidIcon className="w-6 h-6 text-red-500" />
-                  ) : (
-                    <HeartIcon className="w-6 h-6 text-slate-900" />
-                  )}
-                </button>
+                {/* Actions (Wishlist & Share) */}
+                <div className="absolute top-4 left-4 flex gap-3 z-10">
+                  {/* Share Button */}
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href)
+                      showToast('تم نسخ رابط المنتج', 'success')
+                    }}
+                    className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm group/share"
+                    title="مشاركة المنتج"
+                  >
+                    <ShareIcon className="w-6 h-6 text-slate-900 group-hover/share:scale-110 transition-transform" />
+                  </button>
+
+                  {/* Wishlist Button */}
+                  <button 
+                    onClick={() => {
+                      if (isInWishlist(MOCK_PRODUCT.id)) {
+                        removeFromWishlist(MOCK_PRODUCT.id)
+                        showToast('تم حذف المنتج من المفضلة', 'success')
+                      } else {
+                        addToWishlist({
+                          id: MOCK_PRODUCT.id,
+                          name: MOCK_PRODUCT.name,
+                          price: MOCK_PRODUCT.price,
+                          originalPrice: MOCK_PRODUCT.originalPrice,
+                          image: MOCK_PRODUCT.images[0],
+                          category: MOCK_PRODUCT.category,
+                          rating: MOCK_PRODUCT.rating,
+                          inStock: MOCK_PRODUCT.stock > 0
+                        })
+                        showToast('تم إضافة المنتج إلى المفضلة', 'success')
+                      }
+                    }}
+                    className="w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm group/wishlist"
+                  >
+                    {isInWishlist(MOCK_PRODUCT.id) ? (
+                      <HeartSolidIcon className="w-6 h-6 text-red-500 group-hover/wishlist:scale-110 transition-transform" />
+                    ) : (
+                      <HeartIcon className="w-6 h-6 text-slate-900 group-hover/wishlist:scale-110 transition-transform" />
+                    )}
+                  </button>
+                </div>
               </motion.div>
 
               {/* Thumbnails */}
@@ -519,6 +534,25 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Sticky Mobile Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden z-40 pb-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col">
+             <span className="text-xs text-gray-500 font-medium">الإجمالي</span>
+             <span className="font-black text-xl text-slate-900">
+               {MOCK_PRODUCT.price.toLocaleString()} <span className="text-xs font-normal">ج.م</span>
+             </span>
+          </div>
+          <button 
+            onClick={handleAddToCart}
+            className="flex-1 bg-slate-900 text-amber-400 py-3 rounded-xl font-bold text-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+          >
+            <ShoppingBagIcon className="w-5 h-5" />
+            أضف للسلة
+          </button>
+        </div>
       </div>
     </main>
   )

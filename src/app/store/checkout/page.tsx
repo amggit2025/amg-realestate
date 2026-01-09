@@ -149,6 +149,40 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* Checkout Progress Steps */}
+        <div className="mb-12 max-w-3xl mx-auto">
+          <div className="relative flex items-center justify-between">
+            {/* Progress Bar Background */}
+            <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 z-0 rounded-full"></div>
+            {/* Active Progress */}
+            <div className="absolute top-5 right-0 w-1/2 h-1 bg-slate-900 z-0 rounded-full"></div>
+
+            {/* Step 1: Cart */}
+            <div className="flex flex-col items-center relative z-10">
+              <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold mb-2 border-4 border-gray-50">
+                <CheckCircleIcon className="w-6 h-6" />
+              </div>
+              <span className="text-sm font-bold text-slate-900">السلة</span>
+            </div>
+
+            {/* Step 2: Shipping & Payment */}
+            <div className="flex flex-col items-center relative z-10">
+              <div className="w-12 h-12 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center font-bold mb-2 shadow-xl ring-4 ring-gray-50 border-4 border-white text-lg">
+                2
+              </div>
+              <span className="text-base font-bold text-slate-900">الشحن والدفع</span>
+            </div>
+
+            {/* Step 3: Confirmation */}
+            <div className="flex flex-col items-center relative z-10">
+              <div className="w-10 h-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold mb-2 border-4 border-gray-50">
+                3
+              </div>
+              <span className="text-sm font-medium text-gray-400">التأكيد</span>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2">
