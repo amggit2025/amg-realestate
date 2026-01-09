@@ -19,17 +19,14 @@ export default function CartIcon() {
       {/* Cart Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
+        aria-label="سلة التسوق"
       >
-        <ShoppingBagIcon className="w-5 h-5 text-gray-700" />
+        <ShoppingBagIcon className="h-6 w-6 group-hover:scale-110 transition-transform" />
         {itemsCount > 0 && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
-          >
-            {itemsCount}
-          </motion.span>
+          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-bold text-white bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg animate-pulse border-2 border-white">
+            {itemsCount > 99 ? '99+' : itemsCount}
+          </span>
         )}
       </button>
 
@@ -39,7 +36,7 @@ export default function CartIcon() {
           <>
             {/* Backdrop */}
             <div
-              className="fixed inset-0 z-40"
+              className="fixed inset-0 z-30"
               onClick={() => setIsOpen(false)}
             />
 
@@ -49,14 +46,19 @@ export default function CartIcon() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden"
+              className="absolute left-1/2 -translate-x-1/2 mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-40 max-h-[500px] overflow-hidden flex flex-col"
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-slate-900">سلة التسوق</h3>
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-amber-50 to-orange-50">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                    <ShoppingBagIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900">سلة التسوق</h3>
+                </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   <XMarkIcon className="w-5 h-5 text-gray-500" />
                 </button>

@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useWishlist } from '@/contexts/WishlistContext'
 import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
@@ -271,6 +272,7 @@ export default function ProductsPage() {
   const categoryParam = searchParams.get('category')
   const { addToCart } = useCart()
   const { showToast } = useToast()
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || 'all')
@@ -278,7 +280,6 @@ export default function ProductsPage() {
   const [minRating, setMinRating] = useState(0)
   const [sortBy, setSortBy] = useState('featured')
   const [currentPage, setCurrentPage] = useState(1)
-  const [wishlist, setWishlist] = useState<number[]>([])
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const itemsPerPage = 12
@@ -338,12 +339,23 @@ export default function ProductsPage() {
     currentPage * itemsPerPage
   )
 
-  const toggleWishlist = (productId: number) => {
-    setWishlist(prev =>
-      prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    )
+  const toggleWishlist = (product: typeof MOCK_PRODUCTS[0]) => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id)
+      showToast('تم حذف المنتج من المفضلة', 'success')
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.originalPrice || undefined,
+        image: product.image,
+        category: product.category,
+        rating: product.rating,
+        inStock: product.stock > 0
+      })
+      showToast('تم إضافة المنتج إلى المفضلة', 'success')
+    }
   }
 
   const handleQuickAddToCart = (product: typeof MOCK_PRODUCTS[0]) => {
@@ -564,14 +576,14 @@ export default function ProductsPage() {
                           <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent pt-12">
                             <div className="flex gap-2 justify-center">
                               <button
-                                onClick={() => toggleWishlist(product.id)}
+                                onClick={() => toggleWishlist(product)}
                                 className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-colors ${
-                                  wishlist.includes(product.id)
+                                  isInWishlist(product.id)
                                     ? 'bg-red-500 text-white' 
                                     : 'bg-white/20 text-white hover:bg-white hover:text-red-500'
                                 }`}
                               >
-                                {wishlist.includes(product.id) ? (
+                                {isInWishlist(product.id) ? (
                                    <HeartSolidIcon className="w-5 h-5" />
                                 ) : (
                                    <HeartIcon className="w-5 h-5" />

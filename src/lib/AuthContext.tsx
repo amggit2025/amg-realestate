@@ -92,13 +92,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null)
           setStats(null)
         }
-      } else if (response.status === 401) {
-        // 401 طبيعي عندما لا يكون المستخدم مسجل دخول
+      } else if (response.status === 401 || response.status === 404) {
+        // 401 أو 404 طبيعي عندما لا يكون المستخدم مسجل دخول
         // No logging - this is expected behavior for unauthenticated users
         setUser(null)
         setStats(null)
       } else {
-        // خطأ غير متوقع
+        // خطأ غير متوقع (500, 502, etc.)
         console.error(`❌ AuthContext: Unexpected error fetching user: ${response.status} ${response.statusText}`)
         setUser(null)
         setStats(null)

@@ -8,6 +8,7 @@ import { AdvancedSearch } from '@/components/ui'
 import { useAuth } from '@/lib/AuthContext'
 import NotificationBell from './NotificationBell'
 import CartIcon from './CartIcon'
+import WishlistIcon from './WishlistIcon'
 import { 
   Bars3Icon, 
   XMarkIcon,
@@ -270,6 +271,11 @@ export default function Header() {
                     <NotificationBell />
                   </div>
                 )}
+                
+                {/* Wishlist Icon - Desktop Only */}
+                <div className="hidden lg:block">
+                  <WishlistIcon />
+                </div>
                 
                 {/* Cart Icon - Desktop Only */}
                 <div className="hidden lg:block">

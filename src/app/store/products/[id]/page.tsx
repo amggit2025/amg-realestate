@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
+import { useWishlist } from '@/contexts/WishlistContext'
 import {
   ShoppingBagIcon,
   HeartIcon,
@@ -131,11 +132,11 @@ export default function ProductDetailPage() {
   const productId = params.id
   const { addToCart } = useCart()
   const { showToast } = useToast()
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
 
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [selectedColor, setSelectedColor] = useState(MOCK_PRODUCT.colors[0])
-  const [isWishlisted, setIsWishlisted] = useState(false)
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description')
 
   const handleAddToCart = () => {
@@ -201,10 +202,27 @@ export default function ProductDetailPage() {
 
                 {/* Wishlist Button (Over Image) */}
                 <button 
-                  onClick={() => setIsWishlisted(!isWishlisted)}
+                  onClick={() => {
+                    if (isInWishlist(MOCK_PRODUCT.id)) {
+                      removeFromWishlist(MOCK_PRODUCT.id)
+                      showToast('تم حذف المنتج من المفضلة', 'success')
+                    } else {
+                      addToWishlist({
+                        id: MOCK_PRODUCT.id,
+                        name: MOCK_PRODUCT.name,
+                        price: MOCK_PRODUCT.price,
+                        originalPrice: MOCK_PRODUCT.originalPrice,
+                        image: MOCK_PRODUCT.images[0],
+                        category: MOCK_PRODUCT.category,
+                        rating: MOCK_PRODUCT.rating,
+                        inStock: MOCK_PRODUCT.inStock
+                      })
+                      showToast('تم إضافة المنتج إلى المفضلة', 'success')
+                    }
+                  }}
                   className="absolute top-4 left-4 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm"
                 >
-                  {isWishlisted ? (
+                  {isInWishlist(MOCK_PRODUCT.id) ? (
                     <HeartSolidIcon className="w-6 h-6 text-red-500" />
                   ) : (
                     <HeartIcon className="w-6 h-6 text-slate-900" />

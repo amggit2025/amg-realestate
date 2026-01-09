@@ -185,35 +185,79 @@ function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20 pt-36">
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 pb-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                مرحباً، {user?.firstName} 👋
-              </h1>
-              <p className="text-gray-500 mt-1">
-                إليك نظرة عامة على أداء عقاراتك ونشاطك اليوم
-              </p>
+      <div className="bg-white border-b border-gray-100 relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-50/50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+        <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            
+            {/* Greeting & Info */}
+            <div className="flex-1 space-y-2">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>نظرة عامة على اليوم</span>
+              </motion.div>
+              
+              <motion.h1 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-3xl md:text-4xl font-extrabold text-slate-900"
+              >
+                مرحباً، <span className="text-blue-600">{user?.firstName}</span> 👋
+              </motion.h1>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-slate-500 text-lg max-w-xl leading-relaxed"
+              >
+                إليك ملخص سريع لأداء عقاراتك ونشاطك الأخير. لديك أدوات جديدة تساعدك على الوصول للمزيد من العملاء.
+              </motion.p>
             </div>
-            <div className="flex items-center gap-3">
+
+            {/* Action Buttons */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center gap-4 w-full lg:w-auto"
+            >
+              {/* Notification Button */}
               <Link href="/dashboard/notifications">
-                <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors relative">
-                  <Bell className="w-6 h-6" />
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                <button className="group relative flex items-center justify-center w-14 h-14 rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-blue-600 hover:border-blue-100 hover:bg-blue-50/50 transition-all shadow-sm hover:shadow-md">
+                  <Bell className="w-7 h-7" />
+                  <span className="absolute top-3 right-4 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white ring-2 ring-transparent group-hover:ring-red-100 transition-all shadow-sm animate-pulse"></span>
                 </button>
               </Link>
-              <Link href="/dashboard/add-property">
-                <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-blue-600/20">
-                  <Plus className="w-5 h-5" />
-                  <span>إضافة عقار</span>
+
+              {/* Add Property Button */}
+              <Link href="/dashboard/add-property" className="flex-1 lg:flex-none">
+                <button className="w-full lg:w-auto group relative flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-2xl transition-all shadow-xl shadow-slate-900/20 hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-slate-900/30 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity" />
+                  <div className="bg-white/10 p-1.5 rounded-lg group-hover:bg-white/20 transition-colors">
+                    <Plus className="w-5 h-5 font-bold" />
+                  </div>
+                  <span className="font-bold text-lg">إضافة عقار جديد</span>
                 </button>
               </Link>
-            </div>
+            </motion.div>
           </div>
 
           {user && !user.emailVerified && (
-            <div className="mt-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8"
+            >
               <EmailVerificationBanner 
                 email={user.email}
                 isVerified={user.emailVerified}
@@ -222,7 +266,7 @@ function DashboardPage() {
                   window.location.href = window.location.href
                 }}
               />
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

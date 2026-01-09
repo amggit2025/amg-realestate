@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
+import { useOrders } from '@/contexts/OrdersContext'
 import { useAuth } from '@/lib/AuthContext'
 import {
   ArrowLeftIcon,
@@ -21,6 +22,7 @@ import {
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, getTotal, clearCart } = useCart()
+  const { createOrder } = useOrders()
   const { isAuthenticated, user } = useAuth()
   
   const [checkoutAs, setCheckoutAs] = useState<'guest' | 'member'>('guest')
@@ -53,17 +55,53 @@ export default function CheckoutPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate order processing
-    setTimeout(() => {
+    // Validate form
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.address || !formData.city) {
+      alert('الرجاء ملء جميع الحقول المطلوبة')
+      setIsSubmitting(false)
+      return
+    }
+
+    try {
+      // Create order
+      const order = createOrder({
+        status: 'pending',
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+          color: item.color
+        })),
+        subtotal: total,
+        shipping: shipping,
+        tax: tax,
+        total: grandTotal,
+        paymentMethod: formData.paymentMethod === 'cash' ? 'cod' : formData.paymentMethod === 'card' ? 'card' : 'wallet',
+        shippingAddress: {
+          fullName: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone,
+          city: formData.city,
+          area: formData.address,
+          street: formData.address,
+          building: formData.address,
+          floor: '',
+          apartment: '',
+          landmarks: formData.notes
+        }
+      })
+
       // Clear cart
       clearCart()
       
-      // Show success message
-      alert('تم استلام طلبك بنجاح! سنتواصل معك قريباً.')
-      
-      // Redirect to success page or home
-      router.push('/store')
-    }, 2000)
+      // Redirect to success page with order ID
+      router.push(`/store/checkout/success?orderId=${order.id}`)
+    } catch (error) {
+      console.error('Error creating order:', error)
+      alert('حدث خطأ في معالجة الطلب. الرجاء المحاولة مرة أخرى.')
+      setIsSubmitting(false)
+    }
   }
 
   if (items.length === 0) {
