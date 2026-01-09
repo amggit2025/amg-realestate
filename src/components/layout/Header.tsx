@@ -174,7 +174,7 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:gap-x-3 lg:mr-8">
+          <div className="hidden lg:flex lg:gap-x-3 lg:mr-4">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -199,13 +199,13 @@ export default function Header() {
             ) : (
               // Client-side - render actual content based on auth state
               <>
-                <div className="hidden lg:flex items-center gap-3">
+                <div className="hidden lg:flex items-center gap-2.5">
                   {/* Store - Compact Premium */}
                   <Link
                     href="/store"
-                    className="flex items-center gap-2.5 px-5 py-2.5 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group whitespace-nowrap"
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group whitespace-nowrap"
                   >
-                    <ShoppingBagIcon className="w-5 h-5 flex-shrink-0" />
+                    <ShoppingBagIcon className="w-4 h-4 flex-shrink-0" />
                     <span className="text-xs font-bold">المتجر</span>
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span>
                   </Link>
@@ -213,18 +213,18 @@ export default function Header() {
                   {/* Book Appointment - Compact */}
                   <Link
                     href="/book-appointment"
-                    className="flex items-center gap-2.5 px-5 py-2.5 text-xs font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors border border-purple-100 whitespace-nowrap"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-purple-700 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors border border-purple-100 whitespace-nowrap"
                   >
-                    <CalendarDaysIcon className="w-5 h-5 flex-shrink-0" />
+                    <CalendarDaysIcon className="w-4 h-4 flex-shrink-0" />
                     <span>حجز معاينة</span>
                   </Link>
 
                   {/* List Property - Compact */}
                   <Link
                     href="/list-your-property"
-                    className="flex items-center gap-2.5 px-5 py-2.5 text-xs font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors border border-green-100 whitespace-nowrap"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-green-700 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors border border-green-100 whitespace-nowrap"
                   >
-                    <HomeIcon className="w-5 h-5 flex-shrink-0" />
+                    <HomeIcon className="w-4 h-4 flex-shrink-0" />
                     <span>اعرض عقارك</span>
                   </Link>
                 </div>
