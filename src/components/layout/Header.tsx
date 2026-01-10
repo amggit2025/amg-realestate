@@ -161,75 +161,83 @@ export default function Header() {
       {/* Main Navigation */}
       <nav className="bg-white backdrop-blur-md border-b border-gray-200 shadow-sm" aria-label="Global">
         <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center h-16 gap-20">
           {/* Logo */}
-          <div className="flex lg:flex-1">
-            <Link href="/" className="-m-1.5 p-1.5">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center space-x-3"
-              >
-                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-200">
-                  <Image 
-                    src="/images/logo.png" 
-                    alt="AMG Real Estate Logo" 
-                    width={32} 
-                    height={32} 
-                    className="object-contain"
-                  />
-                </div>
-              </motion.div>
-            </Link>
-          </div>
+          <Link href="/" className="-m-1.5 p-1.5">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center space-x-3"
+            >
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-200">
+                <Image 
+                  src="/images/logo.png" 
+                  alt="AMG Real Estate Logo" 
+                  width={32} 
+                  height={32} 
+                  className="object-contain"
+                />
+              </div>
+            </motion.div>
+          </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:gap-x-3">
+          <div className="hidden lg:flex items-center gap-1 flex-1">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium leading-5 text-gray-600 hover:text-blue-600 transition-colors duration-200 py-1.5 px-2 rounded-md hover:bg-gray-50 whitespace-nowrap"
+                className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors duration-200 py-2 px-3 rounded-lg hover:bg-gray-50 whitespace-nowrap"
               >
                 {item.name}
               </Link>
             ))}
           </div>
 
-          {/* Auth Buttons */}
-          <div className="flex lg:flex-1 lg:justify-end items-center gap-1.5">
+          {/* Auth Buttons & Icons (Right Side) */}
+          <div className="flex items-center gap-2">
             {/* Show skeleton/placeholder until mounted to prevent hydration mismatch */}
             {!mounted ? (
               // Server-side placeholder - same structure always
-              <div className="hidden lg:flex items-center gap-3">
-                <div className="h-9 w-24 bg-gray-100 rounded-lg animate-pulse"></div>
-                <div className="h-9 w-24 bg-gray-100 rounded-lg animate-pulse"></div>
-                <div className="h-9 w-28 bg-blue-100 rounded-lg animate-pulse"></div>
+              <div className="hidden lg:flex items-center gap-2">
+                <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse"></div>
+                <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse"></div>
+                <div className="h-8 w-20 bg-gray-100 rounded-lg animate-pulse"></div>
+                <div className="h-8 w-20 bg-blue-100 rounded-lg animate-pulse"></div>
               </div>
             ) : (
               // Client-side - render actual content based on auth state
-              <>
-                {/* Vertical Separator */}
-                <div className="hidden lg:block h-8 w-px bg-gray-300 mx-3"></div>
+              <div className="hidden lg:flex items-center gap-2">
+                {/* Notification Bell - Only for authenticated users */}
+                {isAuthenticated && user && (
+                  <NotificationBell />
+                )}
                 
-                <div className="hidden lg:flex items-center gap-2.5">
-                  {/* Store - Compact Premium */}
+                {/* Wishlist Icon */}
+                <WishlistIcon />
+                
+                {/* Cart Icon */}
+                <CartIcon />
+
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-200 mx-1"></div>
+
+                  {/* Store Button - Icon Only */}
                   <Link
                     href="/store"
-                    className="flex items-center gap-2 px-3 py-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md group whitespace-nowrap"
+                    className="relative p-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-colors"
+                    title="المتجر"
                   >
-                    <ShoppingBagIcon className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs font-bold">المتجر</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span>
+                    <ShoppingBagIcon className="w-5 h-5" />
                   </Link>
 
                   {/* Requests Dropdown */}
                   <div className="relative requests-menu-container">
                     <button
                        onClick={toggleRequestsMenu}
-                       className="flex items-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-100 whitespace-nowrap text-xs font-medium shadow-sm hover:shadow-md"
+                       className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200 whitespace-nowrap text-xs font-medium"
                     >
-                      <ClipboardDocumentCheckIcon className="w-4 h-4 flex-shrink-0" />
+                      <ClipboardDocumentCheckIcon className="w-4 h-4" />
                       <span>قدم طلبك</span>
                       <ChevronDownIcon className={`w-3 h-3 transition-transform duration-200 ${requestsMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
@@ -241,133 +249,117 @@ export default function Header() {
                           animate={{ opacity: 1, y: 0, x: '-50%' }}
                           exit={{ opacity: 0, y: -10, x: '-50%' }}
                           transition={{ duration: 0.15 }}
-                          className="absolute left-1/2 mt-3 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-1.5 z-50 overflow-hidden"
+                          className="absolute left-1/2 mt-2 w-52 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 overflow-hidden"
                         >
                           <Link
                             href="/book-appointment"
-                            className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50"
                             onClick={() => setRequestsMenuOpen(false)}
                           >
-                            <CalendarDaysIcon className="w-5 h-5" />
+                            <CalendarDaysIcon className="w-4 h-4" />
                             حجز معاينة
                           </Link>
                           <Link
                             href="/list-your-property"
-                            className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
                             onClick={() => setRequestsMenuOpen(false)}
                           >
-                            <HomeIcon className="w-5 h-5" />
+                            <HomeIcon className="w-4 h-4" />
                             اعرض عقارك
                           </Link>
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
-                </div>
 
-                {/* Notification Bell - Only for authenticated users - Desktop Only */}
-                {isAuthenticated && user && (
-                  <div className="hidden lg:block">
-                    <NotificationBell />
-                  </div>
-                )}
+                  {/* Divider */}
+                  <div className="h-8 w-px bg-gray-200 mx-1"></div>
                 
-                {/* Wishlist Icon - Desktop Only */}
-                <div className="hidden lg:block">
-                  <WishlistIcon />
-                </div>
-                
-                {/* Cart Icon - Desktop Only */}
-                <div className="hidden lg:block">
-                  <CartIcon />
-                </div>
-                
-                {/* User Menu or Login Button */}
-                {!isAuthenticated || !user ? (
-                  <div className="hidden lg:block">
+                  {/* User Menu or Login Button */}
+                  {!isAuthenticated || !user ? (
                     <Link
                       href="/auth/login"
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm hover:shadow whitespace-nowrap"
                     >
                       تسجيل الدخول
                     </Link>
-                  </div>
                 ) : (
-                  <div className="hidden lg:block relative user-menu-container">
-                    <button
-                      onClick={toggleUserMenu}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                    >
-                      <UserIcon className="w-5 h-5 flex-shrink-0" />
-                      <span className="font-medium truncate max-w-[120px]">{user.firstName}</span>
-                      <ChevronDownIcon className="w-4 h-4 flex-shrink-0" />
-                    </button>
+                    <div className="relative user-menu-container">
+                      <button
+                        onClick={toggleUserMenu}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                      >
+                        <UserIcon className="w-4 h-4" />
+                        <span className="text-sm font-medium truncate max-w-[100px]">{user.firstName}</span>
+                        <ChevronDownIcon className="w-3.5 h-3.5" />
+                      </button>
                 
-                {/* User Dropdown */}
-                <AnimatePresence>
-                  {userMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
-                    >
+                      {/* User Dropdown */}
+                      <AnimatePresence>
+                        {userMenuOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute left-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50"
+                          >
                       <Link
                         href="/dashboard"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         🏠 لوحة التحكم
                       </Link>
                       <Link
                         href="/dashboard/add-property"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         ➕ إضافة عقار
                       </Link>
                       <Link
                         href="/dashboard/properties"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         🏡 عقاراتي
                       </Link>
                       <Link
                         href="/dashboard/my-requests"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         📋 طلبات التسويق
                       </Link>
                       <Link
                         href="/dashboard/my-orders"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         🛍️ طلباتي من المتجر
                       </Link>
                       <Link
                         href="/dashboard/inquiries"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         💬 الاستفسارات
                       </Link>
-                      <hr className="my-2" />
+                      <hr className="my-2 border-gray-100" />
                       <button
                         onClick={handleLogout}
-                        className="block w-full text-right px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        className="block w-full text-right px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <ArrowRightOnRectangleIcon className="w-4 h-4 inline ml-2" />
                         تسجيل الخروج
                       </button>
-                    </motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   )}
-                </AnimatePresence>
               </div>
-            )}
-              </>
             )}
           </div>
 
