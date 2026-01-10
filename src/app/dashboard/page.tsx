@@ -21,7 +21,8 @@ import {
   ArrowDownRight,
   Wallet,
   FileText,
-  Bell
+  Bell,
+  ShoppingBag
 } from 'lucide-react'
 import { useAuth, withAuth } from '@/lib/AuthContext'
 import Link from 'next/link'
@@ -326,11 +327,18 @@ function DashboardPage() {
                   gradient="from-blue-600 to-blue-400"
                 />
                 <QuickActionCard 
-                  title="طلباتي"
+                  title="طلبات التسويق"
                   description="تتبع حالة طلبات التسويق والبحث العقاري"
                   icon={FileText}
                   href="/dashboard/my-requests"
                   gradient="from-purple-600 to-purple-400"
+                />
+                <QuickActionCard 
+                  title="طلباتي من المتجر"
+                  description="تتبع طلباتك ومشترياتك من متجر AMG"
+                  icon={ShoppingBag}
+                  href="/dashboard/my-orders"
+                  gradient="from-indigo-600 to-indigo-400"
                 />
               </div>
             </section>

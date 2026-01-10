@@ -54,7 +54,8 @@ export default function OrderDetailsPage() {
 
   // Handle Cancel Order
   const handleCancelOrder = () => {
-    if (order && (order.status === 'pending' || order.status === 'confirmed')) {
+    if (!order) return
+    if (order.status === 'pending' || order.status === 'confirmed') {
       if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) {
         cancelOrder(orderId)
         showToast('تم إلغاء الطلب بنجاح', 'success')
@@ -66,6 +67,40 @@ export default function OrderDetailsPage() {
   const handlePrintInvoice = () => {
     window.print()
     showToast('جاري طباعة الفاتورة...', 'info')
+  }
+
+  // Handle Download Invoice (Mock)
+  const handleDownloadInvoice = () => {
+    showToast('جاري تحميل الفاتورة...', 'info')
+    // Mock download - in real app, generate PDF
+    setTimeout(() => {
+      showToast('تم تحميل الفاتورة بنجاح', 'success')
+    }, 1500)
+  }
+
+  // Handle Track Order
+  const handleTrackOrder = () => {
+    if (order?.trackingNumber) {
+      // Mock tracking URL - replace with real tracking service
+      window.open(`https://track.example.com/${order.trackingNumber}`, '_blank')
+      showToast('فتح صفحة التتبع...', 'info')
+    }
+  }
+
+  // Handle Return/Exchange
+  const handleReturnExchange = () => {
+    showToast('سيتم توجيهك إلى صفحة الإرجاع والاستبدال', 'info')
+    setTimeout(() => {
+      router.push(`/store/orders/${orderId}/return`)
+    }, 1000)
+  }
+
+  // Handle Reorder
+  const handleReorder = () => {
+    showToast('إعادة طلب المنتجات...', 'info')
+    setTimeout(() => {
+      router.push('/store/cart')
+    }, 1000)
   }
 
   // 404 - Order Not Found
@@ -95,6 +130,8 @@ export default function OrderDetailsPage() {
   }
 
   const canCancel = order.status === 'pending' || order.status === 'confirmed'
+  const canReturn = order.status === 'delivered'
+  const canReorder = order.status === 'delivered' || order.status === 'cancelled'
 
   return (
     <main className="min-h-screen bg-gray-50 pt-28 pb-20">
@@ -134,12 +171,46 @@ export default function OrderDetailsPage() {
                   minute: '2-digit'
                 })}
               </p>
+              
+              {/* Tracking Number */}
+              {order.trackingNumber && order.status !== 'pending' && order.status !== 'cancelled' && (
+                <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border-2 border-blue-200">
+                  <TruckIcon className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <p className="text-xs text-gray-600 font-medium">رقم التتبع</p>
+                    <p className="text-sm font-black text-slate-900 font-mono">{order.trackingNumber}</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Estimated Delivery */}
+              {order.estimatedDelivery && order.status !== 'delivered' && order.status !== 'cancelled' && (
+                <div className="mt-2 text-sm text-gray-600">
+                  <span className="font-semibold">التوصيل المتوقع:</span>{' '}
+                  {order.estimatedDelivery.toLocaleDateString('ar-EG', { 
+                    month: 'long', 
+                    day: 'numeric',
+                    weekday: 'long'
+                  })}
+                </div>
+              )}
             </div>
             <StatusBadge status={order.status} />
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3">
+            {/* Track Order - Only show if has tracking number and not pending/cancelled */}
+            {order.trackingNumber && order.status !== 'pending' && order.status !== 'cancelled' && (
+              <button
+                onClick={handleTrackOrder}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg transition-all"
+              >
+                <TruckIcon className="w-5 h-5" />
+                تتبع الشحنة
+              </button>
+            )}
+            
             <button
               onClick={handlePrintInvoice}
               className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-amber-400 rounded-xl font-bold hover:bg-slate-800 transition-all"
@@ -149,12 +220,32 @@ export default function OrderDetailsPage() {
             </button>
             
             <button
-              onClick={handlePrintInvoice}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
+              onClick={handleDownloadInvoice}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all"
             >
               <ArrowDownTrayIcon className="w-5 h-5" />
-              تحميل الفاتورة
+              تحميل PDF
             </button>
+
+            {canReturn && (
+              <button
+                onClick={handleReturnExchange}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-600 rounded-xl font-bold hover:bg-orange-100 transition-all"
+              >
+                <ArrowRightIcon className="w-5 h-5 rotate-180" />
+                إرجاع / استبدال
+              </button>
+            )}
+
+            {canReorder && (
+              <button
+                onClick={handleReorder}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-xl font-bold hover:bg-purple-100 transition-all"
+              >
+                <ShoppingBagIcon className="w-5 h-5" />
+                إعادة الطلب
+              </button>
+            )}
 
             {canCancel && (
               <button

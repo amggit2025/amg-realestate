@@ -21,6 +21,7 @@ export interface OrderItem {
 export interface Order {
   id: string
   orderNumber: string
+  trackingNumber?: string
   createdAt: Date
   updatedAt: Date
   status: OrderStatus
@@ -46,6 +47,8 @@ export interface Order {
     timestamp: Date
     message: string
   }[]
+  estimatedDelivery?: Date
+  notes?: string
 }
 
 interface OrdersContextType {
@@ -67,6 +70,16 @@ function generateOrderNumber(): string {
   const timestamp = Date.now().toString().slice(-8)
   const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
   return `AMG${timestamp}${random}`
+}
+
+// Generate Tracking Number
+function generateTrackingNumber(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  let result = 'AMG'
+  for (let i = 0; i < 12; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
 }
 
 // Generate Unique ID
@@ -163,13 +176,18 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     }
   }, [orders, isLoaded])
 
-  const createOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'createdAt' | 'updatedAt' | 'tracking'>): Order => {
+  const createOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'createdAt' | 'updatedAt' | 'tracking' | 'trackingNumber' | 'estimatedDelivery'>): Order => {
+    const now = new Date()
+    const estimatedDelivery = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000)) // 3 days from now
+    
     const newOrder: Order = {
       ...orderData,
       id: generateId(),
       orderNumber: generateOrderNumber(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      trackingNumber: generateTrackingNumber(),
+      createdAt: now,
+      updatedAt: now,
+      estimatedDelivery,
       tracking: generateTracking(orderData.status)
     }
 
