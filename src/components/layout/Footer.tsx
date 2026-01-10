@@ -6,8 +6,11 @@ import Image from 'next/image'
 import { 
   PhoneIcon, 
   EnvelopeIcon, 
-  MapPinIcon
+  MapPinIcon,
+  PlusIcon,
+  MinusIcon
 } from '@heroicons/react/24/outline'
+import { Disclosure, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react'
 import { COMPANY_INFO, SOCIAL_LINKS } from '@/lib/constants'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
 
@@ -187,44 +190,136 @@ export default function Footer() {
 
           {/* 2. Quick Links (2 cols) */}
           <div className="lg:col-span-2 lg:col-start-6">
-            <h3 className="text-lg font-bold text-white mb-8 relative inline-block">
-              روابط سريعة
-              <span className="absolute -bottom-2 right-0 w-1/2 h-1 bg-amber-500 rounded-full"></span>
-            </h3>
-            <ul className="space-y-4">
-              {footerNavigation.main.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-amber-500 transition-colors"></span>
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* Desktop View */}
+            <div className="hidden lg:block">
+              <h3 className="text-lg font-bold text-white mb-8 relative inline-block">
+                روابط سريعة
+                <span className="absolute -bottom-2 right-0 w-1/2 h-1 bg-amber-500 rounded-full"></span>
+              </h3>
+              <ul className="space-y-4">
+                {footerNavigation.main.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-amber-500 transition-colors"></span>
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Mobile View - Accordion */}
+            <div className="lg:hidden border-b border-white/10 pb-2 mb-2">
+              <Disclosure>
+                {({ open }) => (
+                  <>
+                    <DisclosureButton className="flex w-full items-center justify-between py-4 text-right group">
+                      <span className={`text-lg font-bold group-hover:text-amber-400 transition-colors ${open ? 'text-amber-500' : 'text-white'}`}>
+                        روابط سريعة
+                      </span>
+                      {open ? (
+                        <MinusIcon className="h-5 w-5 text-amber-500 transition-transform duration-300" />
+                      ) : (
+                        <PlusIcon className="h-5 w-5 text-slate-400 group-hover:text-amber-400 transition-transform duration-300" />
+                      )}
+                    </DisclosureButton>
+                    <Transition
+                      enter="transition duration-100 ease-out"
+                      enterFrom="transform scale-95 opacity-0"
+                      enterTo="transform scale-100 opacity-100"
+                      leave="transition duration-75 ease-out"
+                      leaveFrom="transform scale-100 opacity-100"
+                      leaveTo="transform scale-95 opacity-0"
+                    >
+                      <DisclosurePanel className="pb-4">
+                        <ul className="space-y-3 pr-2 border-r border-white/10 mr-1">
+                          {footerNavigation.main.map((item) => (
+                            <li key={item.name}>
+                              <Link
+                                href={item.href}
+                                className="block py-1 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 text-sm"
+                              >
+                                {item.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </DisclosurePanel>
+                    </Transition>
+                  </>
+                )}
+              </Disclosure>
+            </div>
           </div>
 
           {/* 3. Services (2 cols) */}
           <div className="lg:col-span-2">
-            <h3 className="text-lg font-bold text-white mb-8 relative inline-block">
-              خدماتنا
-              <span className="absolute -bottom-2 right-0 w-1/2 h-1 bg-amber-500 rounded-full"></span>
-            </h3>
-            <ul className="space-y-4">
-              {footerNavigation.services.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-amber-500 transition-colors"></span>
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* Desktop View */}
+            <div className="hidden lg:block">
+              <h3 className="text-lg font-bold text-white mb-8 relative inline-block">
+                خدماتنا
+                <span className="absolute -bottom-2 right-0 w-1/2 h-1 bg-amber-500 rounded-full"></span>
+              </h3>
+              <ul className="space-y-4">
+                {footerNavigation.services.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 flex items-center gap-2 group"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-600 group-hover:bg-amber-500 transition-colors"></span>
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Mobile View - Accordion */}
+            <div className="lg:hidden border-b border-white/10 pb-2 mb-2">
+              <Disclosure>
+                {({ open }) => (
+                  <>
+                    <DisclosureButton className="flex w-full items-center justify-between py-4 text-right group">
+                      <span className={`text-lg font-bold group-hover:text-amber-400 transition-colors ${open ? 'text-amber-500' : 'text-white'}`}>
+                        خدماتنا
+                      </span>
+                      {open ? (
+                        <MinusIcon className="h-5 w-5 text-amber-500 transition-transform duration-300" />
+                      ) : (
+                        <PlusIcon className="h-5 w-5 text-slate-400 group-hover:text-amber-400 transition-transform duration-300" />
+                      )}
+                    </DisclosureButton>
+                    <Transition
+                      enter="transition duration-100 ease-out"
+                      enterFrom="transform scale-95 opacity-0"
+                      enterTo="transform scale-100 opacity-100"
+                      leave="transition duration-75 ease-out"
+                      leaveFrom="transform scale-100 opacity-100"
+                      leaveTo="transform scale-95 opacity-0"
+                    >
+                      <DisclosurePanel className="pb-4">
+                        <ul className="space-y-3 pr-2 border-r border-white/10 mr-1">
+                          {footerNavigation.services.map((item) => (
+                            <li key={item.name}>
+                              <Link
+                                href={item.href}
+                                className="block py-1 text-slate-400 hover:text-white hover:translate-x-2 transition-all duration-300 text-sm"
+                              >
+                                {item.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </DisclosurePanel>
+                    </Transition>
+                  </>
+                )}
+              </Disclosure>
+            </div>
           </div>
 
           {/* 4. Newsletter (3 cols) */}
