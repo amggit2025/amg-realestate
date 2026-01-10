@@ -328,7 +328,7 @@ export default function PortfolioPage() {
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="group relative bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100"
                 >
-                  <Link href={`/portfolio/${project.slug}`} className="block h-full flex flex-col">
+                  <Link href={`/portfolio/${project.slug}`} className="flex flex-col h-full">
                     {/* Image Container */}
                     <div className="relative h-72 overflow-hidden">
                       {project.image ? (

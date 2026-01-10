@@ -19,7 +19,8 @@ import {
   FunnelIcon,
   SparklesIcon,
   ArrowLongLeftIcon,
-  EyeIcon
+  EyeIcon,
+  ArchiveBoxIcon
 } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroicons/react/24/solid'
 
@@ -301,6 +302,8 @@ export default function ProductsPage() {
   const [searchFocused, setSearchFocused] = useState(false)
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [quickViewProduct, setQuickViewProduct] = useState<typeof MOCK_PRODUCTS[0] | null>(null)
+  const [inStockOnly, setInStockOnly] = useState(false)
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1)
 
   const itemsPerPage = 12
 
@@ -380,6 +383,11 @@ export default function ProductsPage() {
     // Filter by rating
     filtered = filtered.filter(p => p.rating >= minRating)
 
+    // Filter by stock
+    if (inStockOnly) {
+      filtered = filtered.filter(p => p.stock > 0)
+    }
+
     // Sort
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
@@ -397,7 +405,7 @@ export default function ProductsPage() {
     })
 
     return sorted
-  }, [selectedCategory, searchQuery, priceRange, minRating, sortBy])
+  }, [selectedCategory, searchQuery, priceRange, minRating, sortBy, inStockOnly])
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage)
@@ -444,6 +452,7 @@ export default function ProductsPage() {
     setPriceRange([0, 100000])
     setMinRating(0)
     setSearchQuery('')
+    setInStockOnly(false)
   }
 
   return (
@@ -591,6 +600,39 @@ export default function ProductsPage() {
                 </div>
               </div>
 
+              {/* In Stock Filter - NEW */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                <h3 className="font-bold text-slate-900 mb-4">التوفر</h3>
+                <button
+                  onClick={() => setInStockOnly(!inStockOnly)}
+                  className={`w-full flex items-center justify-between p-4 rounded-xl transition-all ${
+                    inStockOnly 
+                      ? 'bg-green-50 border-2 border-green-500' 
+                      : 'bg-gray-50 border-2 border-transparent hover:border-gray-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                      inStockOnly ? 'bg-green-500 border-green-500' : 'border-gray-300'
+                    }`}>
+                      {inStockOnly && (
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className={`text-sm font-bold ${inStockOnly ? 'text-green-700' : 'text-gray-700'}`}>
+                      المنتجات المتوفرة فقط
+                    </span>
+                  </div>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    inStockOnly ? 'bg-green-100' : 'bg-gray-100'
+                  }`}>
+                    <ArchiveBoxIcon className={`w-5 h-5 ${inStockOnly ? 'text-green-600' : 'text-gray-500'}`} />
+                  </div>
+                </button>
+              </div>
+
             </div>
           </aside>
 
@@ -607,48 +649,78 @@ export default function ProductsPage() {
                   type="text"
                   placeholder="ابحث عن اسم المنتج..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    setSelectedSuggestionIndex(-1)
+                  }}
                   onFocus={() => setSearchFocused(true)}
                   onKeyDown={(e) => {
+                    const suggestions = searchQuery ? searchSuggestions : recentSearches
+                    
                     if (e.key === 'Enter') {
-                      handleSearchSubmit(searchQuery)
+                      if (selectedSuggestionIndex >= 0 && suggestions[selectedSuggestionIndex]) {
+                        handleSearchSubmit(suggestions[selectedSuggestionIndex])
+                      } else {
+                        handleSearchSubmit(searchQuery)
+                      }
+                    } else if (e.key === 'ArrowDown') {
+                      e.preventDefault()
+                      setSelectedSuggestionIndex(prev => 
+                        prev < suggestions.length - 1 ? prev + 1 : prev
+                      )
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault()
+                      setSelectedSuggestionIndex(prev => prev > -1 ? prev - 1 : -1)
+                    } else if (e.key === 'Escape') {
+                      setSearchFocused(false)
+                      setSelectedSuggestionIndex(-1)
                     }
                   }}
-                  className="w-full bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 rounded-xl py-3 pr-12 pl-12 text-sm transition-all shadow-inner"
+                  className="w-full bg-gray-50 border-2 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 rounded-xl py-3 pr-12 pl-12 text-sm transition-all shadow-inner"
                 />
                 
                 {/* Clear Search Button */}
                 {searchQuery && (
                   <button
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => {
+                      setSearchQuery('')
+                      setSelectedSuggestionIndex(-1)
+                    }}
                     className="absolute left-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors z-10"
                   >
                     <XMarkIcon className="w-4 h-4 text-gray-500" />
                   </button>
                 )}
 
-                {/* Search Dropdown */}
+                {/* Enhanced Search Dropdown */}
                 <AnimatePresence>
                   {searchFocused && (
                     <>
                       {/* Backdrop */}
                       <div
                         className="fixed inset-0 z-20"
-                        onClick={() => setSearchFocused(false)}
+                        onClick={() => {
+                          setSearchFocused(false)
+                          setSelectedSuggestionIndex(-1)
+                        }}
                       />
 
                       {/* Dropdown Content */}
                       <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 z-30 max-h-96 overflow-hidden"
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 z-30 max-h-96 overflow-hidden"
                       >
                         {/* Search Suggestions (if typing) */}
                         {searchQuery && searchSuggestions.length > 0 && (
                           <div className="border-b border-gray-100">
-                            <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">
-                              اقتراحات البحث
+                            <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center gap-2">
+                              <SparklesIcon className="w-4 h-4 text-blue-600" />
+                              <span className="text-xs font-bold text-blue-900 uppercase tracking-wide">
+                                اقتراحات البحث
+                              </span>
                             </div>
                             {searchSuggestions.map((suggestion, index) => (
                               <button
@@ -656,25 +728,47 @@ export default function ProductsPage() {
                                 onClick={() => {
                                   handleSearchSubmit(suggestion)
                                 }}
-                                className="w-full text-right px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 group"
+                                className={`w-full text-right px-4 py-3 transition-all flex items-center gap-3 group ${
+                                  selectedSuggestionIndex === index 
+                                    ? 'bg-amber-50 border-r-4 border-amber-500' 
+                                    : 'hover:bg-gray-50'
+                                }`}
                               >
-                                <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 group-hover:text-amber-500" />
-                                <span className="text-sm text-slate-900">{suggestion}</span>
+                                <MagnifyingGlassIcon className={`w-4 h-4 transition-colors ${
+                                  selectedSuggestionIndex === index ? 'text-amber-600' : 'text-gray-400 group-hover:text-amber-500'
+                                }`} />
+                                <span className="text-sm text-slate-900 font-medium">{suggestion}</span>
                               </button>
                             ))}
+                          </div>
+                        )}
+
+                        {/* No Results */}
+                        {searchQuery && searchSuggestions.length === 0 && (
+                          <div className="px-4 py-8 text-center">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                              <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <p className="text-sm text-gray-600 font-medium">لا توجد نتائج لـ "{searchQuery}"</p>
+                            <p className="text-xs text-gray-400 mt-1">جرب كلمات بحث أخرى</p>
                           </div>
                         )}
 
                         {/* Recent Searches */}
                         {!searchQuery && recentSearches.length > 0 && (
                           <div className="border-b border-gray-100">
-                            <div className="px-4 py-2 flex items-center justify-between">
-                              <span className="text-xs font-bold text-gray-500 uppercase">
-                                عمليات البحث الأخيرة
-                              </span>
+                            <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-pink-50 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="text-xs font-bold text-purple-900 uppercase tracking-wide">
+                                  عمليات البحث الأخيرة
+                                </span>
+                              </div>
                               <button
                                 onClick={clearRecentSearches}
-                                className="text-xs text-rose-600 hover:text-rose-700 font-medium"
+                                className="text-xs text-rose-600 hover:text-rose-700 font-bold hover:underline"
                               >
                                 مسح الكل
                               </button>
@@ -685,12 +779,18 @@ export default function ProductsPage() {
                                 onClick={() => {
                                   handleSearchSubmit(search)
                                 }}
-                                className="w-full text-right px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3 group"
+                                className={`w-full text-right px-4 py-3 transition-all flex items-center gap-3 group ${
+                                  selectedSuggestionIndex === index 
+                                    ? 'bg-purple-50 border-r-4 border-purple-500' 
+                                    : 'hover:bg-gray-50'
+                                }`}
                               >
-                                <svg className="w-4 h-4 text-gray-400 group-hover:text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className={`w-4 h-4 transition-colors ${
+                                  selectedSuggestionIndex === index ? 'text-purple-600' : 'text-gray-400 group-hover:text-purple-500'
+                                }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span className="text-sm text-slate-900">{search}</span>
+                                <span className="text-sm text-slate-900 font-medium">{search}</span>
                               </button>
                             ))}
                           </div>
@@ -698,18 +798,24 @@ export default function ProductsPage() {
 
                         {/* Popular Searches */}
                         {!searchQuery && (
-                          <div>
-                            <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">
-                              عمليات بحث شائعة
+                          <div className="p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06zM18.584 5.106a.75.75 0 011.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 11-1.06-1.06 8.25 8.25 0 000-11.668.75.75 0 010-1.06z" />
+                                <path d="M15.932 7.757a.75.75 0 011.061 0 6 6 0 010 8.486.75.75 0 01-1.06-1.061 4.5 4.5 0 000-6.364.75.75 0 010-1.06z" />
+                              </svg>
+                              <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+                                عمليات بحث شائعة
+                              </span>
                             </div>
-                            <div className="px-4 pb-4 flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2">
                               {POPULAR_SEARCHES.map((search, index) => (
                                 <button
                                   key={index}
                                   onClick={() => {
                                     handleSearchSubmit(search)
                                   }}
-                                  className="px-3 py-1.5 bg-gray-100 hover:bg-slate-900 hover:text-amber-400 text-gray-700 rounded-full text-sm font-medium transition-colors"
+                                  className="px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-slate-900 hover:to-slate-800 hover:text-amber-400 text-gray-700 rounded-xl text-sm font-bold transition-all border border-gray-200 hover:border-transparent shadow-sm hover:shadow-md"
                                 >
                                   {search}
                                 </button>
@@ -750,7 +856,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Results Count & Active Filters - Enhanced */}
-            {(searchQuery || selectedCategory !== 'all' || minRating > 0 || priceRange[0] > 0 || priceRange[1] < 100000) && (
+            {(searchQuery || selectedCategory !== 'all' || minRating > 0 || priceRange[0] > 0 || priceRange[1] < 100000 || inStockOnly) && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -774,12 +880,7 @@ export default function ProductsPage() {
 
                   {/* Clear All Filters */}
                   <button
-                    onClick={() => {
-                      setSearchQuery('')
-                      setSelectedCategory('all')
-                      setMinRating(0)
-                      setPriceRange([0, 100000])
-                    }}
+                    onClick={resetFilters}
                     className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
                   >
                     <XMarkIcon className="w-4 h-4" />
@@ -870,6 +971,25 @@ export default function ProductsPage() {
                           <button
                             onClick={() => setMinRating(0)}
                             className="hover:bg-green-100 rounded-full p-0.5 transition-colors"
+                          >
+                            <XMarkIcon className="w-3.5 h-3.5" />
+                          </button>
+                        </motion.div>
+                      )}
+
+                      {/* In Stock Chip */}
+                      {inStockOnly && (
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.8, opacity: 0 }}
+                          className="flex items-center gap-2 bg-gradient-to-r from-teal-50 to-cyan-50 border border-teal-200 text-teal-900 px-3 py-2 rounded-xl text-sm font-medium"
+                        >
+                          <ArchiveBoxIcon className="w-4 h-4 text-teal-600" />
+                          <span>متوفر فقط</span>
+                          <button
+                            onClick={() => setInStockOnly(false)}
+                            className="hover:bg-teal-100 rounded-full p-0.5 transition-colors"
                           >
                             <XMarkIcon className="w-3.5 h-3.5" />
                           </button>
