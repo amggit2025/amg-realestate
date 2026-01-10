@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useWishlist } from '@/contexts/WishlistContext'
-import { HeartIcon, XMarkIcon, ShoppingBagIcon } from '@heroicons/react/24/outline'
+import { HeartIcon, XMarkIcon, ShoppingBagIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid'
 import { useState } from 'react'
 import { useCart } from '@/contexts/CartContext'
@@ -60,78 +60,94 @@ export default function WishlistIcon() {
 
             {/* Dropdown */}
             <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              initial={{ opacity: 0, y: 10, x: '-50%', scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
+              exit={{ opacity: 0, y: 10, x: '-50%', scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute left-1/2 -translate-x-1/2 mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-40 max-h-[500px] overflow-hidden flex flex-col"
+              className="absolute left-1/2 top-full mt-3 w-[300px] sm:w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden flex flex-col items-center"
+              style={{ transform: 'translateX(-50%)' }}
             >
+              {/* Arrow Tooltip */}
+              <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100 z-0"></div>
+
               {/* Header */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-rose-50 to-pink-50">
+              <div className="relative w-full p-4 border-b border-gray-100 flex items-center justify-between bg-white z-10">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center">
-                    <HeartSolidIcon className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900">المفضلة</h3>
+                  <h3 className="text-base font-bold text-slate-900">المفضلة</h3>
+                  <span className="bg-rose-100 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {wishlistCount}
+                  </span>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  <XMarkIcon className="w-5 h-5 text-gray-500" />
+                  <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Content */}
               {items.length === 0 ? (
-                <div className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <HeartIcon className="w-8 h-8 text-rose-400" />
+                <div className="p-8 pb-10 text-center w-full">
+                  <div className="relative w-20 h-20 mx-auto mb-4">
+                     <span className="absolute inset-0 bg-blue-100/50 rounded-full scale-110 animate-pulse"></span>
+                     <div className="relative w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center">
+                        <HeartIcon className="w-9 h-9 text-blue-400" />
+                     </div>
                   </div>
-                  <p className="text-gray-500 font-medium mb-2">لا توجد منتجات مفضلة</p>
-                  <p className="text-sm text-gray-400 mb-4">ابدأ بإضافة منتجات إلى المفضلة</p>
+                  <h4 className="text-gray-900 font-bold mb-2">قائمة الرغبات فارغة</h4>
+                  <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                    استكشف منتجاتنا المميزة وأضف ما يعجبك هنا
+                  </p>
                   <Link
                     href="/store/products"
                     onClick={() => setIsOpen(false)}
-                    className="inline-block bg-slate-900 text-amber-400 px-6 py-2 rounded-lg font-bold hover:bg-slate-800 transition-colors"
+                    className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-slate-800 transition-all hover:shadow-lg hover:-translate-y-0.5"
                   >
-                    تصفح المنتجات
+                    تصفح المتجر
+                    <span className="text-lg">🛍️</span>
                   </Link>
                 </div>
               ) : (
                 <>
                   {/* Items List */}
-                  <div className="max-h-96 overflow-y-auto">
+                  <div className="max-h-[350px] overflow-y-auto w-full px-2 py-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-200">
+                    <AnimatePresence mode="popLayout">
                     {items.slice(0, 3).map((item) => (
-                      <div
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
                         key={item.id}
-                        className="flex gap-3 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                        className="group flex gap-3 p-3 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-200"
                       >
+                        {/* Image */}
                         <Link
                           href={`/store/products/${item.id}`}
                           onClick={() => setIsOpen(false)}
-                          className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden"
+                          className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
                         >
                           <Image
                             src={item.image}
                             alt={item.name}
                             fill
-                            className="object-cover"
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                         </Link>
 
-                        <div className="flex-1 min-w-0">
+                        {/* Details */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
                           <Link
                             href={`/store/products/${item.id}`}
                             onClick={() => setIsOpen(false)}
                           >
-                            <h4 className="font-bold text-slate-900 text-sm mb-1 line-clamp-1 hover:text-amber-600 transition-colors">
+                            <h4 className="font-bold text-slate-900 text-sm truncate group-hover:text-blue-600 transition-colors">
                               {item.name}
                             </h4>
                           </Link>
-                          <p className="text-xs text-gray-500 mb-2">{item.category}</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-black text-slate-900">
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-sm font-bold text-slate-800">
                               {item.price.toLocaleString('ar-EG')} جنيه
                             </span>
                             {item.originalPrice && item.originalPrice > item.price && (
@@ -142,14 +158,15 @@ export default function WishlistIcon() {
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-2">
+                        {/* Actions */}
+                        <div className="flex flex-col justify-center gap-1.5 pl-1">
                           <button
                             onClick={() => handleAddToCart(item)}
                             disabled={!item.inStock}
-                            className={`p-2 rounded-lg transition-all ${
+                            className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
                               item.inStock
-                                ? 'hover:bg-slate-900 hover:text-amber-400 text-slate-900'
-                                : 'text-gray-400 cursor-not-allowed'
+                                ? 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white hover:shadow-sm'
+                                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
                             }`}
                             title={item.inStock ? 'أضف للسلة' : 'غير متوفر'}
                           >
@@ -157,24 +174,28 @@ export default function WishlistIcon() {
                           </button>
                           <button
                             onClick={() => removeFromWishlist(item.id)}
-                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all hover:shadow-sm"
                             title="حذف من المفضلة"
                           >
-                            <HeartSolidIcon className="w-4 h-4" />
+                            <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
+                    </AnimatePresence>
                   </div>
 
                   {/* Footer */}
-                  <div className="p-4 bg-gray-50 border-t border-gray-100">
+                  <div className="p-3 w-full bg-gray-50/80 border-t border-gray-100 backdrop-blur-sm">
                     <Link
                       href="/store/wishlist"
                       onClick={() => setIsOpen(false)}
-                      className="block w-full text-center bg-slate-900 text-amber-400 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-lg hover:border-blue-500 hover:text-blue-600 hover:shadow-md transition-all text-sm group"
                     >
-                      عرض كل المفضلة ({wishlistCount})
+                      <span>عرض كل المنتجات</span>
+                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                        {wishlistCount}
+                      </span>
                     </Link>
                   </div>
                 </>
