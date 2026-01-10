@@ -161,9 +161,9 @@ export default function Header() {
       {/* Main Navigation */}
       <nav className="bg-white backdrop-blur-md border-b border-gray-200 shadow-sm" aria-label="Global">
         <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center h-16 gap-20">
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
-          <Link href="/" className="-m-1.5 p-1.5">
+          <Link href="/" className="-m-1.5 p-1.5 shrink-0">
             <motion.div
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
@@ -195,11 +195,11 @@ export default function Header() {
           </div>
 
           {/* Auth Buttons & Icons (Right Side) */}
-          <div className="flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             {/* Show skeleton/placeholder until mounted to prevent hydration mismatch */}
             {!mounted ? (
               // Server-side placeholder - same structure always
-              <div className="hidden lg:flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse"></div>
                 <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse"></div>
                 <div className="h-8 w-20 bg-gray-100 rounded-lg animate-pulse"></div>
@@ -207,7 +207,7 @@ export default function Header() {
               </div>
             ) : (
               // Client-side - render actual content based on auth state
-              <div className="hidden lg:flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 {/* Notification Bell - Only for authenticated users */}
                 {isAuthenticated && user && (
                   <NotificationBell />
@@ -220,19 +220,19 @@ export default function Header() {
                 <CartIcon />
 
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-200 mx-1"></div>
+                  <div className="hidden lg:block h-8 w-px bg-gray-200 mx-1"></div>
 
                   {/* Store Button - Icon Only */}
                   <Link
                     href="/store"
-                    className="relative p-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-colors"
+                    className="hidden lg:flex relative p-2 bg-slate-900 text-amber-400 rounded-lg hover:bg-slate-800 transition-colors"
                     title="المتجر"
                   >
                     <ShoppingBagIcon className="w-5 h-5" />
                   </Link>
 
                   {/* Requests Dropdown */}
-                  <div className="relative requests-menu-container">
+                  <div className="hidden lg:block relative requests-menu-container">
                     <button
                        onClick={toggleRequestsMenu}
                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200 whitespace-nowrap text-xs font-medium"
@@ -273,9 +273,10 @@ export default function Header() {
                   </div>
 
                   {/* Divider */}
-                  <div className="h-8 w-px bg-gray-200 mx-1"></div>
+                  <div className="hidden lg:block h-8 w-px bg-gray-200 mx-1"></div>
                 
                   {/* User Menu or Login Button */}
+                  <div className="hidden lg:block">
                   {!isAuthenticated || !user ? (
                     <Link
                       href="/auth/login"
@@ -359,6 +360,7 @@ export default function Header() {
                       </AnimatePresence>
                     </div>
                   )}
+                  </div>
               </div>
             )}
           </div>
